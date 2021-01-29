@@ -15,6 +15,10 @@ public class Teacher extends Person {
         this.scienceDegree = builder.scienceDegree;
     }
 
+    public static Builder builder() {
+        return new Builder();
+    }
+
     public String getLinkedin() {
         return linkedin;
     }
