@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 
-@Repository("buildingDao")
+@Repository
 public class BuildingDaoImpl extends AbstractDaoImpl<Building> implements BuildingDao {
     private static final String SAVE_QUERY = "INSERT INTO buildings(address) VALUES(?)";
     private static final String FIND_ALL_QUERY = "SELECT * FROM buildings";

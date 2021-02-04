@@ -48,7 +48,7 @@ public class StudentDaoImpl extends AbstractDaoImpl<Student> implements StudentD
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
+        System.out.println(dataSource);this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
     @Override
