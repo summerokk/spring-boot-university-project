@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 
-@Repository
+@Repository("buildingDao")
 public class BuildingDaoImpl extends AbstractDaoImpl<Building> implements BuildingDao {
     private static final String SAVE_QUERY = "INSERT INTO buildings(address) VALUES(?)";
     private static final String FIND_ALL_QUERY = "SELECT * FROM buildings";
@@ -18,7 +18,7 @@ public class BuildingDaoImpl extends AbstractDaoImpl<Building> implements Buildi
     private static final String UPDATE_QUERY = "UPDATE buildings SET address = ? WHERE id = ?";
 
     private static final RowMapper<Building> ROW_MAPPER = (resultSet, rowNum) ->
-            new Building(resultSet.getInt(1), resultSet.getString("name"));
+            new Building(resultSet.getInt(1), resultSet.getString("address"));
 
     public BuildingDaoImpl() {
         super(ROW_MAPPER, FIND_BY_ID_QUERY, FIND_ALL_QUERY, DELETE_BY_ID_QUERY);

@@ -13,7 +13,7 @@ public abstract class AbstractDaoImpl<E> implements CrudDao<E, Integer> {
     private final String findAllQuery;
     private final String deleteByIdQuery;
 
-    public AbstractDaoImpl(RowMapper<E> rowMapper, String findByIdQuery, String findAllQuery, String deleteByIdQuery) {
+    protected AbstractDaoImpl(RowMapper<E> rowMapper, String findByIdQuery, String findAllQuery, String deleteByIdQuery) {
         this.rowMapper = rowMapper;
         this.findByIdQuery = findByIdQuery;
         this.findAllQuery = findAllQuery;

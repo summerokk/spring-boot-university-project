@@ -11,8 +11,8 @@ import javax.sql.DataSource;
 
 @Repository("studentDao")
 public class StudentDaoImpl extends AbstractDaoImpl<Student> implements StudentDao {
-    private static final String SAVE_QUERY = "INSERT INTO students(first_name, last_name, email, password, group_id " +
-            "VALUES(?, ?, ?, ?, ?, ?, ?)";
+    private static final String SAVE_QUERY = "INSERT INTO students(first_name, last_name, email, password, group_id) " +
+            "VALUES(?, ?, ?, ?, ?)";
     private static final String FIND_ALL_QUERY = "SELECT s.*, g.id as group_id, g.name as group_name, " +
             "f.id as faculty_id, f.name faculty_name " +
             "FROM students s " +
@@ -48,7 +48,7 @@ public class StudentDaoImpl extends AbstractDaoImpl<Student> implements StudentD
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
-        System.out.println(dataSource);this.jdbcTemplate = new JdbcTemplate(dataSource);
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
     @Override
