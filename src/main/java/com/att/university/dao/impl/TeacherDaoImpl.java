@@ -1,9 +1,10 @@
 package com.att.university.dao.impl;
 
 import com.att.university.dao.TeacherDao;
-import com.att.university.entity.*;
+import com.att.university.entity.Teacher;
+import com.att.university.entity.AcademicRank;
+import com.att.university.entity.ScienceDegree;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
@@ -18,11 +19,17 @@ public class TeacherDaoImpl extends AbstractDaoImpl<Teacher> implements TeacherD
             "       sc.id as science_degree_id, sc.name as science_degree_name " +
             "FROM teachers t" +
             "    JOIN academic_ranks ar on ar.id = t.academic_rank_id" +
-            "    JOIN science_degrees sc on t.science_degree_id = sc.id";
-    private static final String FIND_BY_ID_QUERY = FIND_ALL_QUERY + " WHERE t.id = ?";
-    private static final String DELETE_BY_ID_QUERY = "DELETE FROM lessons WHERE id = ?";
+            "    JOIN science_degrees sc on t.science_degree_id = sc.id OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+    private static final String FIND_BY_ID_QUERY = "SELECT t.*, " +
+            "       ar.id as academic_rank_id, ar.name as academic_rank_name," +
+            "       sc.id as science_degree_id, sc.name as science_degree_name " +
+            "FROM teachers t" +
+            "    JOIN academic_ranks ar on ar.id = t.academic_rank_id" +
+            "    JOIN science_degrees sc on t.science_degree_id = sc.id WHERE t.id = ?";
+    private static final String DELETE_BY_ID_QUERY = "DELETE FROM teachers WHERE id = ?";
     private static final String UPDATE_QUERY = "UPDATE teachers SET first_name = ?, last_name = ?, email = ?, " +
             "password = ?, linkedin = ?, academic_rank_id = ?, science_degree_id = ?  WHERE id = ?";
+    private static final String COUNT_QUERY = "SELECT COUNT(*) FROM teachers";
 
     private static final RowMapper<Teacher> ROW_MAPPER = (resultSet, rowNum) -> {
         AcademicRank academicRank = new AcademicRank(
@@ -47,13 +54,9 @@ public class TeacherDaoImpl extends AbstractDaoImpl<Teacher> implements TeacherD
                 .build();
     };
 
-    public TeacherDaoImpl() {
-        super(ROW_MAPPER, FIND_BY_ID_QUERY, FIND_ALL_QUERY, DELETE_BY_ID_QUERY);
-    }
-
     @Autowired
-    public void setDataSource(DataSource dataSource) {
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
+    public TeacherDaoImpl(DataSource dataSource) {
+        super(dataSource, ROW_MAPPER, FIND_BY_ID_QUERY, FIND_ALL_QUERY, DELETE_BY_ID_QUERY, COUNT_QUERY);
     }
 
     @Override

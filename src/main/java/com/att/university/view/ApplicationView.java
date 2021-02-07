@@ -1,5 +1,6 @@
 package com.att.university.view;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Scanner;
@@ -8,8 +9,9 @@ import java.util.Scanner;
 public class ApplicationView {
     private final Scanner scanner;
 
-    public ApplicationView() {
-        this.scanner = new Scanner(System.in);
+    @Autowired
+    public ApplicationView(Scanner scanner) {
+        this.scanner = scanner;
     }
 
     public void printMessage(String message) {

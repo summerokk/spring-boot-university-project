@@ -1,12 +1,17 @@
 package com.att.university.controller;
 
+import com.att.university.dao.AcademicRankDao;
 import com.att.university.dao.BuildingDao;
 import com.att.university.dao.GroupDao;
+import com.att.university.dao.ScienceDegreeDao;
 import com.att.university.dao.StudentDao;
+import com.att.university.dao.TeacherDao;
+import com.att.university.entity.AcademicRank;
 import com.att.university.entity.Group;
+import com.att.university.entity.ScienceDegree;
 import com.att.university.entity.Student;
+import com.att.university.entity.Teacher;
 import com.att.university.view.ApplicationView;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -14,17 +19,24 @@ import java.util.Map;
 
 @Component
 public class FrontController {
-    @Autowired
-    private BuildingDao buildingDao;
+    private final BuildingDao buildingDao;
+    private final StudentDao studentDao;
+    private final TeacherDao teacherDao;
+    private final GroupDao groupDao;
+    private final ScienceDegreeDao scienceDegreeDao;
+    private final AcademicRankDao academicRankDao;
+    private final ApplicationView view;
 
-    @Autowired
-    private StudentDao studentDao;
-
-    @Autowired
-    private GroupDao groupDao;
-
-    @Autowired
-    private ApplicationView view;
+    public FrontController(BuildingDao buildingDao, StudentDao studentDao, TeacherDao teacherDao, GroupDao groupDao,
+                           ScienceDegreeDao scienceDegreeDao, AcademicRankDao academicRankDao, ApplicationView view) {
+        this.buildingDao = buildingDao;
+        this.studentDao = studentDao;
+        this.teacherDao = teacherDao;
+        this.groupDao = groupDao;
+        this.scienceDegreeDao = scienceDegreeDao;
+        this.academicRankDao = academicRankDao;
+        this.view = view;
+    }
 
     public void runApplication() {
         int command;
@@ -42,6 +54,9 @@ public class FrontController {
         switch (command) {
             case 1:
                 addStudent();
+                break;
+            case 2:
+                addTeacher();
                 break;
             case 0:
                 view.printMessage("Good Bye!");
@@ -65,7 +80,7 @@ public class FrontController {
         String password = view.readStringValue();
 
         view.printMessage("Enter student's group id: ");
-        System.out.println(groupDao.findAll());
+        System.out.println(groupDao.findAll(1, groupDao.count()));
         Integer groupId = view.readIntValue();
         Group group = groupDao.findById(groupId);
 
@@ -78,6 +93,45 @@ public class FrontController {
                 .build());
 
         view.printMessage("The student has been created");
+    }
+
+    private void addTeacher() {
+        view.printMessage("Enter teacher's firstName: ");
+        String firstName = view.readStringValue();
+
+        view.printMessage("Enter teacher's lastName: ");
+        String lastName = view.readStringValue();
+
+        view.printMessage("Enter teacher's email: ");
+        String email = view.readStringValue();
+
+        view.printMessage("Enter teacher's password: ");
+        String password = view.readStringValue();
+
+        view.printMessage("Enter teacher's linkedin: ");
+        String linkedin = view.readStringValue();
+
+        view.printMessage("Enter science degree id: ");
+        System.out.println(scienceDegreeDao.findAll(1, groupDao.count()));
+        Integer scienceDegreeId = view.readIntValue();
+        ScienceDegree scienceDegree = scienceDegreeDao.findById(scienceDegreeId);
+
+        view.printMessage("Enter academic rank id: ");
+        System.out.println(academicRankDao.findAll(1, groupDao.count()));
+        Integer academicRankId = view.readIntValue();
+        AcademicRank academicRank = academicRankDao.findById(academicRankId);
+
+        teacherDao.save(Teacher.builder()
+                .withFirstName(firstName)
+                .withLastName(lastName)
+                .withEmail(email)
+                .withPassword(password)
+                .withLinkedin(linkedin)
+                .withScienceDegree(scienceDegree)
+                .withAcademicRank(academicRank)
+                .build());
+
+        view.printMessage("The teacher has been created");
     }
 
     private void printMenu() {

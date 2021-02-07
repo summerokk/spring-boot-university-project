@@ -1,3 +1,14 @@
+DROP TABLE IF EXISTS academic_ranks;
+DROP TABLE IF EXISTS groups;
+DROP TABLE IF EXISTS students;
+DROP TABLE IF EXISTS teachers;
+DROP TABLE IF EXISTS courses;
+DROP TABLE IF EXISTS faculties;
+DROP TABLE IF EXISTS buildings;
+DROP TABLE IF EXISTS classrooms;
+DROP TABLE IF EXISTS science_degrees;
+DROP TABLE IF EXISTS lessons;
+
 CREATE TABLE academic_ranks
 (
     id   SERIAL,

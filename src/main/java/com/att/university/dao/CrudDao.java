@@ -11,7 +11,9 @@ public interface CrudDao<E, I> {
 
     void deleteById(I id);
 
-    List<E> findAll();
+    List<E> findAll(int page, int count);
 
     void update(E entity);
+
+    int count();
 }

@@ -12,7 +12,6 @@ import com.att.university.entity.AcademicRank;
 import com.att.university.entity.Teacher;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
@@ -35,11 +34,25 @@ public class LessonDaoImpl extends AbstractDaoImpl<Lesson> implements LessonDao 
             "    JOIN academic_ranks ar on ar.id = t.academic_rank_id" +
             "    JOIN science_degrees sc on t.science_degree_id = sc.id" +
             "    JOIN groups g on l.group_id = g.id" +
-            "    JOIN faculties f on g.faculty_id = f.id";
-    private static final String FIND_BY_ID_QUERY = FIND_ALL_QUERY + " WHERE l.id = ?";
+            "    JOIN faculties f on g.faculty_id = f.id OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+    private static final String FIND_BY_ID_QUERY = "SELECT group_id, l.id as id, classroom_id, teacher_id, date, " +
+            "       c.name course_name, course_id, f.id as faculty_id, f.name faculty_name, b.id as building_id, " +
+            "       b.address building_address, g.name as group_name, first_name, last_name, c2.number as number, " +
+            "       linkedin, email, password, ar.id as academic_rank_id, ar.name as academic_rank_name," +
+            "       sc.id as science_degree_id, sc.name as science_degree_name " +
+            "FROM lessons l" +
+            "    JOIN courses c on l.course_id = c.id" +
+            "    JOIN classrooms c2 on c2.id = l.classroom_id" +
+            "    JOIN buildings b on b.id = c2.building_id" +
+            "    JOIN teachers t on l.teacher_id = t.id" +
+            "    JOIN academic_ranks ar on ar.id = t.academic_rank_id" +
+            "    JOIN science_degrees sc on t.science_degree_id = sc.id" +
+            "    JOIN groups g on l.group_id = g.id" +
+            "    JOIN faculties f on g.faculty_id = f.id WHERE l.id = ?";
     private static final String DELETE_BY_ID_QUERY = "DELETE FROM lessons WHERE id = ?";
     private static final String UPDATE_QUERY = "UPDATE lessons SET course_id = ?, group_id = ?, teacher_id = ?, " +
             "date = ?, classroom_id = ? WHERE id = ?";
+    private static final String COUNT_QUERY = "SELECT COUNT(*) FROM lessons";
 
     private static final RowMapper<Lesson> ROW_MAPPER = (resultSet, rowNum) -> {
 
@@ -93,13 +106,9 @@ public class LessonDaoImpl extends AbstractDaoImpl<Lesson> implements LessonDao 
                 .build();
     };
 
-    public LessonDaoImpl() {
-        super(ROW_MAPPER, FIND_BY_ID_QUERY, FIND_ALL_QUERY, DELETE_BY_ID_QUERY);
-    }
-
     @Autowired
-    public void setDataSource(DataSource dataSource) {
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
+    public LessonDaoImpl(DataSource dataSource) {
+        super(dataSource, ROW_MAPPER, FIND_BY_ID_QUERY, FIND_ALL_QUERY, DELETE_BY_ID_QUERY, COUNT_QUERY);
     }
 
     @Override

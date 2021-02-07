@@ -3,7 +3,6 @@ package com.att.university.dao.impl;
 import com.att.university.dao.ScienceDegreeDao;
 import com.att.university.entity.ScienceDegree;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
@@ -12,10 +11,11 @@ import javax.sql.DataSource;
 @Repository("scienceDegree")
 public class ScienceDegreeImpl extends AbstractDaoImpl<ScienceDegree> implements ScienceDegreeDao {
     private static final String SAVE_QUERY = "INSERT INTO science_degrees(name) VALUES(?)";
-    private static final String FIND_ALL_QUERY = "SELECT * FROM science_degrees";
-    private static final String FIND_BY_ID_QUERY = FIND_ALL_QUERY + " WHERE id = ?";
+    private static final String FIND_ALL_QUERY = "SELECT * FROM science_degrees OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+    private static final String FIND_BY_ID_QUERY = "SELECT * FROM science_degrees WHERE id = ?";
     private static final String DELETE_BY_ID_QUERY = "DELETE FROM science_degrees WHERE id = ?";
     private static final String UPDATE_QUERY = "UPDATE science_degrees SET name = ? WHERE id = ?";
+    private static final String COUNT_QUERY = "SELECT COUNT(*) FROM science_degrees";
 
     private static final RowMapper<ScienceDegree> ROW_MAPPER = (resultSet, rowNum) ->
             new ScienceDegree(
@@ -23,13 +23,9 @@ public class ScienceDegreeImpl extends AbstractDaoImpl<ScienceDegree> implements
                     resultSet.getString("name")
             );
 
-    public ScienceDegreeImpl() {
-        super(ROW_MAPPER, FIND_BY_ID_QUERY, FIND_ALL_QUERY, DELETE_BY_ID_QUERY);
-    }
-
     @Autowired
-    public void setDataSource(DataSource dataSource) {
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
+    public ScienceDegreeImpl(DataSource dataSource) {
+        super(dataSource, ROW_MAPPER, FIND_BY_ID_QUERY, FIND_ALL_QUERY, DELETE_BY_ID_QUERY, COUNT_QUERY);
     }
 
     @Override
