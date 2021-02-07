@@ -116,7 +116,7 @@
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>libs/</classpathPrefix>
                             <mainClass>
-                                com.att.university.Main
+                                com.att.university.ConsoleUniversityApplication
                             </mainClass>
                         </manifest>
                     </archive>
@@ -129,7 +129,7 @@
                 <version>0.8.6</version>
                 <configuration>
                     <excludes>
-                        <exclude>**/*Main.class</exclude>
+                        <exclude>**/*ConsoleUniversityApplication</exclude>
                         <exclude>**/view/ApplicationView.class</exclude>
                         <exclude>**/entity/</exclude>
                     </excludes>

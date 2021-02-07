@@ -80,7 +80,7 @@ public class FrontController {
         String password = view.readStringValue();
 
         view.printMessage("Enter student's group id: ");
-        System.out.println(groupDao.findAll(1, groupDao.count()));
+        view.printMessage(groupDao.findAll(1, groupDao.count()));
         Integer groupId = view.readIntValue();
         Group group = groupDao.findById(groupId);
 

@@ -38,6 +38,6 @@ public class BuildingDaoImpl extends AbstractDaoImpl<Building> implements Buildi
 
     @Override
     public void update(Building building) {
-        this.jdbcTemplate.update(UPDATE_QUERY, building.getAddress());
+        this.jdbcTemplate.update(UPDATE_QUERY, building.getAddress(), building.getId());
     }
 }
