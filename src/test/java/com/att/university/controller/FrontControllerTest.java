@@ -1,7 +1,11 @@
 package com.att.university.controller;
 
+import com.att.university.dao.AcademicRankDao;
+import com.att.university.dao.BuildingDao;
 import com.att.university.dao.GroupDao;
+import com.att.university.dao.ScienceDegreeDao;
 import com.att.university.dao.StudentDao;
+import com.att.university.dao.TeacherDao;
 import com.att.university.entity.Faculty;
 import com.att.university.entity.Group;
 import com.att.university.entity.Student;
@@ -16,7 +20,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
@@ -25,13 +32,25 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 @ExtendWith(MockitoExtension.class)
 class FrontControllerTest {
     @Mock
-    private ApplicationView view;
+    private BuildingDao buildingDao;
 
     @Mock
     private StudentDao studentDao;
 
     @Mock
+    private TeacherDao teacherDao;
+
+    @Mock
     private GroupDao groupDao;
+
+    @Mock
+    private ScienceDegreeDao scienceDegreeDao;
+
+    @Mock
+    private AcademicRankDao academicRankDao;
+
+    @Mock
+    private ApplicationView view;
 
     @InjectMocks
     private FrontController frontController;
