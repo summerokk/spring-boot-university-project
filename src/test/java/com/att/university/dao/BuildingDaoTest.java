@@ -2,13 +2,19 @@ package com.att.university.dao;
 
 import com.att.university.Config;
 import com.att.university.entity.Building;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
+import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import javax.sql.DataSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -17,11 +23,20 @@ import java.util.List;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = Config.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @ActiveProfiles("test")
 class BuildingDaoTest {
     @Autowired
+    private DataSource dataSource;
+
+    @Autowired
     private BuildingDao buildingDao;
+
+    @AfterEach
+    void tearDown() {
+        ResourceDatabasePopulator databasePopulator = new ResourceDatabasePopulator();
+        databasePopulator.addScripts(new ClassPathResource("tables.sql"), new ClassPathResource("startData.sql"));
+        DatabasePopulatorUtils.execute(databasePopulator, dataSource);
+    }
 
     @Test
     void findAllShouldReturnResultWhenDatabaseHaveBuildings() {
@@ -42,9 +57,9 @@ class BuildingDaoTest {
 
     @Test
     void countShouldReturnResultWhenDatabaseHaveBuildings() {
-        int count = buildingDao.count();
+        int expected = 2;
 
-        assertEquals(count, buildingDao.count());
+        assertEquals(expected, buildingDao.count());
     }
 
     @Test

@@ -36,7 +36,7 @@ public class Config {
     @Profile("test")
     public DataSource dataSource() {
         return new EmbeddedDatabaseBuilder()
-                .setName("university_test")
+                .setName("university")
                 .setType(EmbeddedDatabaseType.H2)
                 .setScriptEncoding("UTF-8")
                 .ignoreFailedDrops(true)
