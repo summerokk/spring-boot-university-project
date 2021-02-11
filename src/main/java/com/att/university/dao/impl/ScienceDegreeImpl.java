@@ -3,6 +3,7 @@ package com.att.university.dao.impl;
 import com.att.university.dao.ScienceDegreeDao;
 import com.att.university.entity.ScienceDegree;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
@@ -24,8 +25,8 @@ public class ScienceDegreeImpl extends AbstractDaoImpl<ScienceDegree> implements
             );
 
     @Autowired
-    public ScienceDegreeImpl(DataSource dataSource) {
-        super(dataSource, ROW_MAPPER, FIND_BY_ID_QUERY, FIND_ALL_QUERY, DELETE_BY_ID_QUERY, COUNT_QUERY);
+    public ScienceDegreeImpl(JdbcTemplate jdbcTemplate) {
+        super(jdbcTemplate, ROW_MAPPER, FIND_BY_ID_QUERY, FIND_ALL_QUERY, DELETE_BY_ID_QUERY, COUNT_QUERY);
     }
 
     @Override

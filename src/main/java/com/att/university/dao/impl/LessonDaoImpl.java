@@ -12,6 +12,7 @@ import com.att.university.entity.AcademicRank;
 import com.att.university.entity.Teacher;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
@@ -107,8 +108,8 @@ public class LessonDaoImpl extends AbstractDaoImpl<Lesson> implements LessonDao 
     };
 
     @Autowired
-    public LessonDaoImpl(DataSource dataSource) {
-        super(dataSource, ROW_MAPPER, FIND_BY_ID_QUERY, FIND_ALL_QUERY, DELETE_BY_ID_QUERY, COUNT_QUERY);
+    public LessonDaoImpl(JdbcTemplate jdbcTemplate) {
+        super(jdbcTemplate, ROW_MAPPER, FIND_BY_ID_QUERY, FIND_ALL_QUERY, DELETE_BY_ID_QUERY, COUNT_QUERY);
     }
 
     @Override

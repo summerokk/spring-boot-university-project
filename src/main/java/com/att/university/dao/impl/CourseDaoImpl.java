@@ -3,6 +3,7 @@ package com.att.university.dao.impl;
 import com.att.university.dao.CourseDao;
 import com.att.university.entity.Course;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
@@ -21,8 +22,8 @@ public class CourseDaoImpl extends AbstractDaoImpl<Course> implements CourseDao 
             new Course(resultSet.getInt(1), resultSet.getString("name"));
 
     @Autowired
-    public CourseDaoImpl(DataSource dataSource) {
-        super(dataSource, ROW_MAPPER, FIND_BY_ID_QUERY, FIND_ALL_QUERY, DELETE_BY_ID_QUERY, COUNT_QUERY);
+    public CourseDaoImpl(JdbcTemplate jdbcTemplate) {
+        super(jdbcTemplate, ROW_MAPPER, FIND_BY_ID_QUERY, FIND_ALL_QUERY, DELETE_BY_ID_QUERY, COUNT_QUERY);
     }
 
     @Override
@@ -32,6 +33,6 @@ public class CourseDaoImpl extends AbstractDaoImpl<Course> implements CourseDao 
 
     @Override
     public void update(Course course) {
-        this.jdbcTemplate.update(UPDATE_QUERY, course.getName());
+        this.jdbcTemplate.update(UPDATE_QUERY, course.getName(), course.getId());
     }
 }

@@ -4,10 +4,9 @@ import com.att.university.dao.GroupDao;
 import com.att.university.entity.Faculty;
 import com.att.university.entity.Group;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-
-import javax.sql.DataSource;
 
 @Repository("groupDao")
 public class GroupDaoImpl extends AbstractDaoImpl<Group> implements GroupDao {
@@ -19,7 +18,7 @@ public class GroupDaoImpl extends AbstractDaoImpl<Group> implements GroupDao {
             "FROM groups g " +
             "JOIN faculties f on g.faculty_id = f.id WHERE g.id = ?";
     private static final String DELETE_BY_ID_QUERY = "DELETE FROM groups WHERE id = ?";
-    private static final String UPDATE_QUERY = "UPDATE groups SET name = ? and faculty_id = ? WHERE id = ?";
+    private static final String UPDATE_QUERY = "UPDATE groups SET name = ?, faculty_id = ? WHERE id = ?";
     private static final String COUNT_QUERY = "SELECT COUNT(*) FROM groups";
 
     private static final RowMapper<Group> ROW_MAPPER = (resultSet, rowNum) -> {
@@ -34,8 +33,8 @@ public class GroupDaoImpl extends AbstractDaoImpl<Group> implements GroupDao {
     };
 
     @Autowired
-    public GroupDaoImpl(DataSource dataSource) {
-        super(dataSource, ROW_MAPPER, FIND_BY_ID_QUERY, FIND_ALL_QUERY, DELETE_BY_ID_QUERY, COUNT_QUERY);
+    public GroupDaoImpl(JdbcTemplate jdbcTemplate) {
+        super(jdbcTemplate, ROW_MAPPER, FIND_BY_ID_QUERY, FIND_ALL_QUERY, DELETE_BY_ID_QUERY, COUNT_QUERY);
     }
 
     @Override

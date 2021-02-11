@@ -3,10 +3,9 @@ package com.att.university.dao.impl;
 import com.att.university.dao.FacultyDao;
 import com.att.university.entity.Faculty;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-
-import javax.sql.DataSource;
 
 @Repository("facultyDao")
 public class FacultyDaoImp extends AbstractDaoImpl<Faculty> implements FacultyDao {
@@ -21,8 +20,8 @@ public class FacultyDaoImp extends AbstractDaoImpl<Faculty> implements FacultyDa
             new Faculty(resultSet.getInt(1), resultSet.getString("name"));
 
     @Autowired
-    public FacultyDaoImp(DataSource dataSource) {
-        super(dataSource, ROW_MAPPER, FIND_BY_ID_QUERY, FIND_ALL_QUERY, DELETE_BY_ID_QUERY, COUNT_QUERY);
+    public FacultyDaoImp(JdbcTemplate jdbcTemplate) {
+        super(jdbcTemplate, ROW_MAPPER, FIND_BY_ID_QUERY, FIND_ALL_QUERY, DELETE_BY_ID_QUERY, COUNT_QUERY);
     }
 
     @Override
@@ -32,6 +31,6 @@ public class FacultyDaoImp extends AbstractDaoImpl<Faculty> implements FacultyDa
 
     @Override
     public void update(Faculty faculty) {
-        this.jdbcTemplate.update(UPDATE_QUERY, faculty.getName());
+        this.jdbcTemplate.update(UPDATE_QUERY, faculty.getName(), faculty.getId());
     }
 }

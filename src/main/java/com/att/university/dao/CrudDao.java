@@ -1,13 +1,14 @@
 package com.att.university.dao;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CrudDao<E, I> {
     void save(E entity);
 
     void saveAll(List<E> entities);
 
-    E findById(I id);
+    Optional<E> findById(I id);
 
     void deleteById(I id);
 

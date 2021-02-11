@@ -48,6 +48,10 @@ public class Lesson {
         return new Builder();
     }
 
+    public static Builder builder(Lesson lesson) {
+        return new Builder(lesson);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -76,7 +80,7 @@ public class Lesson {
                 ", teacher=" + teacher +
                 ", date=" + date +
                 ", classroom=" + classroom +
-                '}';
+                "}\n";
     }
 
     @Override
@@ -96,9 +100,19 @@ public class Lesson {
 
         }
 
+        private Builder(Lesson lesson) {
+            this.id = lesson.id;
+            this.course = lesson.course;
+            this.group = lesson.group;
+            this.teacher = lesson.teacher;
+            this.date = lesson.date;
+            this.classroom = lesson.classroom;
+        }
+
         public Lesson build() {
             return new Lesson(this);
         }
+
 
         public Builder withId(Integer id) {
             this.id = id;

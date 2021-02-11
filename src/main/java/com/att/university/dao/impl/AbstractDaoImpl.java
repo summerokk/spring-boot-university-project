@@ -1,10 +1,10 @@
 package com.att.university.dao.impl;
 
 import com.att.university.dao.CrudDao;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
-import javax.sql.DataSource;
 import java.sql.Types;
 import java.util.List;
 import java.util.Optional;
@@ -17,9 +17,9 @@ public abstract class AbstractDaoImpl<E> implements CrudDao<E, Integer> {
     private final String deleteByIdQuery;
     private final String countQuery;
 
-    protected AbstractDaoImpl(DataSource dataSource, RowMapper<E> rowMapper, String findByIdQuery, String findAllQuery,
-                              String deleteByIdQuery, String countQuery) {
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
+    protected AbstractDaoImpl(JdbcTemplate jdbcTemplate, RowMapper<E> rowMapper,
+                              String findByIdQuery, String findAllQuery, String deleteByIdQuery, String countQuery) {
+        this.jdbcTemplate = jdbcTemplate;
         this.rowMapper = rowMapper;
         this.findByIdQuery = findByIdQuery;
         this.findAllQuery = findAllQuery;
@@ -28,8 +28,12 @@ public abstract class AbstractDaoImpl<E> implements CrudDao<E, Integer> {
     }
 
     @Override
-    public E findById(Integer id) {
-        return this.jdbcTemplate.queryForObject(findByIdQuery, rowMapper, id);
+    public Optional<E> findById(Integer id) {
+        try {
+            return Optional.ofNullable(this.jdbcTemplate.queryForObject(findByIdQuery, rowMapper, id));
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
     }
 
     @Override
@@ -57,8 +61,8 @@ public abstract class AbstractDaoImpl<E> implements CrudDao<E, Integer> {
 
     @Override
     public int count() {
-        Optional<Integer> count = Optional.ofNullable(this.jdbcTemplate.queryForObject(countQuery, Integer.class));
-        return count.orElse(0);
+        return Optional.ofNullable(this.jdbcTemplate.queryForObject(countQuery, Integer.class))
+                .orElse(0);
     }
 
     protected abstract void insert(E entity);

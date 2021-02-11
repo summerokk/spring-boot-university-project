@@ -5,10 +5,9 @@ import com.att.university.entity.Teacher;
 import com.att.university.entity.AcademicRank;
 import com.att.university.entity.ScienceDegree;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-
-import javax.sql.DataSource;
 
 @Repository("teacherDao")
 public class TeacherDaoImpl extends AbstractDaoImpl<Teacher> implements TeacherDao {
@@ -55,8 +54,8 @@ public class TeacherDaoImpl extends AbstractDaoImpl<Teacher> implements TeacherD
     };
 
     @Autowired
-    public TeacherDaoImpl(DataSource dataSource) {
-        super(dataSource, ROW_MAPPER, FIND_BY_ID_QUERY, FIND_ALL_QUERY, DELETE_BY_ID_QUERY, COUNT_QUERY);
+    public TeacherDaoImpl(JdbcTemplate jdbcTemplate) {
+        super(jdbcTemplate, ROW_MAPPER, FIND_BY_ID_QUERY, FIND_ALL_QUERY, DELETE_BY_ID_QUERY, COUNT_QUERY);
     }
 
     @Override

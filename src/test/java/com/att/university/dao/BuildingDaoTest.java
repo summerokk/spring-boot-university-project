@@ -1,28 +1,29 @@
 package com.att.university.dao;
 
 import com.att.university.Config;
+import com.att.university.H2Config;
 import com.att.university.entity.Building;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.sql.DataSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = Config.class)
-@ActiveProfiles("test")
+@ContextConfiguration(classes = {Config.class, H2Config.class})
 class BuildingDaoTest {
     @Autowired
     private DataSource dataSource;
@@ -30,7 +31,7 @@ class BuildingDaoTest {
     @Autowired
     private BuildingDao buildingDao;
 
-    @AfterEach
+    @BeforeEach
     void tearDown() {
         ResourceDatabasePopulator databasePopulator = new ResourceDatabasePopulator();
         databasePopulator.addScripts(new ClassPathResource("tables.sql"), new ClassPathResource("startData.sql"));
@@ -50,8 +51,10 @@ class BuildingDaoTest {
     @Test
     void findByIdShouldReturnResultWhenDatabaseHaveBuildings() {
         Building expected = new Building(1, "Kirova 32");
+        Optional<Building> building = buildingDao.findById(1);
 
-        assertEquals(expected, buildingDao.findById(1));
+        assertTrue(building.isPresent());
+        assertEquals(expected, building.get());
     }
 
     @Test
@@ -97,8 +100,11 @@ class BuildingDaoTest {
         Building building = new Building(1, "updateAddress");
         buildingDao.update(building);
 
-        Building updateBuilding = buildingDao.findById(1);
+        Optional<Building> updateBuilding = buildingDao.findById(1);
 
-        assertEquals("updateAddress", updateBuilding.getAddress());
+        System.out.println(buildingDao.findAll(1, 100));
+
+        assertTrue(updateBuilding.isPresent());
+        assertEquals("updateAddress", updateBuilding.get().getAddress());
     }
 }

@@ -1,13 +1,15 @@
 package com.att.university;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.FilterType;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 
@@ -15,33 +17,35 @@ import javax.sql.DataSource;
 import java.util.Scanner;
 
 @Configuration
-@ComponentScan
+@ComponentScan(excludeFilters = {@ComponentScan.Filter(
+        type = FilterType.ASSIGNABLE_TYPE, classes = {H2Config.class})})
+@PropertySource("classpath:app.properties")
 public class Config {
+    private final Environment env;
+
+    @Autowired
+    public Config(Environment environment) {
+        this.env = environment;
+    }
+
     @Bean
-    public DataSource psqlDataSource() {
+    public JdbcTemplate jdbcTemplate(DataSource source) {
+        return new JdbcTemplate(source);
+    }
+
+    @Bean
+    public DataSource dataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName("org.postgresql.Driver");
-        dataSource.setUrl("jdbc:postgresql://localhost:54322/university");
-        dataSource.setUsername("postgres");
-        dataSource.setPassword("test");
+        dataSource.setDriverClassName(env.getProperty("connection.driver"));
+        dataSource.setUrl(env.getProperty("connection.url"));
+        dataSource.setUsername(env.getProperty("connection.username"));
+        dataSource.setPassword(env.getProperty("connection.password"));
 
         ResourceDatabasePopulator databasePopulator = new ResourceDatabasePopulator();
         databasePopulator.addScripts(new ClassPathResource("tables.sql"), new ClassPathResource("startData.sql"));
         DatabasePopulatorUtils.execute(databasePopulator, dataSource);
 
         return dataSource;
-    }
-
-    @Bean
-    @Profile("test")
-    public DataSource dataSource() {
-        return new EmbeddedDatabaseBuilder()
-                .setName("university_test")
-                .setType(EmbeddedDatabaseType.H2)
-                .setScriptEncoding("UTF-8")
-                .ignoreFailedDrops(true)
-                .addScripts("tables.sql", "TestData.sql")
-                .build();
     }
 
     @Bean

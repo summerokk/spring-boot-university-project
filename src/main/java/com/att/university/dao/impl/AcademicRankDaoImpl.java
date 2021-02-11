@@ -3,6 +3,7 @@ package com.att.university.dao.impl;
 import com.att.university.dao.AcademicRankDao;
 import com.att.university.entity.AcademicRank;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
@@ -21,8 +22,8 @@ public class AcademicRankDaoImpl extends AbstractDaoImpl<AcademicRank> implement
             new AcademicRank(resultSet.getInt(1), resultSet.getString("name"));
 
     @Autowired
-    public AcademicRankDaoImpl(DataSource dataSource) {
-        super(dataSource, ROW_MAPPER, FIND_BY_ID_QUERY, FIND_ALL_QUERY, DELETE_BY_ID_QUERY, COUNT_QUERY);
+    public AcademicRankDaoImpl(JdbcTemplate jdbcTemplate) {
+        super(jdbcTemplate, ROW_MAPPER, FIND_BY_ID_QUERY, FIND_ALL_QUERY, DELETE_BY_ID_QUERY, COUNT_QUERY);
     }
 
     @Override
@@ -32,6 +33,6 @@ public class AcademicRankDaoImpl extends AbstractDaoImpl<AcademicRank> implement
 
     @Override
     public void update(AcademicRank academicRank) {
-        this.jdbcTemplate.update(UPDATE_QUERY, academicRank.getName());
+        this.jdbcTemplate.update(UPDATE_QUERY, academicRank.getName(), academicRank.getId());
     }
 }
