@@ -1,7 +1,6 @@
 package com.att.university.controller;
 
 import com.att.university.dao.AcademicRankDao;
-import com.att.university.dao.BuildingDao;
 import com.att.university.dao.ClassroomDao;
 import com.att.university.dao.CourseDao;
 import com.att.university.dao.GroupDao;
@@ -20,20 +19,16 @@ import com.att.university.entity.ScienceDegree;
 import com.att.university.entity.Student;
 import com.att.university.entity.Teacher;
 import com.att.university.view.ApplicationView;
-import org.checkerframework.checker.units.qual.C;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -41,7 +36,6 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @ExtendWith(MockitoExtension.class)
 class FrontControllerTest {
