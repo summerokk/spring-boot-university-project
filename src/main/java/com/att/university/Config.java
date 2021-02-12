@@ -1,32 +1,20 @@
 package com.att.university;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.core.env.Environment;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
-import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
-import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 
 import javax.sql.DataSource;
 import java.util.Scanner;
 
 @Configuration
-@ComponentScan(excludeFilters = {@ComponentScan.Filter(
-        type = FilterType.ASSIGNABLE_TYPE, classes = {H2Config.class})})
+@ComponentScan
 @PropertySource("classpath:app.properties")
 public class Config {
-    private final Environment env;
-
-    @Autowired
-    public Config(Environment environment) {
-        this.env = environment;
-    }
 
     @Bean
     public JdbcTemplate jdbcTemplate(DataSource source) {
@@ -34,16 +22,15 @@ public class Config {
     }
 
     @Bean
-    public DataSource dataSource() {
+    public DataSource dataSource(@Value("${connection.driver}") String driver,
+                                 @Value("${connection.url}") String url,
+                                 @Value("${connection.username}") String username,
+                                 @Value("${connection.password}") String password) {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName(env.getProperty("connection.driver"));
-        dataSource.setUrl(env.getProperty("connection.url"));
-        dataSource.setUsername(env.getProperty("connection.username"));
-        dataSource.setPassword(env.getProperty("connection.password"));
-
-        ResourceDatabasePopulator databasePopulator = new ResourceDatabasePopulator();
-        databasePopulator.addScripts(new ClassPathResource("tables.sql"), new ClassPathResource("startData.sql"));
-        DatabasePopulatorUtils.execute(databasePopulator, dataSource);
+        dataSource.setDriverClassName(driver);
+        dataSource.setUrl(url);
+        dataSource.setUsername(username);
+        dataSource.setPassword(password);
 
         return dataSource;
     }

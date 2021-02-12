@@ -1,30 +1,24 @@
 package com.att.university.dao;
 
-import com.att.university.Config;
 import com.att.university.H2Config;
 import com.att.university.entity.Building;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
-import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.sql.DataSource;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {Config.class, H2Config.class})
-class BuildingDaoTest {
+@ContextConfiguration(classes = H2Config.class)
+class BuildingDaoTest extends AbstractTest {
     @Autowired
     private DataSource dataSource;
 
@@ -33,9 +27,7 @@ class BuildingDaoTest {
 
     @BeforeEach
     void tearDown() {
-        ResourceDatabasePopulator databasePopulator = new ResourceDatabasePopulator();
-        databasePopulator.addScripts(new ClassPathResource("tables.sql"), new ClassPathResource("startData.sql"));
-        DatabasePopulatorUtils.execute(databasePopulator, dataSource);
+        recreateDb(dataSource);
     }
 
     @Test
@@ -45,7 +37,7 @@ class BuildingDaoTest {
                 new Building(2, "Pertova 42")
         );
 
-        assertEquals(expected, buildingDao.findAll(1, buildingDao.count()));
+        assertThat(buildingDao.findAll(1, buildingDao.count())).isEqualTo(expected);
     }
 
     @Test
@@ -53,15 +45,14 @@ class BuildingDaoTest {
         Building expected = new Building(1, "Kirova 32");
         Optional<Building> building = buildingDao.findById(1);
 
-        assertTrue(building.isPresent());
-        assertEquals(expected, building.get());
+        assertThat(building).isPresent().hasValue(expected);
     }
 
     @Test
     void countShouldReturnResultWhenDatabaseHaveBuildings() {
         int expected = 2;
 
-        assertEquals(expected, buildingDao.count());
+        assertThat(buildingDao.count()).isEqualTo(expected);
     }
 
     @Test
@@ -71,7 +62,7 @@ class BuildingDaoTest {
 
         buildingDao.save(building);
 
-        assertEquals(currentCount + 1, buildingDao.count());
+        assertThat(buildingDao.count()).isEqualTo(currentCount + 1);
     }
 
     @Test
@@ -84,7 +75,7 @@ class BuildingDaoTest {
         int currentCount = buildingDao.count();
         buildingDao.saveAll(buildings);
 
-        assertEquals(currentCount + 2, buildingDao.count());
+        assertThat(buildingDao.count()).isEqualTo(currentCount + 2);
     }
 
     @Test
@@ -92,7 +83,7 @@ class BuildingDaoTest {
         int currentCount = buildingDao.count();
         buildingDao.deleteById(1);
 
-        assertEquals(currentCount - 1, buildingDao.count());
+        assertThat(buildingDao.count()).isEqualTo(currentCount - 1);
     }
 
     @Test
@@ -102,9 +93,7 @@ class BuildingDaoTest {
 
         Optional<Building> updateBuilding = buildingDao.findById(1);
 
-        System.out.println(buildingDao.findAll(1, 100));
-
-        assertTrue(updateBuilding.isPresent());
-        assertEquals("updateAddress", updateBuilding.get().getAddress());
+        assertThat(updateBuilding).isPresent();
+        assertThat(updateBuilding.get().getAddress()).isEqualTo("updateAddress");
     }
 }

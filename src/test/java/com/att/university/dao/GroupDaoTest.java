@@ -1,6 +1,5 @@
 package com.att.university.dao;
 
-import com.att.university.Config;
 import com.att.university.H2Config;
 import com.att.university.entity.Faculty;
 import com.att.university.entity.Group;
@@ -8,9 +7,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
-import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -19,12 +15,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {Config.class, H2Config.class})
-class GroupDaoTest {
+@ContextConfiguration(classes = H2Config.class)
+class GroupDaoTest extends AbstractTest {
     @Autowired
     private DataSource dataSource;
 
@@ -33,9 +28,7 @@ class GroupDaoTest {
 
     @BeforeEach
     void tearDown() {
-        ResourceDatabasePopulator databasePopulator = new ResourceDatabasePopulator();
-        databasePopulator.addScripts(new ClassPathResource("Table.sql"), new ClassPathResource("testData.sql"));
-        DatabasePopulatorUtils.execute(databasePopulator, dataSource);
+        recreateDb(dataSource);
     }
 
     @Test
@@ -46,7 +39,7 @@ class GroupDaoTest {
                 new Group(3, "HY-53", new Faculty(3, "Department of Plant Science"))
         );
 
-        assertEquals(expected, groupDao.findAll(1, groupDao.count()));
+        assertThat(groupDao.findAll(1, groupDao.count())).isEqualTo(expected);
     }
 
     @Test
@@ -54,15 +47,14 @@ class GroupDaoTest {
         Group expected = new Group(1, "GT-23", new Faculty(1, "School of Visual arts"));
         Optional<Group> actual = groupDao.findById(1);
 
-        assertTrue(actual.isPresent());
-        assertEquals(expected, actual.get());
+        assertThat(actual).isPresent().hasValue(expected);
     }
 
     @Test
     void countShouldReturnResultWhenDatabaseHaveGroups() {
         int expected = 3;
 
-        assertEquals(expected, groupDao.count());
+        assertThat(groupDao.count()).isEqualTo(expected);
     }
 
     @Test
@@ -72,7 +64,7 @@ class GroupDaoTest {
 
         groupDao.save(newGroup);
 
-        assertEquals(currentCount + 1, groupDao.count());
+        assertThat(groupDao.count()).isEqualTo(currentCount + 1);
     }
 
     @Test
@@ -85,7 +77,7 @@ class GroupDaoTest {
         int currentCount = groupDao.count();
         groupDao.saveAll(newGroups);
 
-        assertEquals(currentCount + 2, groupDao.count());
+        assertThat(groupDao.count()).isEqualTo(currentCount + 2);
     }
 
     @Test
@@ -93,7 +85,7 @@ class GroupDaoTest {
         int currentCount = groupDao.count();
         groupDao.deleteById(1);
 
-        assertEquals(currentCount - 1, groupDao.count());
+        assertThat(groupDao.count()).isEqualTo(currentCount - 1);
     }
 
     @Test
@@ -103,7 +95,7 @@ class GroupDaoTest {
 
         Optional<Group> updateGroup = groupDao.findById(1);
 
-        assertTrue(updateGroup.isPresent());
-        assertEquals("GT-24", updateGroup.get().getName());
+        assertThat(updateGroup).isPresent();
+        assertThat(updateGroup.get().getName()).isEqualTo("GT-24");
     }
 }

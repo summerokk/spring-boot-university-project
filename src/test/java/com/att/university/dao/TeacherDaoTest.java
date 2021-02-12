@@ -9,9 +9,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
-import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -20,12 +17,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {Config.class, H2Config.class})
-class TeacherDaoTest {
+class TeacherDaoTest extends AbstractTest {
     @Autowired
     private DataSource dataSource;
 
@@ -34,9 +30,7 @@ class TeacherDaoTest {
 
     @BeforeEach
     void tearDown() {
-        ResourceDatabasePopulator databasePopulator = new ResourceDatabasePopulator();
-        databasePopulator.addScripts(new ClassPathResource("Table.sql"), new ClassPathResource("testData.sql"));
-        DatabasePopulatorUtils.execute(databasePopulator, dataSource);
+        recreateDb(dataSource);
     }
 
     @Test
@@ -67,7 +61,7 @@ class TeacherDaoTest {
                         .build()
         );
 
-        assertEquals(expected, teacherDao.findAll(1, teacherDao.count()));
+        assertThat(teacherDao.findAll(1, teacherDao.count())).isEqualTo(expected);
     }
 
     @Test
@@ -88,15 +82,14 @@ class TeacherDaoTest {
 
         Optional<Teacher> actual = teacherDao.findById(1);
 
-        assertTrue(actual.isPresent());
-        assertEquals(expected, actual.get());
+        assertThat(actual).isPresent().hasValue(expected);
     }
 
     @Test
     void countShouldReturnResultWhenDatabaseHaveTeachers() {
         int expected = 2;
 
-        assertEquals(expected, teacherDao.count());
+        assertThat(teacherDao.count()).isEqualTo(expected);
     }
 
     @Test
@@ -119,7 +112,7 @@ class TeacherDaoTest {
 
         teacherDao.save(newTeacher);
 
-        assertEquals(currentCount + 1, teacherDao.count());
+        assertThat(teacherDao.count()).isEqualTo(currentCount + 1);
     }
 
     @Test
@@ -153,7 +146,7 @@ class TeacherDaoTest {
         int currentCount = teacherDao.count();
         teacherDao.saveAll(newTeachers);
 
-        assertEquals(currentCount + 2, teacherDao.count());
+        assertThat(teacherDao.count()).isEqualTo(currentCount + 2);
     }
 
     @Test
@@ -161,7 +154,7 @@ class TeacherDaoTest {
         int currentCount = teacherDao.count();
         teacherDao.deleteById(1);
 
-        assertEquals(currentCount - 1, teacherDao.count());
+        assertThat(teacherDao.count()).isEqualTo(currentCount - 1);
     }
 
     @Test
@@ -184,8 +177,8 @@ class TeacherDaoTest {
 
         Optional<Teacher> updateTeacher = teacherDao.findById(1);
 
-        assertTrue(updateTeacher.isPresent());
-        assertEquals("update", updateTeacher.get().getFirstName());
-        assertEquals("update_l", updateTeacher.get().getLastName());
+        assertThat(updateTeacher).isPresent();
+        assertThat(updateTeacher.get().getFirstName()).isEqualTo("update");
+        assertThat(updateTeacher.get().getLastName()).isEqualTo("update_l");
     }
 }

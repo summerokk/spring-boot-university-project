@@ -1,15 +1,11 @@
 package com.att.university.dao;
 
-import com.att.university.Config;
 import com.att.university.H2Config;
 import com.att.university.entity.AcademicRank;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
-import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -18,12 +14,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {Config.class, H2Config.class})
-class AcademicRankDaoTest {
+@ContextConfiguration(classes = H2Config.class)
+class AcademicRankDaoTest extends AbstractTest {
     @Autowired
     private DataSource dataSource;
 
@@ -32,9 +27,7 @@ class AcademicRankDaoTest {
 
     @BeforeEach
     void tearDown() {
-        ResourceDatabasePopulator databasePopulator = new ResourceDatabasePopulator();
-        databasePopulator.addScripts(new ClassPathResource("tables.sql"), new ClassPathResource("startData.sql"));
-        DatabasePopulatorUtils.execute(databasePopulator, dataSource);
+        recreateDb(dataSource);
     }
 
     @Test
@@ -45,7 +38,7 @@ class AcademicRankDaoTest {
                 new AcademicRank(3, "Endowed Professor")
         );
 
-        assertEquals(expected, academicRankDao.findAll(1, academicRankDao.count()));
+        assertThat(academicRankDao.findAll(1, academicRankDao.count())).isEqualTo(expected);
     }
 
     @Test
@@ -53,15 +46,14 @@ class AcademicRankDaoTest {
         AcademicRank expected = new AcademicRank(1, "Assistant Professor");
         Optional<AcademicRank> actual = academicRankDao.findById(1);
 
-        assertTrue(actual.isPresent());
-        assertEquals(expected, actual.get());
+        assertThat(actual).isPresent().hasValue(expected);
     }
 
     @Test
     void countShouldReturnResultWhenDatabaseHaveAcademicRanks() {
         int expected = 3;
 
-        assertEquals(expected, academicRankDao.count());
+        assertThat(academicRankDao.count()).isEqualTo(expected);
     }
 
     @Test
@@ -71,7 +63,7 @@ class AcademicRankDaoTest {
 
         academicRankDao.save(newAcademicRank);
 
-        assertEquals(currentCount + 1, academicRankDao.count());
+        assertThat(academicRankDao.count()).isEqualTo(currentCount + 1);
     }
 
     @Test
@@ -84,7 +76,7 @@ class AcademicRankDaoTest {
         int currentCount = academicRankDao.count();
         academicRankDao.saveAll(newAcademicRanks);
 
-        assertEquals(currentCount + 2, academicRankDao.count());
+        assertThat(academicRankDao.count()).isEqualTo(currentCount + 2);
     }
 
     @Test
@@ -92,7 +84,7 @@ class AcademicRankDaoTest {
         int currentCount = academicRankDao.count();
         academicRankDao.deleteById(1);
 
-        assertEquals(currentCount - 1, academicRankDao.count());
+        assertThat(academicRankDao.count()).isEqualTo(currentCount - 1);
     }
 
     @Test
@@ -102,7 +94,7 @@ class AcademicRankDaoTest {
 
         Optional<AcademicRank> updateAcademicRank = academicRankDao.findById(1);
 
-        assertTrue(updateAcademicRank.isPresent());
-        assertEquals("update", updateAcademicRank.get().getName());
+        assertThat(updateAcademicRank).isPresent();
+        assertThat(updateAcademicRank.get().getName()).isEqualTo("update");
     }
 }

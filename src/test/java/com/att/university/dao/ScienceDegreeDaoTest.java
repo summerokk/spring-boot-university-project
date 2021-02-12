@@ -1,15 +1,11 @@
 package com.att.university.dao;
 
-import com.att.university.Config;
 import com.att.university.H2Config;
 import com.att.university.entity.ScienceDegree;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
-import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -18,23 +14,20 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {Config.class, H2Config.class})
-class ScienceDegreeDaoTest {
+@ContextConfiguration(classes = H2Config.class)
+class ScienceDegreeDaoTest extends AbstractTest {
     @Autowired
     private DataSource dataSource;
 
     @Autowired
-    private ScienceDegreeDao ScienceDegreeDao;
+    private ScienceDegreeDao scienceDegreeDao;
 
     @BeforeEach
     void tearDown() {
-        ResourceDatabasePopulator databasePopulator = new ResourceDatabasePopulator();
-        databasePopulator.addScripts(new ClassPathResource("tables.sql"), new ClassPathResource("startData.sql"));
-        DatabasePopulatorUtils.execute(databasePopulator, dataSource);
+        recreateDb(dataSource);
     }
 
     @Test
@@ -46,33 +39,32 @@ class ScienceDegreeDaoTest {
                 new ScienceDegree(4, "Master's degree")
         );
 
-        assertEquals(expected, ScienceDegreeDao.findAll(1, ScienceDegreeDao.count()));
+        assertThat(scienceDegreeDao.findAll(1, scienceDegreeDao.count())).isEqualTo(expected);
     }
 
     @Test
     void findByIdShouldReturnResultWhenDatabaseHaveScienceDegrees() {
         ScienceDegree expected = new ScienceDegree(1, "Associate degree");
-        Optional<ScienceDegree> actual = ScienceDegreeDao.findById(1);
+        Optional<ScienceDegree> actual = scienceDegreeDao.findById(1);
 
-        assertTrue(actual.isPresent());
-        assertEquals(expected, actual.get());
+        assertThat(actual).isPresent().hasValue(expected);
     }
 
     @Test
     void countShouldReturnResultWhenDatabaseHaveScienceDegrees() {
         int expected = 4;
 
-        assertEquals(expected, ScienceDegreeDao.count());
+        assertThat(scienceDegreeDao.count()).isEqualTo(expected);
     }
 
     @Test
     void saveShouldReturnResultWhenDatabaseHaveScienceDegrees() {
         ScienceDegree newScienceDegree = new ScienceDegree(null, "new");
-        int currentCount = ScienceDegreeDao.count();
+        int currentCount = scienceDegreeDao.count();
 
-        ScienceDegreeDao.save(newScienceDegree);
+        scienceDegreeDao.save(newScienceDegree);
 
-        assertEquals(currentCount + 1, ScienceDegreeDao.count());
+        assertThat(scienceDegreeDao.count()).isEqualTo(currentCount + 1);
     }
 
     @Test
@@ -82,28 +74,28 @@ class ScienceDegreeDaoTest {
                 new ScienceDegree(null, "new")
         );
 
-        int currentCount = ScienceDegreeDao.count();
-        ScienceDegreeDao.saveAll(newScienceDegrees);
+        int currentCount = scienceDegreeDao.count();
+        scienceDegreeDao.saveAll(newScienceDegrees);
 
-        assertEquals(currentCount + 2, ScienceDegreeDao.count());
+        assertThat(scienceDegreeDao.count()).isEqualTo(currentCount + 2);
     }
 
     @Test
     void deleteByIdShouldReturnResultWhenDatabaseHaveScienceDegrees() {
-        int currentCount = ScienceDegreeDao.count();
-        ScienceDegreeDao.deleteById(1);
+        int currentCount = scienceDegreeDao.count();
+        scienceDegreeDao.deleteById(1);
 
-        assertEquals(currentCount - 1, ScienceDegreeDao.count());
+        assertThat(scienceDegreeDao.count()).isEqualTo(currentCount - 1);
     }
 
     @Test
     void updateShouldReturnResultWhenDatabaseHaveScienceDegrees() {
         ScienceDegree newScienceDegree = new ScienceDegree(1, "update");
-        ScienceDegreeDao.update(newScienceDegree);
+        scienceDegreeDao.update(newScienceDegree);
 
-        Optional<ScienceDegree> updateScienceDegree = ScienceDegreeDao.findById(1);
+        Optional<ScienceDegree> updateScienceDegree = scienceDegreeDao.findById(1);
 
-        assertTrue(updateScienceDegree.isPresent());
-        assertEquals("update", updateScienceDegree.get().getName());
+        assertThat(updateScienceDegree).isPresent();
+        assertThat(updateScienceDegree.get().getName()).isEqualTo("update");
     }
 }

@@ -1,6 +1,5 @@
 package com.att.university.dao;
 
-import com.att.university.Config;
 import com.att.university.H2Config;
 import com.att.university.entity.AcademicRank;
 import com.att.university.entity.Building;
@@ -15,9 +14,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
-import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -27,13 +23,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {Config.class, H2Config.class})
-class LessonDaoTest {
+@ContextConfiguration(classes = H2Config.class)
+class LessonDaoTest extends AbstractTest {
     @Autowired
     private DataSource dataSource;
 
@@ -42,16 +36,14 @@ class LessonDaoTest {
 
     @BeforeEach
     void tearDown() {
-        ResourceDatabasePopulator databasePopulator = new ResourceDatabasePopulator();
-        databasePopulator.addScripts(new ClassPathResource("Table.sql"), new ClassPathResource("testData.sql"));
-        DatabasePopulatorUtils.execute(databasePopulator, dataSource);
+        recreateDb(dataSource);
     }
 
     @Test
     void findAllShouldReturnResultWhenDatabaseHaveLessons() {
         List<Lesson> expected = getTestLessons();
 
-        assertEquals(expected, lessonDao.findAll(1, lessonDao.count()));
+        assertThat(lessonDao.findAll(1, lessonDao.count())).isEqualTo(expected);
     }
 
     @Test
@@ -60,22 +52,21 @@ class LessonDaoTest {
 
         Optional<Lesson> actual = lessonDao.findById(1);
 
-        assertTrue(actual.isPresent());
-        assertEquals(expected, actual.get());
+        assertThat(actual).isPresent().hasValue(expected);
     }
 
     @Test
     void findByIdShouldReturnEmptyWhenDatabaseHaveNotLessons() {
         Optional<Lesson> actual = lessonDao.findById(12);
 
-        assertFalse(actual.isPresent());
+        assertThat(actual).isNotPresent();
     }
 
     @Test
     void countShouldReturnResultWhenDatabaseHaveLessons() {
         int expected = 2;
 
-        assertEquals(expected, lessonDao.count());
+        assertThat(lessonDao.count()).isEqualTo(expected);
     }
 
     @Test
@@ -86,7 +77,7 @@ class LessonDaoTest {
 
         lessonDao.save(newLesson);
 
-        assertEquals(currentCount + 1, lessonDao.count());
+        assertThat(lessonDao.count()).isEqualTo(currentCount + 1);
     }
 
     @Test
@@ -96,7 +87,7 @@ class LessonDaoTest {
         int currentCount = lessonDao.count();
         lessonDao.saveAll(newLessons);
 
-        assertEquals(currentCount + 2, lessonDao.count());
+        assertThat(lessonDao.count()).isEqualTo(currentCount + 2);
     }
 
     @Test
@@ -104,7 +95,7 @@ class LessonDaoTest {
         int currentCount = lessonDao.count();
         lessonDao.deleteById(1);
 
-        assertEquals(currentCount - 1, lessonDao.count());
+        assertThat(lessonDao.count()).isEqualTo(currentCount - 1);
     }
 
     @Test
@@ -119,8 +110,8 @@ class LessonDaoTest {
 
         Optional<Lesson> update = lessonDao.findById(1);
 
-        assertTrue(update.isPresent());
-        assertEquals(LocalDateTime.parse("2004-10-20T10:23"), update.get().getDate());
+        assertThat(update).isPresent();
+        assertThat(update.get().getDate()).isEqualTo(LocalDateTime.parse("2004-10-20T10:23"));
     }
 
     private List<Lesson> getTestLessons() {

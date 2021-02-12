@@ -1,15 +1,11 @@
 package com.att.university.dao;
 
-import com.att.university.Config;
 import com.att.university.H2Config;
 import com.att.university.entity.Course;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
-import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -18,23 +14,20 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {Config.class, H2Config.class})
-class CourseDaoTest {
+@ContextConfiguration(classes = H2Config.class)
+class CourseDaoTest extends AbstractTest {
     @Autowired
     private DataSource dataSource;
 
     @Autowired
-    private CourseDao CourseDao;
+    private CourseDao courseDao;
 
     @BeforeEach
     void tearDown() {
-        ResourceDatabasePopulator databasePopulator = new ResourceDatabasePopulator();
-        databasePopulator.addScripts(new ClassPathResource("tables.sql"), new ClassPathResource("testData.sql"));
-        DatabasePopulatorUtils.execute(databasePopulator, dataSource);
+        recreateDb(dataSource);
     }
 
     @Test
@@ -45,33 +38,32 @@ class CourseDaoTest {
                 new Course(3, "Biology")
         );
 
-        assertEquals(expected, CourseDao.findAll(1, CourseDao.count()));
+        assertThat(courseDao.findAll(1, courseDao.count())).isEqualTo(expected);
     }
 
     @Test
     void findByIdShouldReturnResultWhenDatabaseHaveCourses() {
         Course expected = new Course(1, "Special Topics in Agronomy");
-        Optional<Course> actual = CourseDao.findById(1);
+        Optional<Course> actual = courseDao.findById(1);
 
-        assertTrue(actual.isPresent());
-        assertEquals(expected, actual.get());
+        assertThat(actual).isPresent().hasValue(expected);
     }
 
     @Test
     void countShouldReturnResultWhenDatabaseHaveCourses() {
         int expected = 3;
 
-        assertEquals(expected, CourseDao.count());
+        assertThat(courseDao.count()).isEqualTo(expected);
     }
 
     @Test
     void saveShouldReturnResultWhenDatabaseHaveCourses() {
         Course newCourse = new Course(null, "new");
-        int currentCount = CourseDao.count();
+        int currentCount = courseDao.count();
 
-        CourseDao.save(newCourse);
+        courseDao.save(newCourse);
 
-        assertEquals(currentCount + 1, CourseDao.count());
+        assertThat(courseDao.count()).isEqualTo(currentCount + 1);
     }
 
     @Test
@@ -81,28 +73,28 @@ class CourseDaoTest {
                 new Course(null, "new")
         );
 
-        int currentCount = CourseDao.count();
-        CourseDao.saveAll(newCourses);
+        int currentCount = courseDao.count();
+        courseDao.saveAll(newCourses);
 
-        assertEquals(currentCount + 2, CourseDao.count());
+        assertThat(courseDao.count()).isEqualTo(currentCount + 2);
     }
 
     @Test
     void deleteByIdShouldReturnResultWhenDatabaseHaveCourses() {
-        int currentCount = CourseDao.count();
-        CourseDao.deleteById(1);
+        int currentCount = courseDao.count();
+        courseDao.deleteById(1);
 
-        assertEquals(currentCount - 1, CourseDao.count());
+        assertThat(courseDao.count()).isEqualTo(currentCount - 1);
     }
 
     @Test
     void updateShouldReturnResultWhenDatabaseHaveCourses() {
         Course newCourse = new Course(1, "update");
-        CourseDao.update(newCourse);
+        courseDao.update(newCourse);
 
-        Optional<Course> updateCourse = CourseDao.findById(1);
+        Optional<Course> updateCourse = courseDao.findById(1);
 
-        assertTrue(updateCourse.isPresent());
-        assertEquals("update", updateCourse.get().getName());
+        assertThat(updateCourse).isPresent();
+        assertThat(updateCourse.get().getName()).isEqualTo("update");
     }
 }

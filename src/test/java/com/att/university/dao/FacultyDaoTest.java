@@ -1,15 +1,11 @@
 package com.att.university.dao;
 
-import com.att.university.Config;
 import com.att.university.H2Config;
 import com.att.university.entity.Faculty;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
-import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -18,23 +14,20 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {Config.class, H2Config.class})
-class FacultyDaoTest {
+@ContextConfiguration(classes = H2Config.class)
+class FacultyDaoTest extends AbstractTest {
     @Autowired
     private DataSource dataSource;
 
     @Autowired
-    private FacultyDao FacultyDao;
+    private FacultyDao facultyDao;
 
     @BeforeEach
     void tearDown() {
-        ResourceDatabasePopulator databasePopulator = new ResourceDatabasePopulator();
-        databasePopulator.addScripts(new ClassPathResource("tables.sql"), new ClassPathResource("startData.sql"));
-        DatabasePopulatorUtils.execute(databasePopulator, dataSource);
+        recreateDb(dataSource);
     }
 
     @Test
@@ -45,33 +38,32 @@ class FacultyDaoTest {
                 new Faculty(3, "Department of Plant Science")
         );
 
-        assertEquals(expected, FacultyDao.findAll(1, FacultyDao.count()));
+        assertThat(facultyDao.findAll(1, facultyDao.count())).isEqualTo(expected);
     }
 
     @Test
     void findByIdShouldReturnResultWhenDatabaseHaveFaculties() {
         Faculty expected = new Faculty(1, "School of Visual arts");
-        Optional<Faculty> actual = FacultyDao.findById(1);
+        Optional<Faculty> actual = facultyDao.findById(1);
 
-        assertTrue(actual.isPresent());
-        assertEquals(expected, actual.get());
+        assertThat(actual).isPresent().hasValue(expected);
     }
 
     @Test
     void countShouldReturnResultWhenDatabaseHaveFaculties() {
         int expected = 3;
 
-        assertEquals(expected, FacultyDao.count());
+        assertThat(facultyDao.count()).isEqualTo(expected);
     }
 
     @Test
     void saveShouldReturnResultWhenDatabaseHaveFaculties() {
         Faculty newFaculty = new Faculty(null, "new");
-        int currentCount = FacultyDao.count();
+        int currentCount = facultyDao.count();
 
-        FacultyDao.save(newFaculty);
+        facultyDao.save(newFaculty);
 
-        assertEquals(currentCount + 1, FacultyDao.count());
+        assertThat(facultyDao.count()).isEqualTo(currentCount + 1);
     }
 
     @Test
@@ -81,28 +73,28 @@ class FacultyDaoTest {
                 new Faculty(null, "new")
         );
 
-        int currentCount = FacultyDao.count();
-        FacultyDao.saveAll(newFaculties);
+        int currentCount = facultyDao.count();
+        facultyDao.saveAll(newFaculties);
 
-        assertEquals(currentCount + 2, FacultyDao.count());
+        assertThat(facultyDao.count()).isEqualTo(currentCount + 2);
     }
 
     @Test
     void deleteByIdShouldReturnResultWhenDatabaseHaveFaculties() {
-        int currentCount = FacultyDao.count();
-        FacultyDao.deleteById(1);
+        int currentCount = facultyDao.count();
+        facultyDao.deleteById(1);
 
-        assertEquals(currentCount - 1, FacultyDao.count());
+        assertThat(facultyDao.count()).isEqualTo(currentCount - 1);
     }
 
     @Test
     void updateShouldReturnResultWhenDatabaseHaveFaculties() {
         Faculty newFaculty = new Faculty(1, "update");
-        FacultyDao.update(newFaculty);
+        facultyDao.update(newFaculty);
 
-        Optional<Faculty> updateFaculty = FacultyDao.findById(1);
+        Optional<Faculty> updateFaculty = facultyDao.findById(1);
 
-        assertTrue(updateFaculty.isPresent());
-        assertEquals("update", updateFaculty.get().getName());
+        assertThat(updateFaculty).isPresent();
+        assertThat(updateFaculty.get().getName()).isEqualTo("update");
     }
 }

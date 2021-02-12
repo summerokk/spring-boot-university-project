@@ -1,6 +1,5 @@
 package com.att.university.dao;
 
-import com.att.university.Config;
 import com.att.university.H2Config;
 import com.att.university.entity.Faculty;
 import com.att.university.entity.Group;
@@ -9,9 +8,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
-import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -20,12 +16,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {Config.class, H2Config.class})
-class StudentDaoTest {
+@ContextConfiguration(classes = H2Config.class)
+class StudentDaoTest extends AbstractTest {
     @Autowired
     private DataSource dataSource;
 
@@ -34,9 +29,7 @@ class StudentDaoTest {
 
     @BeforeEach
     void tearDown() {
-        ResourceDatabasePopulator databasePopulator = new ResourceDatabasePopulator();
-        databasePopulator.addScripts(new ClassPathResource("Table.sql"), new ClassPathResource("testData.sql"));
-        DatabasePopulatorUtils.execute(databasePopulator, dataSource);
+        recreateDb(dataSource);
     }
 
     @Test
@@ -62,7 +55,7 @@ class StudentDaoTest {
                         .build()
         );
 
-        assertEquals(expected, studentDao.findAll(1, studentDao.count()));
+        assertThat(studentDao.findAll(1, studentDao.count())).isEqualTo(expected);
     }
 
     @Test
@@ -79,15 +72,14 @@ class StudentDaoTest {
                 .build();
         Optional<Student> actual = studentDao.findById(1);
 
-        assertTrue(actual.isPresent());
-        assertEquals(expected, actual.get());
+        assertThat(actual).isPresent().hasValue(expected);
     }
 
     @Test
     void countShouldReturnResultWhenDatabaseHaveStudents() {
         int expected = 2;
 
-        assertEquals(expected, studentDao.count());
+        assertThat(studentDao.count()).isEqualTo(expected);
     }
 
     @Test
@@ -106,7 +98,7 @@ class StudentDaoTest {
 
         studentDao.save(newStudent);
 
-        assertEquals(currentCount + 1, studentDao.count());
+        assertThat(studentDao.count()).isEqualTo(currentCount + 1);
     }
 
     @Test
@@ -133,7 +125,7 @@ class StudentDaoTest {
         int currentCount = studentDao.count();
         studentDao.saveAll(newStudents);
 
-        assertEquals(currentCount + 2, studentDao.count());
+        assertThat(studentDao.count()).isEqualTo(currentCount + 2);
     }
 
     @Test
@@ -141,7 +133,7 @@ class StudentDaoTest {
         int currentCount = studentDao.count();
         studentDao.deleteById(1);
 
-        assertEquals(currentCount - 1, studentDao.count());
+        assertThat(studentDao.count()).isEqualTo(currentCount - 1);
     }
 
     @Test
@@ -160,8 +152,8 @@ class StudentDaoTest {
 
         Optional<Student> updateStudent = studentDao.findById(1);
 
-        assertTrue(updateStudent.isPresent());
-        assertEquals("update", updateStudent.get().getFirstName());
-        assertEquals("update_l", updateStudent.get().getLastName());
+        assertThat(updateStudent).isPresent();
+        assertThat(updateStudent.get().getFirstName()).isEqualTo("update");
+        assertThat(updateStudent.get().getLastName()).isEqualTo("update_l");
     }
 }
