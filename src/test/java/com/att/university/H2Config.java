@@ -26,9 +26,8 @@ public class H2Config {
 
     @Bean
     public DataSource dataSourceTest(@Value("${connection.url}") String url,
-                                      @Value("${connection.username}") String username,
-                                      @Value("${connection.password}") String password) {
-        System.out.println(url);
+                                     @Value("${connection.username}") String username,
+                                     @Value("${connection.password}") String password) {
         HikariConfig hikariConfig = new HikariConfig();
         hikariConfig.setJdbcUrl(url);
         hikariConfig.setUsername(username);
