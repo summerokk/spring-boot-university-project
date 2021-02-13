@@ -3,8 +3,8 @@ package com.att.university.entity;
 import java.util.Objects;
 
 public class ScienceDegree {
-    private Integer id;
-    private String name;
+    private final Integer id;
+    private final String name;
 
     public ScienceDegree(Integer id, String name) {
         this.id = id;
