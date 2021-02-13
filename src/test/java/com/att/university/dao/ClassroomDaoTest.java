@@ -1,6 +1,5 @@
 package com.att.university.dao;
 
-import com.att.university.Config;
 import com.att.university.H2Config;
 import com.att.university.entity.Building;
 import com.att.university.entity.Classroom;
@@ -19,7 +18,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = H2Config.class)
+@ContextConfiguration(classes = {H2Config.class})
 class ClassroomDaoTest extends AbstractTest {
     @Autowired
     private DataSource dataSource;

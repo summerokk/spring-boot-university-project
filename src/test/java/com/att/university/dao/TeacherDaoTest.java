@@ -20,7 +20,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {Config.class, H2Config.class})
+@ContextConfiguration(classes = H2Config.class)
 class TeacherDaoTest extends AbstractTest {
     @Autowired
     private DataSource dataSource;
