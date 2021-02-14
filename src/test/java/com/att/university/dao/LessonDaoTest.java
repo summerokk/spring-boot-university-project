@@ -102,7 +102,7 @@ class LessonDaoTest extends AbstractTest {
     void updateShouldReturnResultWhenDatabaseHaveLessons() {
         Lesson current = getTestLessons().get(0);
 
-        Lesson lesson = Lesson.builder(current)
+        Lesson lesson = current.toBuilder()
                 .withDate(LocalDateTime.parse("2004-10-20T10:23"))
                 .build();
 
