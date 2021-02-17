@@ -18,6 +18,7 @@ import com.att.university.entity.ScienceDegree;
 import com.att.university.entity.Student;
 import com.att.university.entity.Teacher;
 import com.att.university.view.ApplicationView;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -27,6 +28,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Component
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class FrontController {
     private final ClassroomDao classroomDao;
     private final StudentDao studentDao;
@@ -37,21 +39,6 @@ public class FrontController {
     private final ScienceDegreeDao scienceDegreeDao;
     private final AcademicRankDao academicRankDao;
     private final ApplicationView view;
-
-    @Autowired
-    public FrontController(ClassroomDao classroomDao, StudentDao studentDao, TeacherDao teacherDao, CourseDao courseDao,
-                           GroupDao groupDao, ScienceDegreeDao scienceDegreeDao, AcademicRankDao academicRankDao,
-                           LessonDao lessonDao, ApplicationView view) {
-        this.lessonDao = lessonDao;
-        this.classroomDao = classroomDao;
-        this.studentDao = studentDao;
-        this.teacherDao = teacherDao;
-        this.courseDao = courseDao;
-        this.groupDao = groupDao;
-        this.scienceDegreeDao = scienceDegreeDao;
-        this.academicRankDao = academicRankDao;
-        this.view = view;
-    }
 
     public void runApplication() {
         int command;

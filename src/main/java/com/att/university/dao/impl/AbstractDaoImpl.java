@@ -1,6 +1,8 @@
 package com.att.university.dao.impl;
 
 import com.att.university.dao.CrudDao;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -9,6 +11,7 @@ import java.sql.Types;
 import java.util.List;
 import java.util.Optional;
 
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class AbstractDaoImpl<E> implements CrudDao<E, Integer> {
     protected JdbcTemplate jdbcTemplate;
     private final RowMapper<E> rowMapper;
@@ -16,16 +19,6 @@ public abstract class AbstractDaoImpl<E> implements CrudDao<E, Integer> {
     private final String findAllQuery;
     private final String deleteByIdQuery;
     private final String countQuery;
-
-    protected AbstractDaoImpl(JdbcTemplate jdbcTemplate, RowMapper<E> rowMapper,
-                              String findByIdQuery, String findAllQuery, String deleteByIdQuery, String countQuery) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.rowMapper = rowMapper;
-        this.findByIdQuery = findByIdQuery;
-        this.findAllQuery = findAllQuery;
-        this.deleteByIdQuery = deleteByIdQuery;
-        this.countQuery = countQuery;
-    }
 
     @Override
     public Optional<E> findById(Integer id) {
