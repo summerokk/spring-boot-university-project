@@ -1,18 +1,15 @@
 package com.att.university.view;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Scanner;
 
 @Component
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ApplicationView {
     private final Scanner scanner;
-
-    @Autowired
-    public ApplicationView(Scanner scanner) {
-        this.scanner = scanner;
-    }
 
     public void printMessage(String message) {
         System.out.println(message);
