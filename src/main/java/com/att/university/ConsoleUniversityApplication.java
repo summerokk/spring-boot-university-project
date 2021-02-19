@@ -10,6 +10,11 @@ public class ConsoleUniversityApplication {
         ApplicationContext context = new AnnotationConfigApplicationContext(Config.class);
 
         FrontController frontController = context.getBean("frontController", FrontController.class);
-        frontController.runApplication();
+
+        try {
+            frontController.runApplication();
+        } catch (RuntimeException runtimeException) {
+            System.out.println("ERROR! " + runtimeException.getMessage());
+        }
     }
 }

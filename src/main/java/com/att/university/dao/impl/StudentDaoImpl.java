@@ -5,11 +5,13 @@ import com.att.university.entity.Student;
 import com.att.university.entity.Faculty;
 import com.att.university.entity.Group;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
+import java.util.Optional;
 
 @Repository("studentDao")
 public class StudentDaoImpl extends AbstractDaoImpl<Student> implements StudentDao {
@@ -25,6 +27,11 @@ public class StudentDaoImpl extends AbstractDaoImpl<Student> implements StudentD
             "FROM students s " +
             "JOIN groups g on g.id = s.group_id " +
             "JOIN faculties f on g.faculty_id = f.id WHERE s.id = ?";
+    private static final String FIND_BY_EMAIL = "SELECT s.*, g.id as group_id, g.name as group_name, " +
+            "f.id as faculty_id, f.name faculty_name " +
+            "FROM students s " +
+            "JOIN groups g on g.id = s.group_id " +
+            "JOIN faculties f on g.faculty_id = f.id WHERE s.email = ?";
     private static final String DELETE_BY_ID_QUERY = "DELETE FROM students WHERE id = ?";
     private static final String UPDATE_QUERY = "UPDATE students SET first_name = ?, last_name = ?, email = ?, " +
             "password = ?, group_id = ?  WHERE id = ?";
@@ -75,5 +82,13 @@ public class StudentDaoImpl extends AbstractDaoImpl<Student> implements StudentD
                 student.getGroup().getId(),
                 student.getId()
         );
+    }
+
+    public Optional<Student> findByEmail(String email) {
+        try {
+            return Optional.ofNullable(this.jdbcTemplate.queryForObject(FIND_BY_EMAIL, ROW_MAPPER, email));
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
     }
 }

@@ -2,5 +2,8 @@ package com.att.university.dao;
 
 import com.att.university.entity.Student;
 
-public interface StudentDao extends CrudDao<Student, Integer>{
+import java.util.Optional;
+
+public interface StudentDao extends CrudDao<Student, Integer> {
+    Optional<Student> findByEmail(String email);
 }

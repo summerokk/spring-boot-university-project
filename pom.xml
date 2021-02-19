@@ -16,6 +16,7 @@
         <hikari.version>3.2.0</hikari.version>
         <postgres.version>42.2.18</postgres.version>
         <spring.version>5.3.3</spring.version>
+        <spring.security.version>5.4.0</spring.security.version>
         <commons.dbcp.version>1.4</commons.dbcp.version>
         <assertj.version>3.19.0</assertj.version>
         <mockito.version>2.23.4</mockito.version>
@@ -53,6 +54,11 @@
             <artifactId>spring-context</artifactId>
             <version>${spring.version}</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-core</artifactId>
+            <version>${spring.security.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
