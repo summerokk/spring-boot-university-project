@@ -32,7 +32,7 @@ public class StudentValidatorImpl implements StudentValidator {
         }
 
         if (student.getPassword().length() < MIN_PASSWORD_LENGTH) {
-            throw new RuntimeException("Password must be 6 or more characters");
+            throw new RuntimeException(String.format("Password must be %d or more characters", MIN_PASSWORD_LENGTH));
         }
 
         if (!EMAIL_REGEX_EXPRESSION.matcher(student.getEmail()).find()) {
