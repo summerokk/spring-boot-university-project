@@ -85,10 +85,6 @@ public class StudentDaoImpl extends AbstractDaoImpl<Student> implements StudentD
     }
 
     public Optional<Student> findByEmail(String email) {
-        try {
-            return Optional.ofNullable(this.jdbcTemplate.queryForObject(FIND_BY_EMAIL, ROW_MAPPER, email));
-        } catch (EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
+        return findByParam(email, FIND_BY_EMAIL);
     }
 }

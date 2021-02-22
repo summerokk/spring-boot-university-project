@@ -99,7 +99,7 @@ public class FrontController {
                 .withPassword(password)
                 .build();
 
-        studentService.add(student, groupId);
+        studentService.save(student, groupId);
 
         view.printMessage("The student has been created");
     }

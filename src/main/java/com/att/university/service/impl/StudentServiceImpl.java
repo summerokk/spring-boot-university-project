@@ -19,8 +19,13 @@ public class StudentServiceImpl implements StudentService {
     private final StudentValidator studentValidator;
     private final PasswordEncoder passwordEncoder;
 
-    public void add(Student student, Integer groupId) {
+    public void save(Student student, Integer groupId) {
         studentValidator.validate(student);
+
+
+        if (studentDao.findByEmail(student.getEmail()).isPresent()) {
+            throw new RuntimeException("Email already exists");
+        }
 
         Group group = groupDao.findById(groupId).orElseThrow(() -> new RuntimeException("Group is not found"));
 
