@@ -1,7 +1,6 @@
 package com.att.university.controller;
 
 import com.att.university.dao.AcademicRankDao;
-import com.att.university.dao.BuildingDao;
 import com.att.university.dao.ClassroomDao;
 import com.att.university.dao.CourseDao;
 import com.att.university.dao.GroupDao;
@@ -17,14 +16,13 @@ import com.att.university.entity.Lesson;
 import com.att.university.entity.ScienceDegree;
 import com.att.university.entity.Student;
 import com.att.university.entity.Teacher;
+import com.att.university.service.StudentService;
 import com.att.university.view.ApplicationView;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Component
@@ -99,8 +97,8 @@ public class FrontController {
                 .withFirstName(firstName)
                 .withLastName(lastName)
                 .withEmail(email)
-                .withPassword(password)
                 .withGroup(group.get())
+                .withPassword(password)
                 .build());
 
         view.printMessage("The student has been created");

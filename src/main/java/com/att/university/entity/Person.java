@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
-@SuperBuilder(setterPrefix = "with")
+@SuperBuilder(setterPrefix = "with", toBuilder = true)
 @Getter
 @ToString
 @EqualsAndHashCode

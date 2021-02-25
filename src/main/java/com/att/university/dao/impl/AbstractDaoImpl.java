@@ -22,11 +22,7 @@ public abstract class AbstractDaoImpl<E> implements CrudDao<E, Integer> {
 
     @Override
     public Optional<E> findById(Integer id) {
-        try {
-            return Optional.ofNullable(this.jdbcTemplate.queryForObject(findByIdQuery, rowMapper, id));
-        } catch (EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
+        return findByParam(id, findByIdQuery);
     }
 
     @Override
@@ -35,6 +31,14 @@ public abstract class AbstractDaoImpl<E> implements CrudDao<E, Integer> {
 
         return this.jdbcTemplate.query(findAllQuery, new Object[]{page, count}, new int[]{Types.INTEGER, Types.INTEGER},
                 rowMapper);
+    }
+
+    protected <P> Optional<E> findByParam(P param, String query) {
+        try {
+            return Optional.ofNullable(this.jdbcTemplate.queryForObject(query, rowMapper, param));
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
     }
 
     @Override
