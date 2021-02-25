@@ -123,7 +123,6 @@ class StudentServiceTest {
         verifyNoMoreInteractions(studentDao, studentValidator);
     }
 
-
     @Test
     void loginShouldReturnTrueIfEmailAndPasswordAreValid() {
         String email = "test@test.ru";
