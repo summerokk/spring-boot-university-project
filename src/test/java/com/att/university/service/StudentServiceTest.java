@@ -1,6 +1,5 @@
 package com.att.university.service;
 
-import com.att.university.H2Config;
 import com.att.university.dao.GroupDao;
 import com.att.university.dao.StudentDao;
 import com.att.university.entity.Student;
@@ -11,19 +10,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class StudentServiceTest {
@@ -41,6 +34,95 @@ class StudentServiceTest {
 
     @InjectMocks
     private StudentServiceImpl studentService;
+
+    @Test
+    void registerShouldNotThrowExceptionWhenEmailDoesNotExist() {
+        String email = "test@test.ru";
+
+        final Student student = Student.builder()
+                .withId(1)
+                .withFirstName("name")
+                .withLastName("last")
+                .withEmail(email)
+                .withPassword("123456789")
+                .build();
+
+        doNothing().when(studentValidator).validate(any(Student.class));
+        when(studentDao.findByEmail(email)).thenReturn(Optional.empty());
+
+        studentService.register(student);
+
+        verify(studentValidator).validate(any(Student.class));
+        verify(studentDao).findByEmail(anyString());
+        verify(studentDao).save(any(Student.class));
+    }
+
+    @Test
+    void registerShouldThrowExceptionIfEmailExists() {
+        String email = "test@test.ru";
+
+        final Student student = Student.builder()
+                .withId(1)
+                .withFirstName("name")
+                .withLastName("last")
+                .withEmail(email)
+                .withPassword("123456789")
+                .build();
+
+        doNothing().when(studentValidator).validate(any(Student.class));
+        when(studentDao.findByEmail(email)).thenReturn(Optional.of(student));
+
+        assertThrows(RuntimeException.class, () -> studentService.register(student));
+
+        verify(studentValidator).validate(any(Student.class));
+        verify(studentDao).findByEmail(anyString());
+        verifyNoMoreInteractions(studentDao, studentValidator);
+    }
+
+    @Test
+    void updateShouldNotThrowExceptionWhenUserExist() {
+        Integer id = 1;
+
+        final Student student = Student.builder()
+                .withId(id)
+                .withFirstName("name")
+                .withLastName("last")
+                .withEmail("email")
+                .withPassword("123456789")
+                .build();
+
+        doNothing().when(studentValidator).validate(any(Student.class));
+        when(studentDao.findById(id)).thenReturn(Optional.of(student));
+
+        studentService.update(student);
+
+        verify(studentValidator).validate(any(Student.class));
+        verify(studentDao).findById(anyInt());
+        verify(studentDao).update(any(Student.class));
+    }
+
+    @Test
+    void updateShouldThrowExceptionIfUserExists() {
+        Integer id = 1;
+
+        final Student student = Student.builder()
+                .withId(id)
+                .withFirstName("name")
+                .withLastName("last")
+                .withEmail("email")
+                .withPassword("123456789")
+                .build();
+
+        doNothing().when(studentValidator).validate(any(Student.class));
+        when(studentDao.findById(id)).thenReturn(Optional.empty());
+
+        assertThrows(RuntimeException.class, () -> studentService.update(student));
+
+        verify(studentValidator).validate(any(Student.class));
+        verify(studentDao).findById(anyInt());
+        verifyNoMoreInteractions(studentDao, studentValidator);
+    }
+
 
     @Test
     void loginShouldReturnTrueIfEmailAndPasswordAreValid() {
