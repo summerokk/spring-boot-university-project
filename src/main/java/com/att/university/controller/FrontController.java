@@ -29,7 +29,7 @@ import java.util.Optional;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class FrontController {
     private final ClassroomDao classroomDao;
-    private final StudentService studentService;
+    private final StudentDao studentDao;
     private final TeacherDao teacherDao;
     private final CourseDao courseDao;
     private final GroupDao groupDao;
@@ -91,15 +91,15 @@ public class FrontController {
         view.printMessage("Enter student's group id: ");
         view.printMessage(groupDao.findAll(1, groupDao.count()));
         Integer groupId = view.readIntValue();
+        Optional<Group> group = groupDao.findById(groupId);
 
-        Student student = Student.builder()
+        studentDao.save(Student.builder()
                 .withFirstName(firstName)
                 .withLastName(lastName)
                 .withEmail(email)
+                .withGroup(group.get())
                 .withPassword(password)
-                .build();
-
-        studentService.save(student, groupId);
+                .build());
 
         view.printMessage("The student has been created");
     }

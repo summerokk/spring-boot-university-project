@@ -19,19 +19,32 @@ public class StudentServiceImpl implements StudentService {
     private final StudentValidator studentValidator;
     private final PasswordEncoder passwordEncoder;
 
-    public void save(Student student, Integer groupId) {
+    public void register(Student student) {
         studentValidator.validate(student);
-
 
         if (studentDao.findByEmail(student.getEmail()).isPresent()) {
             throw new RuntimeException("Email already exists");
         }
 
-        Group group = groupDao.findById(groupId).orElseThrow(() -> new RuntimeException("Group is not found"));
+        studentDao.save(student);
+    }
 
-        studentDao.save(student.toBuilder()
-                .withPassword(passwordEncoder.encode(student.getPassword()))
-                .withGroup(group)
-                .build());
+    @Override
+    public void update(Student student) {
+        studentValidator.validate(student);
+
+        if(!studentDao.findById(student.getId()).isPresent()) {
+            throw new RuntimeException("Student is not found");
+        }
+
+        studentDao.update(student);
+    }
+
+    @Override
+    public boolean login(String email, String password) {
+        Student student = studentDao.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Student is not found"));
+
+        return student.getPassword().equals(passwordEncoder.encode(password));
     }
 }
