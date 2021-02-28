@@ -1,11 +1,12 @@
 package com.att.university.service;
 
-import com.att.university.entity.Student;
+import com.att.university.request.person.student.StudentRegisterRequest;
+import com.att.university.request.person.student.StudentUpdateRequest;
 
 public interface StudentService {
-    void register(Student student);
+    void register(StudentRegisterRequest student);
 
-    void update(Student student);
+    void update(StudentUpdateRequest student);
 
     boolean login(String email, String password);
 }

@@ -7,8 +7,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import javax.sql.DataSource;
-
 @Repository("scienceDegree")
 public class ScienceDegreeImpl extends AbstractDaoImpl<ScienceDegree> implements ScienceDegreeDao {
     private static final String SAVE_QUERY = "INSERT INTO science_degrees(name) VALUES(?)";

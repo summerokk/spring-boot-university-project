@@ -181,4 +181,25 @@ class TeacherDaoTest extends AbstractTest {
         assertThat(updateTeacher.get().getFirstName()).isEqualTo("update");
         assertThat(updateTeacher.get().getLastName()).isEqualTo("update_l");
     }
+
+    @Test
+    void findByEmailShouldReturnResultWhenDatabaseHaveTeachers() {
+        AcademicRank academicRank = new AcademicRank(1, "Assistant Professor");
+        ScienceDegree scienceDegree = new ScienceDegree(2, "Doctoral degree");
+
+        Teacher expected = Teacher.builder()
+                .withId(1)
+                .withFirstName("Fedor")
+                .withLastName("Tolov")
+                .withEmail("tolof234@tmail.com")
+                .withPassword("password")
+                .withAcademicRank(academicRank)
+                .withScienceDegree(scienceDegree)
+                .withLinkedin("https://link.ru")
+                .build();
+
+        Optional<Teacher> actual = teacherDao.findByEmail("tolof234@tmail.com");
+
+        assertThat(actual).isPresent().hasValue(expected);
+    }
 }
