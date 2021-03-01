@@ -11,8 +11,6 @@ public class StudentUpdateValidatorImpl extends AbstractPersonValidatorImpl<Stud
     public void validate(StudentUpdateRequest updateRequest) {
         baseInfoValidate(updateRequest);
 
-        if (updateRequest.getId() == null) {
-            throw new RuntimeException("Student ID is null");
-        }
+        validateNull(updateRequest.getId(), "Student ID is null");
     }
 }

@@ -1,6 +1,5 @@
 package com.att.university.dao;
 
-import com.att.university.Config;
 import com.att.university.H2Config;
 import com.att.university.entity.AcademicRank;
 import com.att.university.entity.ScienceDegree;

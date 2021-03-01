@@ -11,20 +11,9 @@ public class TeacherUpdateValidatorImpl extends AbstractPersonValidatorImpl<Teac
     public void validate(TeacherUpdateRequest updateRequest) {
         baseInfoValidate(updateRequest);
 
-        if (updateRequest.getId() == null) {
-            throw new RuntimeException("Teacher ID is null");
-        }
-
-        if (updateRequest.getLinkedin() == null) {
-            throw new RuntimeException("Linkedin is null");
-        }
-
-        if (updateRequest.getAcademicRankId() == null) {
-            throw new RuntimeException("Academic Rank Id is null");
-        }
-
-        if (updateRequest.getScienceDegreeId() == null) {
-            throw new RuntimeException("Science Degree Id is null");
-        }
+        validateNull(updateRequest.getId(), "Teacher ID is null");
+        validateNull(updateRequest.getLinkedin(), "Linkedin is null");
+        validateNull(updateRequest.getAcademicRankId(), "Academic Rank Id is null");
+        validateNull(updateRequest.getScienceDegreeId(), "Science Degree Id is null");
     }
 }

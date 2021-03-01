@@ -10,21 +10,13 @@ public abstract class AbstractPersonValidatorImpl<T extends PersonRequest> imple
     private static final int MIN_PASSWORD_LENGTH = 6;
 
     protected void baseInfoValidate(T person) {
-        if (person.getFirstName() == null) {
-            throw new RuntimeException("First name is null");
-        }
+        validateNull(person.getFirstName(), "First name is null");
 
-        if (person.getLastName() == null) {
-            throw new RuntimeException("Last name is null");
-        }
+        validateNull(person.getLastName(), "Last name is null");
 
-        if (person.getEmail() == null) {
-            throw new RuntimeException("Email is null");
-        }
+        validateNull(person.getEmail(), "Email is null");
 
-        if (person.getPassword() == null) {
-            throw new RuntimeException("Password is null");
-        }
+        validateNull(person.getPassword(), "Password is null");
 
         if (person.getPassword().length() < MIN_PASSWORD_LENGTH) {
             throw new RuntimeException(String.format("Password must be %d or more characters", MIN_PASSWORD_LENGTH));

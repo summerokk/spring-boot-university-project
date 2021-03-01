@@ -11,16 +11,8 @@ public class TeacherRegisterValidatorImpl extends AbstractPersonValidatorImpl<Te
     public void validate(TeacherRegisterRequest registerRequest) {
         baseInfoValidate(registerRequest);
 
-        if (registerRequest.getLinkedin() == null) {
-            throw new RuntimeException("Linkedin is null");
-        }
-
-        if (registerRequest.getAcademicRankId() == null) {
-            throw new RuntimeException("Academic Rank Id is null");
-        }
-
-        if (registerRequest.getScienceDegreeId() == null) {
-            throw new RuntimeException("Science Degree Id is null");
-        }
+        validateNull(registerRequest.getLinkedin(), "Linkedin is null");
+        validateNull(registerRequest.getAcademicRankId(), "Academic Rank Id is null");
+        validateNull(registerRequest.getScienceDegreeId(), "Science Degree Id is null");
     }
 }

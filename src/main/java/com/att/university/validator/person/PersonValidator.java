@@ -1,5 +1,7 @@
 package com.att.university.validator.person;
 
-public interface PersonValidator {
+import com.att.university.validator.Validator;
+
+public interface PersonValidator extends Validator {
 
 }
