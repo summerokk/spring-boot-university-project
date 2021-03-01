@@ -163,6 +163,7 @@
                         <exclude>**/*Config.class</exclude>
                         <exclude>**/view/ApplicationView.class</exclude>
                         <exclude>**/entity/</exclude>
+                        <exclude>**/request/</exclude>
                     </excludes>
                 </configuration>
                 <executions>

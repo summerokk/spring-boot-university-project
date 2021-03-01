@@ -156,4 +156,21 @@ class StudentDaoTest extends AbstractTest {
         assertThat(updateStudent.get().getFirstName()).isEqualTo("update");
         assertThat(updateStudent.get().getLastName()).isEqualTo("update_l");
     }
+
+    @Test
+    void findByEmailShouldReturnResultWhenDatabaseHaveStudents() {
+        Group group = new Group(1, "GT-23", new Faculty(1, "School of Visual arts"));
+
+        Student expected = Student.builder()
+                .withId(1)
+                .withFirstName("Fedor")
+                .withLastName("Tolov")
+                .withEmail("tolof234@tmail.com")
+                .withPassword("password")
+                .withGroup(group)
+                .build();
+        Optional<Student> actual = studentDao.findByEmail("tolof234@tmail.com");
+
+        assertThat(actual).isPresent().hasValue(expected);
+    }
 }
