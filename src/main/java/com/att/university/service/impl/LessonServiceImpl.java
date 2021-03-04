@@ -10,6 +10,7 @@ import com.att.university.entity.Course;
 import com.att.university.entity.Group;
 import com.att.university.entity.Lesson;
 import com.att.university.entity.Teacher;
+import com.att.university.exception.dao.LessonException;
 import com.att.university.request.lesson.LessonAddRequest;
 import com.att.university.request.lesson.LessonUpdateRequest;
 import com.att.university.service.LessonService;
@@ -18,6 +19,7 @@ import com.att.university.validator.lesson.LessonUpdateValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -33,20 +35,21 @@ public class LessonServiceImpl implements LessonService {
     private final ClassroomDao classroomDao;
 
     @Override
+    @Transactional
     public void add(LessonAddRequest addRequest) {
         lessonAddValidator.validate(addRequest);
 
         Course course = courseDao.findById(addRequest.getCourseId())
-                .orElseThrow(() -> new RuntimeException("Course is not found"));
+                .orElseThrow(() -> new LessonException("Course is not found"));
 
         Classroom classroom = classroomDao.findById(addRequest.getClassroomId())
-                .orElseThrow(() -> new RuntimeException("Classroom is not found"));
+                .orElseThrow(() -> new LessonException("Classroom is not found"));
 
         Group group = groupDao.findById(addRequest.getGroupId())
-                .orElseThrow(() -> new RuntimeException("Group is not found"));
+                .orElseThrow(() -> new LessonException("Group is not found"));
 
         Teacher teacher = teacherDao.findById(addRequest.getTeacherId())
-                .orElseThrow(() -> new RuntimeException("Teacher is not found"));
+                .orElseThrow(() -> new LessonException("Teacher is not found"));
 
         LocalDateTime date = LocalDateTime.parse(addRequest.getDate());
 
@@ -60,23 +63,24 @@ public class LessonServiceImpl implements LessonService {
     }
 
     @Override
+    @Transactional
     public void update(LessonUpdateRequest updateRequest) {
         lessonUpdateValidator.validate(updateRequest);
 
         Lesson lesson = lessonDao.findById(updateRequest.getId())
-                .orElseThrow(() -> new RuntimeException("Lesson is not found"));
+                .orElseThrow(() -> new LessonException("Lesson is not found"));
 
         Course course = courseDao.findById(updateRequest.getCourseId())
-                .orElseThrow(() -> new RuntimeException("Course is not found"));
+                .orElseThrow(() -> new LessonException("Course is not found"));
 
         Classroom classroom = classroomDao.findById(updateRequest.getClassroomId())
-                .orElseThrow(() -> new RuntimeException("Classroom is not found"));
+                .orElseThrow(() -> new LessonException("Classroom is not found"));
 
         Group group = groupDao.findById(updateRequest.getGroupId())
-                .orElseThrow(() -> new RuntimeException("Group is not found"));
+                .orElseThrow(() -> new LessonException("Group is not found"));
 
         Teacher teacher = teacherDao.findById(updateRequest.getTeacherId())
-                .orElseThrow(() -> new RuntimeException("Teacher is not found"));
+                .orElseThrow(() -> new LessonException("Teacher is not found"));
 
         LocalDateTime date = LocalDateTime.parse(updateRequest.getDate());
 
