@@ -10,7 +10,7 @@ import com.att.university.entity.Course;
 import com.att.university.entity.Group;
 import com.att.university.entity.Lesson;
 import com.att.university.entity.Teacher;
-import com.att.university.exception.dao.LessonException;
+import com.att.university.exception.dao.LessonNotFoundException;
 import com.att.university.request.lesson.LessonAddRequest;
 import com.att.university.request.lesson.LessonUpdateRequest;
 import com.att.university.service.LessonService;
@@ -40,16 +40,16 @@ public class LessonServiceImpl implements LessonService {
         lessonAddValidator.validate(addRequest);
 
         Course course = courseDao.findById(addRequest.getCourseId())
-                .orElseThrow(() -> new LessonException("Course is not found"));
+                .orElseThrow(() -> new LessonNotFoundException("Course is not found"));
 
         Classroom classroom = classroomDao.findById(addRequest.getClassroomId())
-                .orElseThrow(() -> new LessonException("Classroom is not found"));
+                .orElseThrow(() -> new LessonNotFoundException("Classroom is not found"));
 
         Group group = groupDao.findById(addRequest.getGroupId())
-                .orElseThrow(() -> new LessonException("Group is not found"));
+                .orElseThrow(() -> new LessonNotFoundException("Group is not found"));
 
         Teacher teacher = teacherDao.findById(addRequest.getTeacherId())
-                .orElseThrow(() -> new LessonException("Teacher is not found"));
+                .orElseThrow(() -> new LessonNotFoundException("Teacher is not found"));
 
         LocalDateTime date = LocalDateTime.parse(addRequest.getDate());
 
@@ -68,19 +68,19 @@ public class LessonServiceImpl implements LessonService {
         lessonUpdateValidator.validate(updateRequest);
 
         Lesson lesson = lessonDao.findById(updateRequest.getId())
-                .orElseThrow(() -> new LessonException("Lesson is not found"));
+                .orElseThrow(() -> new LessonNotFoundException("Lesson is not found"));
 
         Course course = courseDao.findById(updateRequest.getCourseId())
-                .orElseThrow(() -> new LessonException("Course is not found"));
+                .orElseThrow(() -> new LessonNotFoundException("Course is not found"));
 
         Classroom classroom = classroomDao.findById(updateRequest.getClassroomId())
-                .orElseThrow(() -> new LessonException("Classroom is not found"));
+                .orElseThrow(() -> new LessonNotFoundException("Classroom is not found"));
 
         Group group = groupDao.findById(updateRequest.getGroupId())
-                .orElseThrow(() -> new LessonException("Group is not found"));
+                .orElseThrow(() -> new LessonNotFoundException("Group is not found"));
 
         Teacher teacher = teacherDao.findById(updateRequest.getTeacherId())
-                .orElseThrow(() -> new LessonException("Teacher is not found"));
+                .orElseThrow(() -> new LessonNotFoundException("Teacher is not found"));
 
         LocalDateTime date = LocalDateTime.parse(updateRequest.getDate());
 
