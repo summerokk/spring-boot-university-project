@@ -1,11 +1,9 @@
 package com.att.university.service;
 
-import com.att.university.dao.AcademicRankDao;
 import com.att.university.dao.ClassroomDao;
 import com.att.university.dao.CourseDao;
 import com.att.university.dao.GroupDao;
 import com.att.university.dao.LessonDao;
-import com.att.university.dao.ScienceDegreeDao;
 import com.att.university.dao.TeacherDao;
 import com.att.university.entity.AcademicRank;
 import com.att.university.entity.Building;
@@ -16,6 +14,7 @@ import com.att.university.entity.Group;
 import com.att.university.entity.Lesson;
 import com.att.university.entity.ScienceDegree;
 import com.att.university.entity.Teacher;
+import com.att.university.exception.dao.LessonNotFoundException;
 import com.att.university.request.lesson.LessonAddRequest;
 import com.att.university.request.lesson.LessonUpdateRequest;
 import com.att.university.service.impl.LessonServiceImpl;
@@ -33,6 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -62,6 +62,26 @@ class LessonServiceTest {
 
     @InjectMocks
     private LessonServiceImpl lessonService;
+
+    @Test
+    void lessonAddValidatorShouldThrowException() {
+        final LessonAddRequest lessonAddRequest = generateAddRequest();
+
+        doThrow(RuntimeException.class).when(lessonAddValidator).validate(lessonAddRequest);
+
+        assertThrows(RuntimeException.class, () -> lessonService.add(lessonAddRequest));
+        verify(lessonAddValidator).validate(any(LessonAddRequest.class));
+    }
+
+    @Test
+    void lessonUpdateValidatorShouldThrowException() {
+        final LessonUpdateRequest lessonUpdateRequest = generateUpdateRequest();
+
+        doThrow(RuntimeException.class).when(lessonUpdateValidator).validate(lessonUpdateRequest);
+
+        assertThrows(RuntimeException.class, () -> lessonService.update(lessonUpdateRequest));
+        verify(lessonUpdateValidator).validate(any(LessonUpdateRequest.class));
+    }
 
     @Test
     void addShouldNotThrowExceptionIfRequestIsValid() {
@@ -152,123 +172,132 @@ class LessonServiceTest {
         verifyNoMoreInteractions(courseDao, classroomDao, groupDao, teacherDao, lessonAddValidator);
     }
 
-//    @Test
-//    void registerShouldThrowExceptionIfEmailExists() {
-//        final TeacherRegisterRequest registerRequest = generateRegisterRequest();
-//        final Teacher teacher = generateTeacher();
-//
-//        doNothing().when(teacherRegisterValidator).validate(any(TeacherRegisterRequest.class));
-//        when(teacherDao.findByEmail(teacher.getEmail())).thenReturn(Optional.of(teacher));
-//
-//        assertThrows(RuntimeException.class, () -> lessonService.register(registerRequest));
-//
-//        verify(teacherRegisterValidator).validate(any(TeacherRegisterRequest.class));
-//        verify(teacherDao).findByEmail(anyString());
-//        verifyNoMoreInteractions(teacherDao, teacherRegisterValidator);
-//    }
-//
-//    @Test
-//    void registerShouldThrowExceptionIfAcademicRankDoesNotExist() {
-//        final TeacherRegisterRequest registerRequest = generateRegisterRequest();
-//
-//        doNothing().when(teacherRegisterValidator).validate(any(TeacherRegisterRequest.class));
-//        when(teacherDao.findByEmail(registerRequest.getEmail())).thenReturn(Optional.empty());
-//        when(academicRankDao.findById(anyInt())).thenReturn(Optional.empty());
-//
-//        assertThrows(RuntimeException.class, () -> lessonService.register(registerRequest));
-//
-//        verify(teacherRegisterValidator).validate(any(TeacherRegisterRequest.class));
-//        verify(teacherDao).findByEmail(anyString());
-//        verify(academicRankDao).findById(anyInt());
-//        verifyNoMoreInteractions(teacherDao, teacherRegisterValidator, academicRankDao, scienceDegreeDao);
-//    }
-//
-//    @Test
-//    void registerShouldThrowExceptionIfScienceDegreeDoesNotExist() {
-//        final TeacherRegisterRequest registerRequest = generateRegisterRequest();
-//
-//        doNothing().when(teacherRegisterValidator).validate(any(TeacherRegisterRequest.class));
-//        when(teacherDao.findByEmail(registerRequest.getEmail())).thenReturn(Optional.empty());
-//        when(academicRankDao.findById(anyInt())).thenReturn(Optional.of(generateRank()));
-//        when(scienceDegreeDao.findById(anyInt())).thenReturn(Optional.empty());
-//
-//        assertThrows(RuntimeException.class, () -> lessonService.register(registerRequest));
-//
-//        verify(teacherRegisterValidator).validate(any(TeacherRegisterRequest.class));
-//        verify(teacherDao).findByEmail(anyString());
-//        verify(academicRankDao).findById(anyInt());
-//        verify(scienceDegreeDao).findById(anyInt());
-//        verifyNoMoreInteractions(teacherDao, teacherRegisterValidator, academicRankDao, scienceDegreeDao);
-//    }
-//
-//    @Test
-//    void updateShouldNotThrowExceptionWhenUserExist() {
-//        final TeacherUpdateRequest teacherUpdateRequest = generateUpdateRequest();
-//        final Teacher teacher = generateTeacher();
-//
-//        doNothing().when(teacherUpdateValidator).validate(any(TeacherUpdateRequest.class));
-//        when(teacherDao.findById(teacher.getId())).thenReturn(Optional.of(teacher));
-//        when(scienceDegreeDao.findById(anyInt())).thenReturn(Optional.of(generateDegree()));
-//        when(academicRankDao.findById(anyInt())).thenReturn(Optional.of(generateRank()));
-//
-//        lessonService.update(teacherUpdateRequest);
-//
-//        verify(teacherUpdateValidator).validate(any(TeacherUpdateRequest.class));
-//        verify(teacherDao).findById(anyInt());
-//        verify(scienceDegreeDao).findById(anyInt());
-//        verify(academicRankDao).findById(anyInt());
-//        verify(teacherDao).update(any(Teacher.class));
-//    }
-//
-//    @Test
-//    void updateShouldThrowExceptionIfScienceDegreeDoesNotExist() {
-//        final TeacherUpdateRequest teacherUpdateRequest = generateUpdateRequest();
-//        final Teacher teacher = generateTeacher();
-//
-//        doNothing().when(teacherUpdateValidator).validate(any(TeacherUpdateRequest.class));
-//        when(teacherDao.findById(teacherUpdateRequest.getId())).thenReturn(Optional.of(teacher));
-//        when(academicRankDao.findById(anyInt())).thenReturn(Optional.of(generateRank()));
-//        when(scienceDegreeDao.findById(anyInt())).thenReturn(Optional.empty());
-//
-//        assertThrows(RuntimeException.class, () -> lessonService.update(teacherUpdateRequest));
-//
-//        verify(teacherUpdateValidator).validate(any(TeacherUpdateRequest.class));
-//        verify(teacherDao).findById(anyInt());
-//        verify(academicRankDao).findById(anyInt());
-//        verify(scienceDegreeDao).findById(anyInt());
-//        verifyNoMoreInteractions(teacherDao, teacherUpdateValidator, academicRankDao, scienceDegreeDao);
-//    }
-//
-//    @Test
-//    void updateShouldThrowExceptionIfAcademicRankDoesNotExist() {
-//        final TeacherUpdateRequest teacherUpdateRequest = generateUpdateRequest();
-//        final Teacher teacher = generateTeacher();
-//
-//        doNothing().when(teacherUpdateValidator).validate(any(TeacherUpdateRequest.class));
-//        when(teacherDao.findById(teacherUpdateRequest.getId())).thenReturn(Optional.of(teacher));
-//        when(academicRankDao.findById(anyInt())).thenReturn(Optional.empty());
-//
-//        assertThrows(RuntimeException.class, () -> lessonService.update(teacherUpdateRequest));
-//
-//        verify(teacherUpdateValidator).validate(any(TeacherUpdateRequest.class));
-//        verify(teacherDao).findById(anyInt());
-//        verify(academicRankDao).findById(anyInt());
-//        verifyNoMoreInteractions(teacherDao, teacherUpdateValidator, academicRankDao, scienceDegreeDao);
-//    }
-//
-//    @Test
-//    void updateShouldThrowExceptionIfUserExists() {
-//        final TeacherUpdateRequest teacherUpdateRequest = generateUpdateRequest();
-//
-//        doNothing().when(teacherUpdateValidator).validate(any(TeacherUpdateRequest.class));
-//        when(teacherDao.findById(teacherUpdateRequest.getId())).thenReturn(Optional.empty());
-//
-//        assertThrows(RuntimeException.class, () -> lessonService.update(teacherUpdateRequest));
-//
-//        verify(teacherUpdateValidator).validate(any(TeacherUpdateRequest.class));
-//        verify(teacherDao).findById(anyInt());
-//        verifyNoMoreInteractions(teacherDao, teacherUpdateValidator);
-//    }
+    @Test
+    void updateShouldNotThrowExceptionIfRequestIsValid() {
+        final LessonUpdateRequest lessonUpdateRequest = generateUpdateRequest();
+
+        final Lesson lesson = generateLesson();
+        final Course course = generateCourse();
+        final Teacher teacher = generateTeacher();
+        final Classroom classroom = generateClassroom();
+        final Group group = generateGroup();
+
+        doNothing().when(lessonUpdateValidator).validate(any(LessonUpdateRequest.class));
+        when(lessonDao.findById(anyInt())).thenReturn(Optional.of(lesson));
+        when(courseDao.findById(anyInt())).thenReturn(Optional.of(course));
+        when(teacherDao.findById(anyInt())).thenReturn(Optional.of(teacher));
+        when(groupDao.findById(anyInt())).thenReturn(Optional.of(group));
+        when(classroomDao.findById(anyInt())).thenReturn(Optional.of(classroom));
+
+        lessonService.update(lessonUpdateRequest);
+
+        verify(lessonUpdateValidator).validate(any(LessonUpdateRequest.class));
+        verify(courseDao).findById(anyInt());
+        verify(lessonDao).findById(anyInt());
+        verify(groupDao).findById(anyInt());
+        verify(teacherDao).findById(anyInt());
+        verify(classroomDao).findById(anyInt());
+        verify(lessonDao).update(any(Lesson.class));
+    }
+
+    @Test
+    void updateShouldThrowExceptionIfLessonDoesNotExist() {
+        final LessonUpdateRequest updateRequest = generateUpdateRequest();
+
+
+        doNothing().when(lessonUpdateValidator).validate(any(LessonUpdateRequest.class));
+        when(lessonDao.findById(anyInt())).thenReturn(Optional.empty());
+
+        assertThrows(LessonNotFoundException.class, () -> lessonService.update(updateRequest));
+
+        verify(lessonUpdateValidator).validate(any(LessonUpdateRequest.class));
+        verifyNoMoreInteractions(lessonDao, lessonUpdateValidator);
+    }
+
+    @Test
+    void updateShouldThrowExceptionIfClassroomDoesNotExist() {
+        final LessonUpdateRequest updateRequest = generateUpdateRequest();
+
+        final Lesson lesson = generateLesson();
+        final Course course = generateCourse();
+
+        doNothing().when(lessonUpdateValidator).validate(any(LessonUpdateRequest.class));
+        when(lessonDao.findById(anyInt())).thenReturn(Optional.of(lesson));
+        when(courseDao.findById(anyInt())).thenReturn(Optional.of(course));
+        when(classroomDao.findById(anyInt())).thenReturn(Optional.empty());
+
+        assertThrows(LessonNotFoundException.class, () -> lessonService.update(updateRequest));
+
+        verify(lessonUpdateValidator).validate(any(LessonUpdateRequest.class));
+        verifyNoMoreInteractions(courseDao, classroomDao, lessonDao, lessonAddValidator);
+    }
+
+    @Test
+    void updateShouldThrowExceptionIfCourseDoesNotExist() {
+        final LessonUpdateRequest updateRequest = generateUpdateRequest();
+
+        final Lesson lesson = generateLesson();
+
+        doNothing().when(lessonUpdateValidator).validate(any(LessonUpdateRequest.class));
+        when(lessonDao.findById(anyInt())).thenReturn(Optional.of(lesson));
+        when(courseDao.findById(anyInt())).thenReturn(Optional.empty());
+
+        assertThrows(LessonNotFoundException.class, () -> lessonService.update(updateRequest));
+
+        verify(lessonUpdateValidator).validate(any(LessonUpdateRequest.class));
+        verifyNoMoreInteractions(courseDao, lessonDao, lessonAddValidator);
+    }
+
+    @Test
+    void updateShouldThrowExceptionIfTeacherDoesNotExist() {
+        final LessonUpdateRequest updateRequest = generateUpdateRequest();
+
+        final Lesson lesson = generateLesson();
+        final Course course = generateCourse();
+        final Classroom classroom = generateClassroom();
+        final Group group = generateGroup();
+
+        doNothing().when(lessonUpdateValidator).validate(any(LessonUpdateRequest.class));
+        when(lessonDao.findById(anyInt())).thenReturn(Optional.of(lesson));
+        when(courseDao.findById(anyInt())).thenReturn(Optional.of(course));
+        when(groupDao.findById(anyInt())).thenReturn(Optional.of(group));
+        when(classroomDao.findById(anyInt())).thenReturn(Optional.of(classroom));
+        when(teacherDao.findById(anyInt())).thenReturn(Optional.empty());
+
+        assertThrows(LessonNotFoundException.class, () -> lessonService.update(updateRequest));
+
+        verify(lessonUpdateValidator).validate(any(LessonUpdateRequest.class));
+        verify(courseDao).findById(anyInt());
+        verify(lessonDao).findById(anyInt());
+        verify(groupDao).findById(anyInt());
+        verify(teacherDao).findById(anyInt());
+        verify(classroomDao).findById(anyInt());
+        verifyNoMoreInteractions(courseDao, lessonDao, groupDao, lessonUpdateValidator, teacherDao, classroomDao);
+    }
+
+    @Test
+    void updateShouldThrowExceptionIfGroupDoesNotExist() {
+        final LessonUpdateRequest updateRequest = generateUpdateRequest();
+
+        final Lesson lesson = generateLesson();
+        final Course course = generateCourse();
+        final Classroom classroom = generateClassroom();
+
+        doNothing().when(lessonUpdateValidator).validate(any(LessonUpdateRequest.class));
+        when(lessonDao.findById(anyInt())).thenReturn(Optional.of(lesson));
+        when(courseDao.findById(anyInt())).thenReturn(Optional.of(course));
+        when(classroomDao.findById(anyInt())).thenReturn(Optional.of(classroom));
+        when(groupDao.findById(anyInt())).thenReturn(Optional.empty());
+
+        assertThrows(LessonNotFoundException.class, () -> lessonService.update(updateRequest));
+
+        verify(lessonUpdateValidator).validate(any(LessonUpdateRequest.class));
+        verify(courseDao).findById(anyInt());
+        verify(lessonDao).findById(anyInt());
+        verify(groupDao).findById(anyInt());
+        verify(classroomDao).findById(anyInt());
+        verifyNoMoreInteractions(courseDao, lessonDao, groupDao, lessonUpdateValidator, teacherDao, classroomDao);
+    }
 
     private LessonAddRequest generateAddRequest() {
         return LessonAddRequest.builder()
@@ -288,6 +317,16 @@ class LessonServiceTest {
                 .withDate("2004-10-20T10:23")
                 .withCourseId(1)
                 .withGroupId(1)
+                .build();
+    }
+
+    private Lesson generateLesson() {
+        return Lesson.builder()
+                .withId(1)
+                .withClassroom(generateClassroom())
+                .withGroup(generateGroup())
+                .withCourse(generateCourse())
+                .withTeacher(generateTeacher())
                 .build();
     }
 
