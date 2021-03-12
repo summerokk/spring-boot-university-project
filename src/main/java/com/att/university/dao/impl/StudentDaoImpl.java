@@ -4,6 +4,7 @@ import com.att.university.dao.StudentDao;
 import com.att.university.entity.Student;
 import com.att.university.entity.Faculty;
 import com.att.university.entity.Group;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -14,6 +15,7 @@ import javax.sql.DataSource;
 import java.util.Optional;
 
 @Repository("studentDao")
+@Slf4j
 public class StudentDaoImpl extends AbstractDaoImpl<Student> implements StudentDao {
     private static final String SAVE_QUERY = "INSERT INTO students(first_name, last_name, email, password, group_id) " +
             "VALUES(?, ?, ?, ?, ?)";
@@ -85,6 +87,8 @@ public class StudentDaoImpl extends AbstractDaoImpl<Student> implements StudentD
     }
 
     public Optional<Student> findByEmail(String email) {
+        log.debug("Find student by email {}", email);
+
         return findByParam(email, FIND_BY_EMAIL);
     }
 }

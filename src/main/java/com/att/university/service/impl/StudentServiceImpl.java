@@ -10,11 +10,13 @@ import com.att.university.service.StudentService;
 import com.att.university.validator.person.StudentRegisterValidator;
 import com.att.university.validator.person.StudentUpdateValidator;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component("studentService")
+@Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class StudentServiceImpl implements StudentService {
     private final StudentDao studentDao;
@@ -23,43 +25,50 @@ public class StudentServiceImpl implements StudentService {
     private final StudentUpdateValidator studentUpdateValidator;
     private final PasswordEncoder passwordEncoder;
 
-    public void register(StudentRegisterRequest student) {
-        studentRegisterValidator.validate(student);
+    public void register(StudentRegisterRequest studentRegisterRequest) {
+        studentRegisterValidator.validate(studentRegisterRequest);
 
-        if (studentDao.findByEmail(student.getEmail()).isPresent()) {
+        log.debug("Student registration with request {}", studentRegisterRequest);
+
+        if (studentDao.findByEmail(studentRegisterRequest.getEmail()).isPresent()) {
             throw new RuntimeException("Email already exists");
         }
 
         studentDao.save(Student.builder()
-                .withFirstName(student.getFirstName())
-                .withLastName(student.getLastName())
-                .withEmail(student.getEmail())
-                .withPassword(student.getPassword())
+                .withFirstName(studentRegisterRequest.getFirstName())
+                .withLastName(studentRegisterRequest.getLastName())
+                .withEmail(studentRegisterRequest.getEmail())
+                .withPassword(studentRegisterRequest.getPassword())
                 .build());
     }
 
     @Override
-    public void update(StudentUpdateRequest student) {
-        studentUpdateValidator.validate(student);
+    public void update(StudentUpdateRequest studentUpdateRequest) {
+        studentUpdateValidator.validate(studentUpdateRequest);
 
-        if(!studentDao.findById(student.getId()).isPresent()) {
+        log.debug("Student update with request {}", studentUpdateRequest);
+
+
+        if(!studentDao.findById(studentUpdateRequest.getId()).isPresent()) {
             throw new RuntimeException("Student is not found");
         }
 
-        Group group = groupDao.findById(student.getGroupId()).orElse(null);
+        Group group = groupDao.findById(studentUpdateRequest.getGroupId()).orElse(null);
 
         studentDao.update(Student.builder()
-                .withId(student.getId())
-                .withFirstName(student.getFirstName())
-                .withLastName(student.getLastName())
-                .withEmail(student.getEmail())
-                .withPassword(student.getPassword())
+                .withId(studentUpdateRequest.getId())
+                .withFirstName(studentUpdateRequest.getFirstName())
+                .withLastName(studentUpdateRequest.getLastName())
+                .withEmail(studentUpdateRequest.getEmail())
+                .withPassword(studentUpdateRequest.getPassword())
                 .withGroup(group)
                 .build());
     }
 
     @Override
     public boolean login(String email, String password) {
+        log.debug("Student login with login {}", email);
+
         Student student = studentDao.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Student is not found"));
 
