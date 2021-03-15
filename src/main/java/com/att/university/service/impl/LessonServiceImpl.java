@@ -17,6 +17,7 @@ import com.att.university.service.LessonService;
 import com.att.university.validator.lesson.LessonAddValidator;
 import com.att.university.validator.lesson.LessonUpdateValidator;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 
 @Component
+@Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class LessonServiceImpl implements LessonService {
     private final LessonAddValidator lessonAddValidator;
@@ -37,6 +39,8 @@ public class LessonServiceImpl implements LessonService {
     @Override
     @Transactional
     public void add(LessonAddRequest addRequest) {
+        log.debug("Adding lesson with request {}", addRequest);
+
         lessonAddValidator.validate(addRequest);
 
         Course course = courseDao.findById(addRequest.getCourseId())
@@ -65,6 +69,8 @@ public class LessonServiceImpl implements LessonService {
     @Override
     @Transactional
     public void update(LessonUpdateRequest updateRequest) {
+        log.debug("Updating lesson with request {}", updateRequest);
+
         lessonUpdateValidator.validate(updateRequest);
 
         Lesson lesson = lessonDao.findById(updateRequest.getId())

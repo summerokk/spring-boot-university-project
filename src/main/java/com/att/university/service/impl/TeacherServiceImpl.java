@@ -13,11 +13,13 @@ import com.att.university.service.TeacherService;
 import com.att.university.validator.person.TeacherRegisterValidator;
 import com.att.university.validator.person.TeacherUpdateValidator;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component("teacherService")
+@Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class TeacherServiceImpl implements TeacherService {
     private final TeacherDao teacherDao;
@@ -27,51 +29,55 @@ public class TeacherServiceImpl implements TeacherService {
     private final TeacherUpdateValidator teacherUpdateValidator;
     private final PasswordEncoder passwordEncoder;
 
-    public void register(TeacherRegisterRequest teacher) {
-        teacherRegisterValidator.validate(teacher);
+    public void register(TeacherRegisterRequest teacherRegisterRequest) {
+        teacherRegisterValidator.validate(teacherRegisterRequest);
 
-        if (teacherDao.findByEmail(teacher.getEmail()).isPresent()) {
+        log.debug("Teacher update with request {}", teacherRegisterRequest);
+
+        if (teacherDao.findByEmail(teacherRegisterRequest.getEmail()).isPresent()) {
             throw new RuntimeException("Email already exists");
         }
 
-        AcademicRank academicRank = academicRankDao.findById(teacher.getAcademicRankId())
+        AcademicRank academicRank = academicRankDao.findById(teacherRegisterRequest.getAcademicRankId())
                 .orElseThrow(() -> new RuntimeException("Academic Rank does not exists"));
 
-        ScienceDegree scienceDegree = scienceDegreeDao.findById(teacher.getScienceDegreeId())
+        ScienceDegree scienceDegree = scienceDegreeDao.findById(teacherRegisterRequest.getScienceDegreeId())
                 .orElseThrow(() -> new RuntimeException("Science degree does not exists"));
 
         teacherDao.save(Teacher.builder()
-                .withFirstName(teacher.getFirstName())
-                .withLastName(teacher.getLastName())
-                .withEmail(teacher.getEmail())
-                .withPassword(teacher.getPassword())
-                .withLinkedin(teacher.getLinkedin())
+                .withFirstName(teacherRegisterRequest.getFirstName())
+                .withLastName(teacherRegisterRequest.getLastName())
+                .withEmail(teacherRegisterRequest.getEmail())
+                .withPassword(teacherRegisterRequest.getPassword())
+                .withLinkedin(teacherRegisterRequest.getLinkedin())
                 .withAcademicRank(academicRank)
                 .withScienceDegree(scienceDegree)
                 .build());
     }
 
     @Override
-    public void update(TeacherUpdateRequest teacher) {
-        teacherUpdateValidator.validate(teacher);
+    public void update(TeacherUpdateRequest teacherUpdateRequest) {
+        teacherUpdateValidator.validate(teacherUpdateRequest);
 
-        if (!teacherDao.findById(teacher.getId()).isPresent()) {
+        log.debug("Teacher update with request {}", teacherUpdateRequest);
+
+        if (!teacherDao.findById(teacherUpdateRequest.getId()).isPresent()) {
             throw new RuntimeException("Teacher is not found");
         }
 
-        AcademicRank academicRank = academicRankDao.findById(teacher.getAcademicRankId())
+        AcademicRank academicRank = academicRankDao.findById(teacherUpdateRequest.getAcademicRankId())
                 .orElseThrow(() -> new RuntimeException("Academic Rank does not exists"));
 
-        ScienceDegree scienceDegree = scienceDegreeDao.findById(teacher.getScienceDegreeId())
+        ScienceDegree scienceDegree = scienceDegreeDao.findById(teacherUpdateRequest.getScienceDegreeId())
                 .orElseThrow(() -> new RuntimeException("Science degree does not exists"));
 
         teacherDao.update(Teacher.builder()
-                .withId(teacher.getId())
-                .withFirstName(teacher.getFirstName())
-                .withLastName(teacher.getLastName())
-                .withEmail(teacher.getEmail())
-                .withPassword(teacher.getPassword())
-                .withLinkedin(teacher.getLinkedin())
+                .withId(teacherUpdateRequest.getId())
+                .withFirstName(teacherUpdateRequest.getFirstName())
+                .withLastName(teacherUpdateRequest.getLastName())
+                .withEmail(teacherUpdateRequest.getEmail())
+                .withPassword(teacherUpdateRequest.getPassword())
+                .withLinkedin(teacherUpdateRequest.getLinkedin())
                 .withAcademicRank(academicRank)
                 .withScienceDegree(scienceDegree)
                 .build());
@@ -79,6 +85,9 @@ public class TeacherServiceImpl implements TeacherService {
 
     @Override
     public boolean login(String email, String password) {
+        log.debug("Teacher login with login {}", email);
+
+
         Teacher teacher = teacherDao.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("teacher is not found"));
 
