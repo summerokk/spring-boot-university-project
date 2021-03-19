@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<th:block th:fragment="assets">
+    <script th:src="@{/resources/js/jquery.js}"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('select[name=lang]').change(() => {
+                $('#language').submit();
+            });
+        });
+    </script>
+</th:block>
+</body>
+</html>

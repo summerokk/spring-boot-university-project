@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/head :: head (#{menu.login})"></head>
+
+<body>
+
+<div th:replace="fragments/menu :: menu"></div>
+
+<div class="container">
+    <div th:insert="${loginFail} ? ~{fragments/error :: error(#{notify.error.login})} : ~{}"></div>
+
+    <div class="row">
+        <div class="col-4">
+            <form th:action="@{/students/login}" method="POST">
+                <div class="form-group">
+                    <label for="email" th:text="#{form.email}">Email address</label>
+                    <input type="email" name="email" th:value="${email}" class="form-control" id="email">
+                </div>
+                <div class="form-group">
+                    <label for="password" th:text="#{form.password}">Password</label>
+                    <input type="password" name="password" class="form-control" id="password">
+                </div>
+                <button type="submit" class="btn btn-primary" th:text="#{button.signin}"></button>
+            </form>
+        </div>
+    </div>
+
+    <footer th:replace="fragments/footer :: footer"></footer>
+</div>
+
+<th:block th:include="fragments/js :: assets"></th:block>
+</body>
+</html>

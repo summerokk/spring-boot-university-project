@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Success</title>
+</head>
+<body>
+<div th:fragment="success(message)" class="row">
+    <div class="col-12">
+        <div class="alert alert-success" role="alert">
+            <h4 class="alert-heading" th:text="#{notify.success}"></h4>
+            <p th:text="${message}"></p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

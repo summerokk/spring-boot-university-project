@@ -21,7 +21,7 @@ public class TeacherDaoImpl extends AbstractDaoImpl<Teacher> implements TeacherD
             "       sc.id as science_degree_id, sc.name as science_degree_name " +
             "FROM teachers t" +
             "    JOIN academic_ranks ar on ar.id = t.academic_rank_id" +
-            "    JOIN science_degrees sc on t.science_degree_id = sc.id OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+            "    JOIN science_degrees sc on t.science_degree_id = sc.id ORDER BY t.id OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
     private static final String FIND_BY_ID_QUERY = "SELECT t.*, " +
             "       ar.id as academic_rank_id, ar.name as academic_rank_name," +
             "       sc.id as science_degree_id, sc.name as science_degree_name " +

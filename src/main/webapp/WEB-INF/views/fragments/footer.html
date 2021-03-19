@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Footer</title>
+</head>
+<body>
+<footer class="pt-4 my-md-5 pt-md-5 border-top" th:fragment="footer">
+    <div class="row">
+        <div class="ml-auto">
+            <form th:action="${#httpServletRequest.requestURI}" method="get" id="language">
+                <div class="form-group">
+                    <label for="language-select" th:text="#{lang.tr}"></label>
+                    <select name="lang" class="form-control" id="language-select">
+                        <option th:selected="${#strings.equals(#locale, 'en')}" value="en" th:text="#{lang.en}"></option>
+                        <option th:selected="${#strings.equals(#locale, 'ru')}" value="ru" th:text="#{lang.ru}"></option>
+                    </select>
+                </div>
+            </form>
+        </div>
+    </div>
+</footer>
+</body>
+</html>

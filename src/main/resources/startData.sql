@@ -14,6 +14,7 @@ INSERT INTO science_degrees(name) VALUES ('Doctoral degree');
 INSERT INTO science_degrees(name) VALUES ('Bachelor''s degree');
 INSERT INTO science_degrees(name) VALUES ('Master''s degree');
 
+INSERT INTO faculties(name) VALUES ('No faculty');
 INSERT INTO faculties(name) VALUES ('School of Visual arts');
 INSERT INTO faculties(name) VALUES ('Department of Geography');
 INSERT INTO faculties(name) VALUES ('Department of Plant Science');

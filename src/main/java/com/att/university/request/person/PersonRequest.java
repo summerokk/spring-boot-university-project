@@ -1,17 +1,22 @@
 package com.att.university.request.person;
 
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
-import lombok.experimental.SuperBuilder;
 
-@SuperBuilder(setterPrefix = "with", toBuilder = true)
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
+@Setter
 @ToString
 @EqualsAndHashCode
 public abstract class PersonRequest {
-    private final String firstName;
-    private final String lastName;
-    private final String email;
-    private final String password;
+    private String firstName;
+    private String lastName;
+    private String email;
+    private String password;
+    private String passwordConfirm;
 }

@@ -7,11 +7,16 @@
     <groupId>com.att</groupId>
     <artifactId>university</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <packaging>war</packaging>
+
+    <name>University</name>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <thymeleaf.version>3.0.12.RELEASE</thymeleaf.version>
+        <spring.mvc.version>5.3.3</spring.mvc.version>
         <h2.version>1.4.200</h2.version>
         <hikari.version>3.2.0</hikari.version>
         <postgres.version>42.2.18</postgres.version>
@@ -23,10 +28,38 @@
         <junit.version>5.7.0</junit.version>
         <logback.version>1.2.3</logback.version>
         <projectlombok.version>1.18.18</projectlombok.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <javax.servlet.api>4.0.1</javax.servlet.api>
+        <hamcrest.library.version>2.2</hamcrest.library.version>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-library</artifactId>
+            <version>${hamcrest.library.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>${javax.servlet.api}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.thymeleaf</groupId>
+            <artifactId>thymeleaf</artifactId>
+            <version>${thymeleaf.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <version>${spring.mvc.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.thymeleaf</groupId>
+            <artifactId>thymeleaf-spring5</artifactId>
+            <version>${thymeleaf.version}</version>
+        </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
@@ -124,6 +157,11 @@
             </plugin>
 
             <plugin>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.0.0</version>
+            </plugin>
+
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
@@ -143,33 +181,15 @@
             </plugin>
 
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>2.4</version>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <addClasspath>true</addClasspath>
-                            <classpathPrefix>libs/</classpathPrefix>
-                            <mainClass>
-                                com.att.university.ConsoleUniversityApplication
-                            </mainClass>
-                        </manifest>
-                    </archive>
-                </configuration>
-            </plugin>
-
-            <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.8.6</version>
                 <configuration>
                     <excludes>
-                        <exclude>**/*ConsoleUniversityApplication.class</exclude>
-                        <exclude>**/*Config.class</exclude>
-                        <exclude>**/view/ApplicationView.class</exclude>
                         <exclude>**/entity/</exclude>
+                        <exclude>**/config/</exclude>
                         <exclude>**/request/</exclude>
+                        <exclude>**/mapper/</exclude>
                     </excludes>
                 </configuration>
                 <executions>

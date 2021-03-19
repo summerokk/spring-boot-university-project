@@ -91,6 +91,6 @@ public class TeacherServiceImpl implements TeacherService {
         Teacher teacher = teacherDao.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("teacher is not found"));
 
-        return teacher.getPassword().equals(passwordEncoder.encode(password));
+        return passwordEncoder.matches(password, teacher.getPassword());
     }
 }

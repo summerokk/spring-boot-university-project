@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/head :: head (#{menu.sign})"></head>
+
+<body>
+
+<div th:replace="fragments/menu :: menu"></div>
+
+<div class="container">
+    <div th:insert="${emailExistsFail} ? ~{fragments/error :: error(#{notify.error.email.use})} : ~{}"></div>
+    <div th:insert="${passwordTooShort} ? ~{fragments/error :: error(#{notify.error.password.length(${@environment.getProperty('password.min.length')})})} : ~{}"></div>
+    <div th:insert="${passwordNotTheSame} ? ~{fragments/error :: error(#{notify.error.password.equal})} : ~{}"></div>
+    <div th:insert="${wrongEmailFormat} ? ~{fragments/error :: error(#{notify.error.email.format})} : ~{}"></div>
+    <div th:insert="${incorrectName} ? ~{fragments/error :: error(#{notify.error.name.format})} : ~{}"></div>
+
+    <div class="row">
+        <div class="col-12">
+            <form th:action="@{/students/register}" method="POST" th:object="${registerRequest}">
+                <div class="form-group">
+                    <label for="email" th:text="#{form.email}">Email address</label>
+                    <input type="email" th:field="*{email}" class="form-control" id="email">
+                </div>
+                <div class="form-group">
+                    <label for="password" th:text="#{form.password}">Password</label>
+                    <input type="password" th:field="*{password}" class="form-control" id="password">
+                </div>
+                <div class="form-group">
+                    <label for="password-confirm" th:text="#{form.password.confirm}">Confirm password</label>
+                    <input type="password" th:field="*{passwordConfirm}" class="form-control" id="password-confirm">
+                </div>
+                <div class="form-group">
+                    <label for="first-name" th:text="#{form.name}">First name</label>
+                    <input type="text" th:field="*{firstName}" class="form-control" id="first-name">
+                </div>
+                <div class="form-group">
+                    <label for="last-name" th:text="#{form.lastname}">Last name</label>
+                    <input type="text" th:field="*{lastName}" class="form-control" id="last-name">
+                </div>
+                <button type="submit" class="btn btn-primary" th:text="#{button.register}">Register</button>
+            </form>
+        </div>
+    </div>
+
+    <footer th:replace="fragments/footer :: footer"></footer>
+</div>
+
+<th:block th:include="fragments/js :: assets"></th:block>
+</body>
+</html>

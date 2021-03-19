@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="fragments/head :: head (${student.firstName} + ' ' + ${student.lastName})"></head>
+
+<body>
+
+<div th:replace="fragments/menu :: menu"></div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <form th:action="@{/students/register}" th:method="PATCH" th:object="${student}">
+                <div class="form-group">
+                    <label for="email" th:text="#{form.email}"></label>
+                    <input type="email" class="form-control" th:field="${student.email}" id="email"/>
+                </div>
+                <div class="form-group">
+                    <label for="first-name" th:text="#{form.name}"></label>
+                    <input type="text" class="form-control" th:field="${student.firstName}" id="first-name">
+                </div>
+                <div class="form-group">
+                    <label for="last-name" th:text="#{form.lastname}"></label>
+                    <input type="text" class="form-control" th:field="${student.lastName}" id="last-name">
+                </div>
+                <div class="form-group">
+                    <label for="group-id" th:text="#{form.group}"></label>
+                    <select class="form-control" id="group-id" name="groupId">
+                        <option th:selected="${student.group == null}" th:value="null">No Group</option>
+                        <option th:each="group : ${groups}"
+                                th:value="${group.id}"
+                                th:text="${group.name}"
+                                th:selected="${student.group} and ${student.group.id == group.id}"
+                        ></option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary" th:text="#{button.update}"></button>
+                <form th:action="@{/students/delete}" th:method="DELETE">
+                    <button type="submit" class="btn btn-danger" th:text="#{button.delete}"></button>
+                </form>
+            </form>
+        </div>
+    </div>
+
+    <footer th:replace="fragments/footer :: footer"></footer>
+</div>
+
+<th:block th:include="fragments/js :: assets"></th:block>
+</body>
+</html>
