@@ -1,18 +1,33 @@
 package com.att.university.request.person.teacher;
 
 import com.att.university.request.person.PersonRequest;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
-import lombok.experimental.SuperBuilder;
 
-@SuperBuilder(setterPrefix = "with", toBuilder = true)
+@NoArgsConstructor
 @Getter
-@ToString
+@Setter
+@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 public class TeacherUpdateRequest extends PersonRequest {
-    private final Integer id;
-    private final String linkedin;
-    private final Integer academicRankId;
-    private final Integer scienceDegreeId;
+    private Integer id;
+    private String linkedin;
+    private Integer academicRankId;
+    private Integer scienceDegreeId;
+
+    @Builder(setterPrefix = "with")
+    public TeacherUpdateRequest(Integer id, String linkedin, Integer academicRankId, Integer scienceDegreeId,
+                                String firstName, String lastName, String email, String password,
+                                String passwordConfirm) {
+        super(firstName, lastName, email, password, passwordConfirm);
+
+        this.id = id;
+        this.linkedin = linkedin;
+        this.academicRankId = academicRankId;
+        this.scienceDegreeId = scienceDegreeId;
+    }
 }

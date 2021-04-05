@@ -200,7 +200,7 @@ class TeacherServiceTest {
         teacherService.login(email, password);
 
         verify(teacherDao).findByEmail(anyString());
-        verify(passwordEncoder).encode(password);
+        verify(passwordEncoder).matches(anyString(), anyString());
     }
 
     @Test

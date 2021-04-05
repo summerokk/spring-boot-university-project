@@ -8,7 +8,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder(setterPrefix = "with", toBuilder = true)
 @Getter
 @EqualsAndHashCode(callSuper = true)
-@ToString
+@ToString(callSuper = true)
 public class Student extends Person {
     private final Group group;
 }

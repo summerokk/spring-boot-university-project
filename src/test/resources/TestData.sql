@@ -28,6 +28,7 @@ INSERT INTO groups(name, faculty_id) VALUES ('HY-53', 3);
 
 INSERT INTO students(first_name, last_name, email, password, group_id) VALUES ('Fedor', 'Tolov', 'tolof234@tmail.com', 'password', 1);
 INSERT INTO students(first_name, last_name, email, password, group_id) VALUES ('Anton', 'Petrov', 'p.anton@tmail.com', 'password', 1);
+INSERT INTO students(first_name, last_name, email, password, group_id) VALUES ('Fedor', 'Petrov', 'anton@tmail.com', 'password', null);
 
 INSERT INTO teachers(first_name, last_name, email, password, academic_rank_id, science_degree_id, linkedin) VALUES ('Fedor', 'Tolov', 'tolof234@tmail.com', 'password', 1, 2, 'https://link.ru');
 INSERT INTO teachers(first_name, last_name, email, password, academic_rank_id, science_degree_id, linkedin) VALUES ('Alex', 'Popov', 'email234@tmail.com', 'password', 1, 2, 'https://link.ru');

@@ -6,47 +6,52 @@ import com.att.university.entity.Faculty;
 import com.att.university.entity.Group;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import javax.sql.DataSource;
 import java.util.Optional;
 
 @Repository("studentDao")
 @Slf4j
 public class StudentDaoImpl extends AbstractDaoImpl<Student> implements StudentDao {
-    private static final String SAVE_QUERY = "INSERT INTO students(first_name, last_name, email, password, group_id) " +
-            "VALUES(?, ?, ?, ?, ?)";
+    private static final String SAVE_QUERY = "INSERT INTO students(first_name, last_name, email, password) " +
+            "VALUES(?, ?, ?, ?)";
     private static final String FIND_ALL_QUERY = "SELECT s.*, g.id as group_id, g.name as group_name, " +
             "f.id as faculty_id, f.name faculty_name " +
             "FROM students s " +
-            "JOIN groups g on g.id = s.group_id " +
-            "JOIN faculties f on g.faculty_id = f.id OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+            "LEFT JOIN groups g on g.id = s.group_id " +
+            "LEFT JOIN faculties f on g.faculty_id = f.id ORDER BY s.id OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
     private static final String FIND_BY_ID_QUERY = "SELECT s.*, g.id as group_id, g.name as group_name, " +
             "f.id as faculty_id, f.name faculty_name " +
             "FROM students s " +
-            "JOIN groups g on g.id = s.group_id " +
-            "JOIN faculties f on g.faculty_id = f.id WHERE s.id = ?";
+            "LEFT JOIN groups g on g.id = s.group_id " +
+            "LEFT JOIN faculties f on g.faculty_id = f.id WHERE s.id = ?";
     private static final String FIND_BY_EMAIL = "SELECT s.*, g.id as group_id, g.name as group_name, " +
             "f.id as faculty_id, f.name faculty_name " +
             "FROM students s " +
-            "JOIN groups g on g.id = s.group_id " +
-            "JOIN faculties f on g.faculty_id = f.id WHERE s.email = ?";
+            "LEFT JOIN groups g on g.id = s.group_id " +
+            "LEFT JOIN faculties f on g.faculty_id = f.id WHERE s.email = ?";
     private static final String DELETE_BY_ID_QUERY = "DELETE FROM students WHERE id = ?";
     private static final String UPDATE_QUERY = "UPDATE students SET first_name = ?, last_name = ?, email = ?, " +
             "password = ?, group_id = ?  WHERE id = ?";
     private static final String COUNT_QUERY = "SELECT COUNT(*) FROM students";
 
     private static final RowMapper<Student> ROW_MAPPER = (resultSet, rowNum) -> {
-        Faculty faculty = new Faculty(resultSet.getInt("faculty_id"),
-                resultSet.getString("faculty_name"));
-        Group group = new Group(
-                resultSet.getInt("group_id"),
-                resultSet.getString("group_name"),
-                faculty
-        );
+        Group group = null;
+
+        Integer groupId = resultSet.getInt("group_id");
+
+        if (!resultSet.wasNull()) {
+
+            Faculty faculty = new Faculty(resultSet.getInt("faculty_id"),
+                    resultSet.getString("faculty_name"));
+            group = new Group(
+                    groupId,
+                    resultSet.getString("group_name"),
+                    faculty
+            );
+        }
 
         return Student.builder()
                 .withId(resultSet.getInt("id"))
@@ -65,12 +70,13 @@ public class StudentDaoImpl extends AbstractDaoImpl<Student> implements StudentD
 
     @Override
     protected void insert(Student student) {
+        log.debug("Inserting the student to the database...");
+
         this.jdbcTemplate.update(SAVE_QUERY,
                 student.getFirstName(),
                 student.getLastName(),
                 student.getEmail(),
-                student.getPassword(),
-                student.getGroup().getId()
+                student.getPassword()
         );
     }
 

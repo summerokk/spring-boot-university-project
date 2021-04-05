@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pagination</title>
+</head>
+<body>
+<nav aria-label="Page navigation example" th:fragment="pagination (url, countPages, page, count)">
+    <ul class="pagination justify-content-end">
+        <li class="page-item" th:classappend="${page == 1} ? 'disabled' : ''">
+            <a class="page-link" th:href="@{|/${url}/${page - 1}/${count}|}" th:text="#{pagination.previous}"></a></a>
+        </li>
+        <li class="page-item"
+            th:each="i : ${#numbers.sequence(1, countPages)}"
+            th:classappend="${page == i} ? 'active' : ''"
+        >
+            <a class="page-link"
+               th:href="@{|/${url}/${i}/${count}|}"
+               th:text="${i}"
+            ></a>
+        </li>
+        <li class="page-item" th:classappend="${page == countPages} ? 'disabled' : ''">
+            <a class="page-link" th:href="@{|/${url}/${page + 1}/${count}|}" th:text="#{pagination.next}"></a>
+        </li>
+    </ul>
+</nav>
+</body>
+</html>

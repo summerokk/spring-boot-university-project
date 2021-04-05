@@ -1,6 +1,7 @@
 package com.att.university.dao;
 
-import com.att.university.H2Config;
+import com.att.university.config.H2Config;
+import com.att.university.config.WebTestConfig;
 import com.att.university.entity.Faculty;
 import com.att.university.entity.Group;
 import com.att.university.entity.Student;
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.web.WebAppConfiguration;
 
 import javax.sql.DataSource;
 import java.util.Arrays;
@@ -19,7 +21,8 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = H2Config.class)
+@ContextConfiguration(classes = { H2Config.class, WebTestConfig.class})
+@WebAppConfiguration
 class StudentDaoTest extends AbstractTest {
     @Autowired
     private DataSource dataSource;
@@ -52,6 +55,14 @@ class StudentDaoTest extends AbstractTest {
                         .withEmail("p.anton@tmail.com")
                         .withPassword("password")
                         .withGroup(group)
+                        .build(),
+                Student.builder()
+                        .withId(3)
+                        .withFirstName("Fedor")
+                        .withLastName("Petrov")
+                        .withEmail("anton@tmail.com")
+                        .withPassword("password")
+                        .withGroup(null)
                         .build()
         );
 
@@ -77,7 +88,7 @@ class StudentDaoTest extends AbstractTest {
 
     @Test
     void countShouldReturnResultWhenDatabaseHaveStudents() {
-        int expected = 2;
+        int expected = 3;
 
         assertThat(studentDao.count()).isEqualTo(expected);
     }
