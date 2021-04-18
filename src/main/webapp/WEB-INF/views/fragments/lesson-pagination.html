@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lesson pagination</title>
+</head>
+<body>
+<nav aria-label="Page navigation example"
+     th:fragment="lessonPagination (url, teacherId, startDate, endDate, weekList, page)">
+    <ul class="pagination justify-content-end">
+        <li class="page-item" th:classappend="${page == 1} ? 'disabled' : ''">
+            <a class="page-link"
+               th:href="@{|/${url}/?teacherId=${teacherId}&startDate=${startDate}&endDate=${endDate}&page=${page - 1}|}"
+               th:text="#{pagination.previous}">
+            </a>
+        </li>
+        <li class="page-item"
+            th:each="i : ${#numbers.sequence(1, #lists.size(weekList))}"
+            th:classappend="${i == page} ? 'active' : ''"
+        >
+            <a class="page-link"
+               th:href="@{|/${url}/?teacherId=${teacherId}&startDate=${startDate}&endDate=${endDate}&page=${i}|}"
+               th:text="${i}"
+            ></a>
+        </li>
+        <li class="page-item" th:classappend="${#lists.size(weekList) == page} ? 'disabled' : ''">
+            <a
+                    class="page-link"
+                    th:href="@{|/${url}/?teacherId=${teacherId}&startDate=${startDate}&endDate=${endDate}&page=${page + 1}|}"
+                    th:text="#{pagination.next}"
+            ></a>
+        </li>
+    </ul>
+</nav>
+</body>
+</html>

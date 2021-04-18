@@ -65,7 +65,7 @@
                 </tr>
                 </tbody>
             </table>
-            <th:block th:if="${2 > 3}">
+            <th:block th:if="${lessonWeeks}">
                 <nav th:replace="fragments/lesson-pagination :: lessonPagination ('lessons/find', ${currentTeacher.id},
             ${startDate}, ${endDate}, ${lessonWeeks}, ${currentPage})"></nav>
             </th:block>
