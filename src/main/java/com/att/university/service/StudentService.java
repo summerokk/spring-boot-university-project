@@ -17,7 +17,7 @@ public interface StudentService {
 
     Student findByEmail(String email);
 
-    List<Student> findAll(int count, int page);
+    List<Student> findAll(int page, int count);
 
     int count();
 }

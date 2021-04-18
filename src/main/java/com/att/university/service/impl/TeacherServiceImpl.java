@@ -4,8 +4,10 @@ import com.att.university.dao.AcademicRankDao;
 import com.att.university.dao.ScienceDegreeDao;
 import com.att.university.dao.TeacherDao;
 import com.att.university.entity.AcademicRank;
+import com.att.university.entity.Lesson;
 import com.att.university.entity.ScienceDegree;
 import com.att.university.entity.Teacher;
+import com.att.university.exception.dao.PersonNotFoundException;
 import com.att.university.request.person.teacher.TeacherRegisterRequest;
 import com.att.university.request.person.teacher.TeacherUpdateRequest;
 import com.att.university.service.TeacherService;
@@ -18,10 +20,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component("teacherService")
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class TeacherServiceImpl implements TeacherService {
+    private static final String TEACHER_NOT_FOUND = "Teacher is not found";
+
     private final TeacherDao teacherDao;
     private final AcademicRankDao academicRankDao;
     private final ScienceDegreeDao scienceDegreeDao;
@@ -87,10 +93,19 @@ public class TeacherServiceImpl implements TeacherService {
     public boolean login(String email, String password) {
         log.debug("Teacher login with login {}", email);
 
-
         Teacher teacher = teacherDao.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("teacher is not found"));
+                .orElseThrow(() -> new RuntimeException(TEACHER_NOT_FOUND));
 
         return passwordEncoder.matches(password, teacher.getPassword());
+    }
+
+    @Override
+    public List<Teacher> findAll() {
+        return teacherDao.findAll(1, teacherDao.count());
+    }
+
+    @Override
+    public Teacher findById(Integer id) {
+        return teacherDao.findById(id).orElseThrow(() -> new PersonNotFoundException(TEACHER_NOT_FOUND));
     }
 }

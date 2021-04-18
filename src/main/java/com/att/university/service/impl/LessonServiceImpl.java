@@ -22,7 +22,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Component
 @Slf4j
@@ -35,6 +37,11 @@ public class LessonServiceImpl implements LessonService {
     private final CourseDao courseDao;
     private final GroupDao groupDao;
     private final ClassroomDao classroomDao;
+
+    @Override
+    public List<Lesson> findAll(int page, int count) {
+        return lessonDao.findAll(page, count);
+    }
 
     @Override
     @Transactional
@@ -98,5 +105,25 @@ public class LessonServiceImpl implements LessonService {
                 .withClassroom(classroom)
                 .withCourse(course)
                 .build());
+    }
+
+    @Override
+    public List<LocalDate> findTeacherLessonWeeks(LocalDate startDate, LocalDate endDate, Integer teacherId) {
+        List<LocalDate> weeks = lessonDao.findTeacherLessonWeeks(startDate, endDate, teacherId);
+        weeks.set(0, startDate);
+
+        return weeks;
+    }
+
+    @Override
+    public List<Lesson> findTeacherWeekSchedule(int currentPage, List<LocalDate> weeks, Integer teacherId) {
+        LocalDate startDate = weeks.get(currentPage - 1);
+
+        return lessonDao.findTeacherWeekSchedule(startDate, teacherId);
+    }
+
+    @Override
+    public List<Lesson> findByDateBetweenAndTeacherId(LocalDate startDate, LocalDate endDate, Integer teacherId) {
+        return lessonDao.findByDateBetweenAndTeacherId(teacherId, startDate, endDate);
     }
 }

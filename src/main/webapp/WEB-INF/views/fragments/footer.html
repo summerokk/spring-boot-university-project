@@ -8,7 +8,7 @@
 <footer class="pt-4 my-md-5 pt-md-5 border-top" th:fragment="footer">
     <div class="row">
         <div class="ml-auto">
-            <form th:action="${#httpServletRequest.requestURI}" method="get" id="language">
+            <form th:action="@{/}" method="get" id="language">
                 <div class="form-group">
                     <label for="language-select" th:text="#{lang.tr}"></label>
                     <select name="lang" class="form-control" id="language-select">

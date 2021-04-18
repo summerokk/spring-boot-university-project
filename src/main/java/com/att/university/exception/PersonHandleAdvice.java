@@ -6,24 +6,20 @@ import com.att.university.exception.service.NameIncorrectException;
 import com.att.university.exception.service.PasswordTooShortException;
 import com.att.university.exception.service.PasswordsAreNotTheSameException;
 import com.att.university.exception.service.WrongEmailFormatException;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-@ControllerAdvice
-@Order(Ordered.HIGHEST_PRECEDENCE)
 public class PersonHandleAdvice {
     @ExceptionHandler(value = LoginFailException.class)
-    @ResponseStatus(code = HttpStatus.UNAUTHORIZED)
+    @ResponseStatus(code = HttpStatus.BAD_REQUEST, reason = "heeloo")
     public String loginFailExceptionHandle(Exception exception, WebRequest request, RedirectAttributes attributes) {
         attributes.addFlashAttribute("loginFail", exception.getMessage());
-
+        exception.getLocalizedMessage();
         return "redirect:" + request.getHeader("Referer");
+
     }
 
     @ExceptionHandler(value = NameIncorrectException.class)
