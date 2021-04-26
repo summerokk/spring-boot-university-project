@@ -16,6 +16,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <thymeleaf.version>3.0.12.RELEASE</thymeleaf.version>
+        <thymeleaf.java8time.version>3.0.4.RELEASE</thymeleaf.java8time.version>
         <spring.mvc.version>5.3.3</spring.mvc.version>
         <h2.version>1.4.200</h2.version>
         <hikari.version>3.2.0</hikari.version>
@@ -30,9 +31,21 @@
         <projectlombok.version>1.18.18</projectlombok.version>
         <javax.servlet.api>4.0.1</javax.servlet.api>
         <hamcrest.library.version>2.2</hamcrest.library.version>
+        <itext.version>7.1.7</itext.version>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.thymeleaf.extras</groupId>
+            <artifactId>thymeleaf-extras-java8time</artifactId>
+            <version>${thymeleaf.java8time.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>itext7-core</artifactId>
+            <version>${itext.version}</version>
+            <type>pom</type>
+        </dependency>
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-library</artifactId>

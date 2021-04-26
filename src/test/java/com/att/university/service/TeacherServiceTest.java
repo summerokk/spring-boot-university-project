@@ -6,6 +6,7 @@ import com.att.university.dao.TeacherDao;
 import com.att.university.entity.AcademicRank;
 import com.att.university.entity.ScienceDegree;
 import com.att.university.entity.Teacher;
+import com.att.university.exception.dao.PersonNotFoundException;
 import com.att.university.request.person.teacher.TeacherRegisterRequest;
 import com.att.university.request.person.teacher.TeacherUpdateRequest;
 import com.att.university.service.impl.TeacherServiceImpl;
@@ -18,8 +19,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
@@ -52,6 +55,39 @@ class TeacherServiceTest {
     @InjectMocks
     private TeacherServiceImpl teacherService;
 
+    @Test
+    void findAllShouldNotThrowException() {
+        when(teacherDao.findAll(anyInt(), anyInt())).thenReturn(new ArrayList<>());
+
+        assertDoesNotThrow(() -> teacherService.findAll());
+
+        verify(teacherDao).findAll(anyInt(), anyInt());
+    }
+
+    @Test
+    void findByIdShouldThrowExceptionWhenTeacherDoesNotExist() {
+        Integer id = 4;
+
+        when(teacherDao.findById(anyInt())).thenReturn(Optional.empty());
+
+        assertThrows(PersonNotFoundException.class, () -> teacherService.findById(id));
+
+        verify(teacherDao).findById(anyInt());
+        verifyNoMoreInteractions(teacherDao);
+    }
+
+    @Test
+    void findByIdShouldReturnTeacherWhenStudentExists() {
+        Integer id = 4;
+
+        when(teacherDao.findById(anyInt())).thenReturn(Optional.of(generateTeacher()));
+
+        teacherService.findById(id);
+
+        verify(teacherDao).findById(anyInt());
+        verifyNoMoreInteractions(teacherDao);
+    }
+    
     @Test
     void registerShouldNotThrowExceptionWhenEmailDoesNotExist() {
         final TeacherRegisterRequest teacherRegisterRequest = generateRegisterRequest();

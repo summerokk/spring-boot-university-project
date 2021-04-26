@@ -17,6 +17,10 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
+import java.sql.Types;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Repository("lessonDao")
 public class LessonDaoImpl extends AbstractDaoImpl<Lesson> implements LessonDao {
@@ -50,10 +54,42 @@ public class LessonDaoImpl extends AbstractDaoImpl<Lesson> implements LessonDao 
             "    JOIN science_degrees sc on t.science_degree_id = sc.id" +
             "    JOIN groups g on l.group_id = g.id" +
             "    JOIN faculties f on g.faculty_id = f.id WHERE l.id = ?";
+    private static final String FIND_BY_DATES_QUERY = "SELECT group_id, l.id as id, classroom_id, teacher_id, date, " +
+            "       c.name course_name, course_id, f.id as faculty_id, f.name faculty_name, b.id as building_id, " +
+            "       b.address building_address, g.name as group_name, first_name, last_name, c2.number as number, " +
+            "       linkedin, email, password, ar.id as academic_rank_id, ar.name as academic_rank_name," +
+            "       sc.id as science_degree_id, sc.name as science_degree_name " +
+            "FROM lessons l" +
+            "    JOIN courses c on l.course_id = c.id" +
+            "    JOIN classrooms c2 on c2.id = l.classroom_id" +
+            "    JOIN buildings b on b.id = c2.building_id" +
+            "    JOIN teachers t on l.teacher_id = t.id" +
+            "    JOIN academic_ranks ar on ar.id = t.academic_rank_id" +
+            "    JOIN science_degrees sc on t.science_degree_id = sc.id" +
+            "    JOIN groups g on l.group_id = g.id" +
+            "    JOIN faculties f on g.faculty_id = f.id WHERE date between ? and ?";
+    private static final String FIND_BY_DATE_WITH_TEACHER_ID_QUERY = FIND_BY_DATES_QUERY + " AND teacher_id = ? ORDER BY date";
+    private static final String FIND_TEACHER_WEEK_SCHEDULE_QUERY = "SELECT group_id, l.id as id, classroom_id, teacher_id, date, " +
+            "       c.name course_name, course_id, f.id as faculty_id, f.name faculty_name, b.id as building_id, " +
+            "       b.address building_address, g.name as group_name, first_name, last_name, c2.number as number, " +
+            "       linkedin, email, password, ar.id as academic_rank_id, ar.name as academic_rank_name," +
+            "       sc.id as science_degree_id, sc.name as science_degree_name " +
+            "FROM lessons l" +
+            "    JOIN courses c on l.course_id = c.id" +
+            "    JOIN classrooms c2 on c2.id = l.classroom_id" +
+            "    JOIN buildings b on b.id = c2.building_id" +
+            "    JOIN teachers t on l.teacher_id = t.id" +
+            "    JOIN academic_ranks ar on ar.id = t.academic_rank_id" +
+            "    JOIN science_degrees sc on t.science_degree_id = sc.id" +
+            "    JOIN groups g on l.group_id = g.id" +
+            "    JOIN faculties f on g.faculty_id = f.id " +
+            "WHERE date >= ? and date <= ? and teacher_id=? ORDER BY date";
     private static final String DELETE_BY_ID_QUERY = "DELETE FROM lessons WHERE id = ?";
     private static final String UPDATE_QUERY = "UPDATE lessons SET course_id = ?, group_id = ?, teacher_id = ?, " +
             "date = ?, classroom_id = ? WHERE id = ?";
     private static final String COUNT_QUERY = "SELECT COUNT(*) FROM lessons";
+    private static final String FIND_TEACHER_LESSON_WEEKS_QUERY = "SELECT date_trunc('week', date) as week " +
+            "FROM lessons WHERE teacher_id=? and date between ? and ? GROUP BY week ORDER BY week ASC";
 
     private static final RowMapper<Lesson> ROW_MAPPER = (resultSet, rowNum) -> {
 
@@ -133,5 +169,24 @@ public class LessonDaoImpl extends AbstractDaoImpl<Lesson> implements LessonDao 
                 lesson.getClassroom().getId(),
                 lesson.getId()
         );
+    }
+
+    @Override
+    public List<Lesson> findByDateBetween(LocalDate startDate, LocalDate endDate) {
+        return this.jdbcTemplate.query(FIND_BY_DATES_QUERY, new Object[]{startDate, endDate},
+                new int[]{Types.TIMESTAMP, Types.TIMESTAMP}, ROW_MAPPER);
+    }
+
+    @Override
+    public List<Lesson> findByDateBetweenAndTeacherId(Integer teacherId, LocalDate startDate, LocalDate endDate) {
+        return this.jdbcTemplate.query(FIND_BY_DATE_WITH_TEACHER_ID_QUERY, new Object[]{startDate, endDate, teacherId},
+                new int[]{Types.TIMESTAMP, Types.TIMESTAMP, Types.INTEGER}, ROW_MAPPER);
+    }
+
+    @Override
+    public List<LocalDate> findTeacherLessonWeeks(LocalDate startDate, LocalDate endDate, Integer teacherId) {
+        return this.jdbcTemplate.query(FIND_TEACHER_LESSON_WEEKS_QUERY, new Object[]{teacherId, startDate, endDate},
+                new int[]{Types.INTEGER, Types.TIMESTAMP, Types.TIMESTAMP},
+                (resultSet, i) -> resultSet.getTimestamp("week").toLocalDateTime().toLocalDate());
     }
 }

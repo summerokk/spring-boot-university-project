@@ -20,8 +20,11 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 import javax.sql.DataSource;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -115,6 +118,42 @@ class LessonDaoTest extends AbstractTest {
 
         assertThat(update).isPresent();
         assertThat(update.get().getDate()).isEqualTo(LocalDateTime.parse("2004-10-20T10:23"));
+    }
+
+    @Test
+    void findByDateBetweenShouldReturnScheduleIfLessonsExist() {
+        LocalDate start = LocalDate.parse("2004-10-18");
+        LocalDate end = LocalDate.parse("2004-11-18");
+        List<Lesson> expected = getTestLessons();
+
+        List<Lesson> schedule = lessonDao.findByDateBetween(start, end);
+
+        assertThat(schedule).isEqualTo(expected);
+    }
+
+    @Test
+    void findTeacherLessonWeeksShouldReturnLocalDatesIfLessonsExist() {
+        LocalDate start = LocalDate.of(2004, 10, 18);
+        LocalDate end = LocalDate.of(2004, 10, 20);
+
+        List<LocalDate> actual = lessonDao.findTeacherLessonWeeks(start, end, 1);
+
+        List<LocalDate> expected = Collections.singletonList(
+                LocalDate.of(2004, 10, 18)
+        );
+
+        assertThat(actual).isEqualTo(expected);
+    }
+
+    @Test
+    void findTeacherWeekScheduleShouldReturnScheduleIfLessonsExist() {
+        LocalDate start = LocalDate.parse("2004-10-18");
+        LocalDate end = start.with(DayOfWeek.SUNDAY);
+        List<Lesson> expected = getTestLessons();
+
+        List<Lesson> schedule = lessonDao.findByDateBetweenAndTeacherId(1, start, end);
+
+        assertThat(schedule).isEqualTo(expected);
     }
 
     private List<Lesson> getTestLessons() {

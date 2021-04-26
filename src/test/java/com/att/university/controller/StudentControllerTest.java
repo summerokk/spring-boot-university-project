@@ -7,6 +7,7 @@ import com.att.university.entity.Group;
 import com.att.university.entity.Student;
 import com.att.university.exception.ExceptionHandlerAdvice;
 import com.att.university.exception.PersonHandleAdvice;
+import com.att.university.exception.StudentControllerAdvice;
 import com.att.university.exception.service.EmailAlreadyExistsException;
 import com.att.university.exception.service.LoginFailException;
 import com.att.university.exception.service.NameIncorrectException;
@@ -42,6 +43,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
@@ -68,7 +70,7 @@ class StudentControllerTest {
 
         this.mockMvc = MockMvcBuilders
                 .standaloneSetup(studentController)
-                .setControllerAdvice(new PersonHandleAdvice(), new ExceptionHandlerAdvice())
+                .setControllerAdvice(new StudentControllerAdvice(), new PersonHandleAdvice(), new ExceptionHandlerAdvice())
                 .build();
     }
 
@@ -129,7 +131,7 @@ class StudentControllerTest {
         doThrow(PasswordsAreNotTheSameException.class).when(studentService).register(any(StudentRegisterRequest.class));
 
         this.mockMvc.perform(post("/students/register").param("email", "test@test.ru"))
-                .andExpect(status().is(400))
+                .andExpect(status().is(302))
                 .andExpect(result ->
                         assertTrue(result.getResolvedException() instanceof PasswordsAreNotTheSameException));
     }
@@ -184,9 +186,8 @@ class StudentControllerTest {
                                 .param("email", "test@test.ru")
                                 .param("password", "password")
                 )
-                .andExpect(model().attributeDoesNotExist("id"))
-                .andExpect(status().is(401))
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof LoginFailException));
+                .andExpect(result ->
+                        assertTrue(result.getResolvedException() instanceof LoginFailException));
     }
 
     @Test
