@@ -9,6 +9,7 @@ import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Cell;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.property.UnitValue;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -35,6 +36,7 @@ public class LessonPdfFileProviderImpl implements LessonPdfFileProvider {
         Document document = new Document(pdf);
 
         Table table = new Table(COLUMNS_COUNT);
+        table.setWidth(UnitValue.createPercentValue(100));
 
         writeTableHeader(table);
         writeTableData(table, lessons);

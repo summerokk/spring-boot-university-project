@@ -28,16 +28,18 @@ class LessonPdfFileProviderTest {
     private final LessonPdfFileProvider fileProvider = new LessonPdfFileProviderImpl(personUtility);
 
     @Test
-    void test() throws Exception {
+    void provideFileShouldReturnTheSameFile() throws Exception {
         List<Lesson> lessonList = getTestLessons();
-        FileOutputStream outputStream = new FileOutputStream("./test2.pdf");
+        FileOutputStream outputStream = new FileOutputStream("./test.pdf");
         fileProvider.provideFile(outputStream, lessonList);
 
-        PdfDocument actual = new PdfDocument(new PdfReader("./test2.pdf"));
-        String firstPageContent = PdfTextExtractor.getTextFromPage(actual.getFirstPage(), new LocationTextExtractionStrategy());
+        PdfDocument actual = new PdfDocument(new PdfReader("lessons.pdf"));
+        String firstPageContent = PdfTextExtractor.getTextFromPage(actual.getFirstPage(),
+                new LocationTextExtractionStrategy());
 
         PdfDocument expected = new PdfDocument(new PdfReader("./test.pdf"));
-        String firstPageContent2 = PdfTextExtractor.getTextFromPage(expected.getFirstPage(), new LocationTextExtractionStrategy());
+        String firstPageContent2 = PdfTextExtractor.getTextFromPage(expected.getFirstPage(),
+                new LocationTextExtractionStrategy());
 
         assertEquals(firstPageContent2, firstPageContent);
     }
