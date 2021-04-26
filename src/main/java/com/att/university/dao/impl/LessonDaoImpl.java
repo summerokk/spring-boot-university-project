@@ -83,7 +83,7 @@ public class LessonDaoImpl extends AbstractDaoImpl<Lesson> implements LessonDao 
             "    JOIN science_degrees sc on t.science_degree_id = sc.id" +
             "    JOIN groups g on l.group_id = g.id" +
             "    JOIN faculties f on g.faculty_id = f.id " +
-            "WHERE date > ? and date < date_trunc('week', ?::timestamp) + '7 days'::interval and teacher_id=? ORDER BY date";
+            "WHERE date >= ? and date <= ? and teacher_id=? ORDER BY date";
     private static final String DELETE_BY_ID_QUERY = "DELETE FROM lessons WHERE id = ?";
     private static final String UPDATE_QUERY = "UPDATE lessons SET course_id = ?, group_id = ?, teacher_id = ?, " +
             "date = ?, classroom_id = ? WHERE id = ?";
@@ -181,13 +181,6 @@ public class LessonDaoImpl extends AbstractDaoImpl<Lesson> implements LessonDao 
     public List<Lesson> findByDateBetweenAndTeacherId(Integer teacherId, LocalDate startDate, LocalDate endDate) {
         return this.jdbcTemplate.query(FIND_BY_DATE_WITH_TEACHER_ID_QUERY, new Object[]{startDate, endDate, teacherId},
                 new int[]{Types.TIMESTAMP, Types.TIMESTAMP, Types.INTEGER}, ROW_MAPPER);
-    }
-
-    @Override
-    public List<Lesson> findTeacherWeekSchedule(LocalDate date, Integer teacherId) {
-        return this.jdbcTemplate.query(FIND_TEACHER_WEEK_SCHEDULE_QUERY, new Object[]{date, date, teacherId},
-                new int[]{Types.TIMESTAMP, Types.TIMESTAMP, Types.INTEGER},
-                ROW_MAPPER);
     }
 
     @Override

@@ -15,8 +15,4 @@ public abstract class Person {
     private final String lastName;
     private final String email;
     private final String password;
-
-    public String getFullName() {
-        return getFirstName() + " " + getLastName();
-    }
 }

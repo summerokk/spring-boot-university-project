@@ -1,5 +1,6 @@
 package com.att.university.exception;
 
+import com.att.university.controller.StudentController;
 import com.att.university.exception.service.EmailAlreadyExistsException;
 import com.att.university.exception.service.LoginFailException;
 import com.att.university.exception.service.NameIncorrectException;
@@ -7,21 +8,14 @@ import com.att.university.exception.service.PasswordTooShortException;
 import com.att.university.exception.service.PasswordsAreNotTheSameException;
 import com.att.university.exception.service.WrongEmailFormatException;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+@ControllerAdvice
 public class PersonHandleAdvice {
-    @ExceptionHandler(value = LoginFailException.class)
-    @ResponseStatus(code = HttpStatus.BAD_REQUEST, reason = "heeloo")
-    public String loginFailExceptionHandle(Exception exception, WebRequest request, RedirectAttributes attributes) {
-        attributes.addFlashAttribute("loginFail", exception.getMessage());
-        exception.getLocalizedMessage();
-        return "redirect:" + request.getHeader("Referer");
-
-    }
-
     @ExceptionHandler(value = NameIncorrectException.class)
     @ResponseStatus(code = HttpStatus.BAD_REQUEST)
     public String incorrectNameExceptionHandle(Exception exception, WebRequest request, RedirectAttributes attributes) {
@@ -47,7 +41,6 @@ public class PersonHandleAdvice {
     }
 
     @ExceptionHandler(value = PasswordsAreNotTheSameException.class)
-    @ResponseStatus(code = HttpStatus.BAD_REQUEST)
     public String samePasswordsExceptionHandle(Exception exception, WebRequest request, RedirectAttributes attributes) {
         attributes.addFlashAttribute("passwordNotTheSame", exception.getMessage());
 

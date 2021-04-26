@@ -1,12 +1,14 @@
 <!doctype html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="fragments/head :: head (#{menu.students})"></head>
+<head th:replace="fragments/head :: head (#{schedule})"></head>
 
 <body>
 
 <div th:replace="fragments/menu :: menu"></div>
 
 <div class="container">
+    <div th:insert="${lessonSearchError} ? ~{fragments/error :: error(${lessonSearchError})} : ~{}"></div>
+
     <div class="row mb-3 align-items-end">
         <div class="col-9 d-flex">
             <form th:action="@{/lessons/find}" class="d-flex align-items-end justify-content-between w-100">

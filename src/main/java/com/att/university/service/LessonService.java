@@ -8,13 +8,13 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface LessonService {
-    List<Lesson> findAll(int page, int count);
-
     void add(LessonAddRequest addRequest);
 
     void update(LessonUpdateRequest updateRequest);
 
     List<LocalDate> findTeacherLessonWeeks(LocalDate startDate, LocalDate endDate, Integer teacherId);
+
+    List<Lesson> findByDateBetween(LocalDate startDate, LocalDate endDate);
 
     List<Lesson> findTeacherWeekSchedule(int currentPage, List<LocalDate> weeks, Integer teacherId);
 

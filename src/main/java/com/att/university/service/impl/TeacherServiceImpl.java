@@ -26,7 +26,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class TeacherServiceImpl implements TeacherService {
-    private static final String TEACHER_NOT_FOUND = "Teacher is not found";
+    private static final String TEACHER_NOT_FOUND = "Teacher with Id %d is not found";
 
     private final TeacherDao teacherDao;
     private final AcademicRankDao academicRankDao;
@@ -106,6 +106,7 @@ public class TeacherServiceImpl implements TeacherService {
 
     @Override
     public Teacher findById(Integer id) {
-        return teacherDao.findById(id).orElseThrow(() -> new PersonNotFoundException(TEACHER_NOT_FOUND));
+        return teacherDao.findById(id).orElseThrow(() ->
+                new PersonNotFoundException(String.format(TEACHER_NOT_FOUND, id)));
     }
 }

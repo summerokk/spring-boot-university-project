@@ -10,7 +10,5 @@ public interface LessonDao extends CrudDao<Lesson, Integer> {
 
     List<Lesson> findByDateBetweenAndTeacherId(Integer teacherId, LocalDate startDate, LocalDate endDate);
 
-    List<Lesson> findTeacherWeekSchedule(LocalDate startDate, Integer teacherId);
-
     List<LocalDate> findTeacherLessonWeeks(LocalDate startDate, LocalDate endDate, Integer teacherId);
 }

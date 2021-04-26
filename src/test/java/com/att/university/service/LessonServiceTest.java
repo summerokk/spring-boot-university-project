@@ -26,13 +26,21 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -53,7 +61,7 @@ class LessonServiceTest {
 
     @Mock
     private ClassroomDao classroomDao;
-    
+
     @Mock
     private LessonUpdateValidator lessonUpdateValidator;
 
@@ -297,6 +305,64 @@ class LessonServiceTest {
         verify(groupDao).findById(anyInt());
         verify(classroomDao).findById(anyInt());
         verifyNoMoreInteractions(courseDao, lessonDao, groupDao, lessonUpdateValidator, teacherDao, classroomDao);
+    }
+
+    @Test
+    void findTeacherLessonWeeksShouldNotThrowException() {
+        List<LocalDate> weeks = Arrays.asList(
+                LocalDate.now(),
+                LocalDate.now()
+        );
+
+        LocalDate startDate = LocalDate.parse("2020-10-12");
+        LocalDate endDate = LocalDate.parse("2020-10-15");
+
+        when(lessonDao.findTeacherLessonWeeks(eq(startDate), eq(endDate), anyInt()))
+                .thenReturn(weeks);
+
+        assertDoesNotThrow(() -> lessonService.findTeacherLessonWeeks(startDate, endDate, 1));
+
+        verify(lessonDao).findTeacherLessonWeeks(any(LocalDate.class), any(LocalDate.class), anyInt());
+    }
+
+    @Test
+    void findTeacherWeekScheduleShouldNotThrowException() {
+        List<LocalDate> weeks = spy(new ArrayList<>());
+        weeks.add(LocalDate.now());
+
+        when(weeks.get(anyInt())).thenReturn(LocalDate.now());
+
+        assertDoesNotThrow(() -> lessonService.findTeacherWeekSchedule(1, weeks, 1));
+
+        verify(lessonDao).findByDateBetweenAndTeacherId(eq(1), any(LocalDate.class), any(LocalDate.class));
+    }
+
+    @Test
+    void findByDateBetweenAndTeacherIdShouldNotThrowException() {
+        List<Lesson> lessons = Collections.singletonList(generateLesson());
+        LocalDate startDate = LocalDate.parse("2020-10-12");
+        LocalDate endDate = LocalDate.parse("2020-10-15");
+
+        when(lessonDao.findByDateBetweenAndTeacherId(anyInt(), any(LocalDate.class), any(LocalDate.class)))
+                .thenReturn(lessons);
+
+        assertDoesNotThrow(() -> lessonService.findByDateBetweenAndTeacherId(startDate, endDate, 1));
+
+        verify(lessonDao).findByDateBetweenAndTeacherId(eq(1), any(LocalDate.class), any(LocalDate.class));
+    }
+
+    @Test
+    void findByDateBetweenShouldNotThrowException() {
+        List<Lesson> lessons = Collections.singletonList(generateLesson());
+        LocalDate startDate = LocalDate.parse("2020-10-12");
+        LocalDate endDate = LocalDate.parse("2020-10-15");
+
+        when(lessonDao.findByDateBetween(any(LocalDate.class), any(LocalDate.class)))
+                .thenReturn(lessons);
+
+        assertDoesNotThrow(() -> lessonService.findByDateBetween(startDate, endDate));
+
+        verify(lessonDao).findByDateBetween(any(LocalDate.class), any(LocalDate.class));
     }
 
     private LessonAddRequest generateAddRequest() {
