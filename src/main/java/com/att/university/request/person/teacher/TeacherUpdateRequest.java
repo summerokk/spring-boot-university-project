@@ -21,9 +21,8 @@ public class TeacherUpdateRequest extends PersonRequest {
 
     @Builder(setterPrefix = "with")
     public TeacherUpdateRequest(Integer id, String linkedin, Integer academicRankId, Integer scienceDegreeId,
-                                String firstName, String lastName, String email, String password,
-                                String passwordConfirm) {
-        super(firstName, lastName, email, password, passwordConfirm);
+                                String firstName, String lastName, String email) {
+        super(firstName, lastName, email);
 
         this.id = id;
         this.linkedin = linkedin;

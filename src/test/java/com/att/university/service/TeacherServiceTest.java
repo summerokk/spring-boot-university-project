@@ -7,6 +7,8 @@ import com.att.university.entity.AcademicRank;
 import com.att.university.entity.ScienceDegree;
 import com.att.university.entity.Teacher;
 import com.att.university.exception.dao.PersonNotFoundException;
+import com.att.university.mapper.teacher.TeacherRegisterRequestMapper;
+import com.att.university.mapper.teacher.TeacherUpdateRequestMapper;
 import com.att.university.request.person.teacher.TeacherRegisterRequest;
 import com.att.university.request.person.teacher.TeacherUpdateRequest;
 import com.att.university.service.impl.TeacherServiceImpl;
@@ -25,12 +27,12 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class TeacherServiceTest {
@@ -52,6 +54,12 @@ class TeacherServiceTest {
     @Mock
     private TeacherRegisterValidator teacherRegisterValidator;
 
+    @Mock
+    private TeacherRegisterRequestMapper registerRequestMapper;
+
+    @Mock
+    private TeacherUpdateRequestMapper updateRequestMapper;
+
     @InjectMocks
     private TeacherServiceImpl teacherService;
 
@@ -59,7 +67,7 @@ class TeacherServiceTest {
     void findAllShouldNotThrowException() {
         when(teacherDao.findAll(anyInt(), anyInt())).thenReturn(new ArrayList<>());
 
-        assertDoesNotThrow(() -> teacherService.findAll());
+        assertDoesNotThrow(() -> teacherService.findAll(1, 3));
 
         verify(teacherDao).findAll(anyInt(), anyInt());
     }
@@ -77,7 +85,7 @@ class TeacherServiceTest {
     }
 
     @Test
-    void findByIdShouldReturnTeacherWhenStudentExists() {
+    void findByIdShouldReturnTeacherWhenTeacherExists() {
         Integer id = 4;
 
         when(teacherDao.findById(anyInt())).thenReturn(Optional.of(generateTeacher()));
@@ -87,15 +95,20 @@ class TeacherServiceTest {
         verify(teacherDao).findById(anyInt());
         verifyNoMoreInteractions(teacherDao);
     }
-    
+
     @Test
     void registerShouldNotThrowExceptionWhenEmailDoesNotExist() {
         final TeacherRegisterRequest teacherRegisterRequest = generateRegisterRequest();
+        final Teacher teacher = generateTeacher();
 
         doNothing().when(teacherRegisterValidator).validate(any(TeacherRegisterRequest.class));
         when(teacherDao.findByEmail(teacherRegisterRequest.getEmail())).thenReturn(Optional.empty());
         when(scienceDegreeDao.findById(anyInt())).thenReturn(Optional.of(generateDegree()));
         when(academicRankDao.findById(anyInt())).thenReturn(Optional.of(generateRank()));
+        when(registerRequestMapper.convertToEntity(
+                any(TeacherRegisterRequest.class), anyString(), any(AcademicRank.class), any(ScienceDegree.class))
+        ).thenReturn(teacher);
+        when(passwordEncoder.encode(anyString())).thenReturn(anyString());
 
         teacherService.register(teacherRegisterRequest);
 
@@ -164,6 +177,9 @@ class TeacherServiceTest {
         when(teacherDao.findById(teacher.getId())).thenReturn(Optional.of(teacher));
         when(scienceDegreeDao.findById(anyInt())).thenReturn(Optional.of(generateDegree()));
         when(academicRankDao.findById(anyInt())).thenReturn(Optional.of(generateRank()));
+        when(updateRequestMapper.convertToEntity(
+                any(TeacherUpdateRequest.class), any(AcademicRank.class), any(ScienceDegree.class))
+        ).thenReturn(teacher);
 
         teacherService.update(teacherUpdateRequest);
 
@@ -252,6 +268,71 @@ class TeacherServiceTest {
         verifyNoMoreInteractions(passwordEncoder, teacherDao);
     }
 
+    @Test
+    void findAllWithoutPaginationShouldNotThrowException() {
+        when(teacherDao.count()).thenReturn(2);
+        when(teacherDao.findAll(anyInt(), anyInt())).thenReturn(new ArrayList<>());
+
+        assertDoesNotThrow(() -> teacherService.findAllWithoutPagination());
+
+        verify(teacherDao).findAll(anyInt(), anyInt());
+        verify(teacherDao).count();
+    }
+    
+    @Test
+    void findByEmailShouldThrowExceptionWhenStudentDoesNotExist() {
+        String email = "test@test.ru";
+
+        when(teacherDao.findByEmail(anyString())).thenReturn(Optional.empty());
+
+        assertThrows(PersonNotFoundException.class, () -> teacherService.findByEmail(email));
+
+        verify(teacherDao).findByEmail(anyString());
+        verifyNoMoreInteractions(teacherDao);
+    }
+
+    @Test
+    void findByEmailShouldReturnStudentWhenStudentExists() {
+        String email = "test@test.ru";
+
+        when(teacherDao.findByEmail(anyString())).thenReturn(Optional.of(generateTeacher()));
+
+        assertDoesNotThrow(() -> teacherService.findByEmail(email));
+
+        verify(teacherDao).findByEmail(anyString());
+        verifyNoMoreInteractions(teacherDao);
+    }
+
+    @Test
+    void countShouldNotThrowException() {
+        when(teacherDao.count()).thenReturn(1);
+
+        assertDoesNotThrow(() -> teacherService.count());
+
+        verify(teacherDao).count();
+    }
+
+    @Test
+    void deleteTeacherShouldThrowNotFoundExceptionIfTeacherNotFound() {
+        when(teacherDao.findById(anyInt())).thenReturn(Optional.empty());
+
+        assertThrows(PersonNotFoundException.class, () -> teacherService.deleteById(1));
+
+        verify(teacherDao).findById(anyInt());
+        verifyNoMoreInteractions(teacherDao);
+    }
+
+    @Test
+    void deleteTeacherShouldNotThrowExceptionIfTeacherIsFound() {
+        when(teacherDao.findById(anyInt())).thenReturn(Optional.of(generateTeacher()));
+
+        teacherService.deleteById(1);
+
+        verify(teacherDao).findById(anyInt());
+        verify(teacherDao).deleteById(anyInt());
+        verifyNoMoreInteractions(teacherDao);
+    }
+
     private TeacherRegisterRequest generateRegisterRequest() {
         return TeacherRegisterRequest.builder()
                 .withFirstName("test")
@@ -270,7 +351,6 @@ class TeacherServiceTest {
                 .withFirstName("test")
                 .withLastName("test")
                 .withEmail("test@test.ru")
-                .withPassword("1234567890")
                 .withLinkedin("http://test.ru")
                 .withAcademicRankId(1)
                 .withScienceDegreeId(1)

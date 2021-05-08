@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
@@ -21,7 +23,7 @@ class LessonUpdateValidatorTest {
                 .withId(1)
                 .withTeacherId(1)
                 .withClassroomId(1)
-                .withDate("2004-10-20T10:23")
+                .withDate(LocalDateTime.parse("2004-10-20T10:23"))
                 .withCourseId(1)
                 .withGroupId(1)
                 .build();

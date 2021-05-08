@@ -8,25 +8,29 @@
 <div th:replace="fragments/menu :: menu"></div>
 
 <div class="container">
+    <div th:insert="${error} ? ~{fragments/error :: error(${error})} : ~{}"></div>
+
     <div class="row">
         <div class="col-12">
-            <form th:action="@{/students/register}" th:method="PATCH" th:object="${student}">
+            <form class="mb-3" th:action="@{/students/update}" th:method="DELETE" th:object="${updateRequest}">
+                <input type="hidden" name="id" th:value="${student.id}" id="id">
+
                 <div class="form-group">
                     <label for="email" th:text="#{form.email}"></label>
-                    <input type="email" class="form-control" th:field="${student.email}" id="email"/>
+                    <input type="email" class="form-control" th:value="${student.email}" name="email" id="email"/>
                 </div>
                 <div class="form-group">
                     <label for="first-name" th:text="#{form.name}"></label>
-                    <input type="text" class="form-control" th:field="${student.firstName}" id="first-name">
+                    <input type="text" class="form-control" th:value="${student.firstName}" name="firstName"  id="first-name">
                 </div>
                 <div class="form-group">
                     <label for="last-name" th:text="#{form.lastname}"></label>
-                    <input type="text" class="form-control" th:field="${student.lastName}" id="last-name">
+                    <input type="text" class="form-control" th:value="${student.lastName}" name="lastName" id="last-name">
                 </div>
                 <div class="form-group">
                     <label for="group-id" th:text="#{form.group}"></label>
                     <select class="form-control" id="group-id" name="groupId">
-                        <option th:selected="${student.group == null}" th:value="null">No Group</option>
+                        <option th:selected="${student.group == null}" th:value="0">No Group</option>
                         <option th:each="group : ${groups}"
                                 th:value="${group.id}"
                                 th:text="${group.name}"
@@ -35,9 +39,10 @@
                     </select>
                 </div>
                 <button type="submit" class="btn btn-primary" th:text="#{button.update}"></button>
-                <form th:action="@{/students/delete}" th:method="DELETE">
-                    <button type="submit" class="btn btn-danger" th:text="#{button.delete}"></button>
-                </form>
+            </form>
+            <form th:action="@{/students/delete}" th:method="DELETE">
+                <input type="hidden" th:field="${student.id}">
+                <button type="submit" class="btn btn-danger" th:text="#{button.delete}"></button>
             </form>
         </div>
     </div>

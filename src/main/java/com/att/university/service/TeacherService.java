@@ -1,6 +1,5 @@
 package com.att.university.service;
 
-import com.att.university.entity.Student;
 import com.att.university.entity.Teacher;
 import com.att.university.request.person.teacher.TeacherRegisterRequest;
 import com.att.university.request.person.teacher.TeacherUpdateRequest;
@@ -14,7 +13,15 @@ public interface TeacherService {
 
     boolean login(String email, String password);
 
-    List<Teacher> findAll();
+    List<Teacher> findAll(int page, int count);
+
+    List<Teacher> findAllWithoutPagination();
 
     Teacher findById(Integer id);
+
+    Teacher findByEmail(String email);
+
+    int count();
+
+    void deleteById(Integer id);
 }

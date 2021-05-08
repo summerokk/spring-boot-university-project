@@ -9,6 +9,7 @@ import com.att.university.exception.dao.PersonNotFoundException;
 import com.att.university.exception.service.EmailAlreadyExistsException;
 import com.att.university.exception.service.LoginFailException;
 import com.att.university.mapper.student.StudentRegisterRequestMapper;
+import com.att.university.mapper.student.StudentUpdateRequestMapper;
 import com.att.university.request.person.student.StudentRegisterRequest;
 import com.att.university.request.person.student.StudentUpdateRequest;
 import com.att.university.service.StudentService;
@@ -34,6 +35,7 @@ public class StudentServiceImpl implements StudentService {
     private final StudentUpdateValidator studentUpdateValidator;
     private final PasswordEncoder passwordEncoder;
     private final StudentRegisterRequestMapper registerRequestMapper;
+    private final StudentUpdateRequestMapper updateRequestMapper;
 
     public void register(StudentRegisterRequest studentRegisterRequest) {
         studentRegisterValidator.validate(studentRegisterRequest);
@@ -61,14 +63,7 @@ public class StudentServiceImpl implements StudentService {
         Group group = groupDao.findById(studentUpdateRequest.getGroupId())
                 .orElseThrow(() -> new GroupNotFoundException("Group is not found"));
 
-        studentDao.update(Student.builder()
-                .withId(studentUpdateRequest.getId())
-                .withFirstName(studentUpdateRequest.getFirstName())
-                .withLastName(studentUpdateRequest.getLastName())
-                .withEmail(studentUpdateRequest.getEmail())
-                .withPassword(studentUpdateRequest.getPassword())
-                .withGroup(group)
-                .build());
+        studentDao.update(updateRequestMapper.convertToEntity(studentUpdateRequest, group));
     }
 
     @Override
@@ -101,5 +96,16 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public int count() {
         return studentDao.count();
+    }
+
+    @Override
+    public void delete(Integer id) {
+        if (!studentDao.findById(id).isPresent()) {
+            throw new PersonNotFoundException(STUDENT_NOT_FOUND);
+        }
+
+        log.debug("Student deleting with id {}", id);
+
+        studentDao.deleteById(id);
     }
 }

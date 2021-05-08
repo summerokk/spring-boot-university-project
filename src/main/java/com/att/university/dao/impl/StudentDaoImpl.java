@@ -34,7 +34,7 @@ public class StudentDaoImpl extends AbstractDaoImpl<Student> implements StudentD
             "LEFT JOIN faculties f on g.faculty_id = f.id WHERE s.email = ?";
     private static final String DELETE_BY_ID_QUERY = "DELETE FROM students WHERE id = ?";
     private static final String UPDATE_QUERY = "UPDATE students SET first_name = ?, last_name = ?, email = ?, " +
-            "password = ?, group_id = ?  WHERE id = ?";
+            "group_id = ?  WHERE id = ?";
     private static final String COUNT_QUERY = "SELECT COUNT(*) FROM students";
 
     private static final RowMapper<Student> ROW_MAPPER = (resultSet, rowNum) -> {
@@ -86,7 +86,6 @@ public class StudentDaoImpl extends AbstractDaoImpl<Student> implements StudentD
                 student.getFirstName(),
                 student.getLastName(),
                 student.getEmail(),
-                student.getPassword(),
                 student.getGroup().getId(),
                 student.getId()
         );

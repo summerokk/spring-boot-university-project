@@ -19,7 +19,7 @@ class TeacherRegisterValidatorTest {
                 .withEmail("test@test.ru")
                 .withPassword("te1dsf12sdfg")
                 .withPasswordConfirm("te1dsf12sdfg")
-                .withLinkedin("http://test.ru")
+                .withLinkedin("https://test.ru")
                 .withAcademicRankId(1)
                 .withScienceDegreeId(1)
                 .build();

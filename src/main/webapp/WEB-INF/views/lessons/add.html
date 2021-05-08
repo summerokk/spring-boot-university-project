@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/head :: head (#{lesson})"></head>
+
+<body>
+
+<div th:replace="fragments/menu :: menu"></div>
+
+<div class="container">
+    <div th:insert="${successCreate} ? ~{fragments/success :: success(#{notify.success.add})} : ~{}"></div>
+    <div th:insert="${error} ? ~{fragments/error :: error(${error})} : ~{}"></div>
+
+    <div class="row">
+        <div class="col-12">
+            <form th:action="@{/lessons/store}" method="POST" th:object="${addRequest}">
+                <div class="form-group">
+                    <label th:text="#{group}"></label>
+                    <select class="form-control" th:field="*{groupId}">
+                        <option th:each="group : ${groups}"
+                                th:value="${group.id}"
+                                th:text="${group.name}"
+                        ></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label th:text="#{teacher}"></label>
+                    <select class="form-control" th:field="*{teacherId}">
+                        <option th:each="teacher : ${teachers}"
+                                th:value="${teacher.id}"
+                                th:text="${teacher.firstName} + ' ' + ${teacher.lastName}"
+                        ></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label th:text="#{classroom}"></label>
+                    <select class="form-control" th:field="*{classroomId}">
+                        <option th:each="classroom : ${classrooms}"
+                                th:value="${classroom.id}"
+                                th:text="${classroom.building.address} + ' ' + ${classroom.number}"
+                        ></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label th:text="#{course}"></label>
+                    <select class="form-control" th:field="*{courseId}">
+                        <option th:each="course : ${courses}"
+                                th:value="${course.id}"
+                                th:text="${course.name}"
+                        ></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label th:text="#{date}"></label>
+                    <input class="form-control" type="datetime-local" th:field="*{date}">
+                </div>
+
+                <button type="submit" class="btn btn-primary" th:text="#{button.create}">Add</button>
+            </form>
+        </div>
+    </div>
+
+    <footer th:replace="fragments/footer :: footer"></footer>
+</div>
+
+<th:block th:include="fragments/js :: assets"></th:block>
+</body>
+</html>

@@ -8,6 +8,7 @@ import com.att.university.entity.Student;
 import com.att.university.exception.ExceptionHandlerAdvice;
 import com.att.university.exception.PersonHandleAdvice;
 import com.att.university.exception.StudentControllerAdvice;
+import com.att.university.exception.dao.GroupNotFoundException;
 import com.att.university.exception.service.EmailAlreadyExistsException;
 import com.att.university.exception.service.LoginFailException;
 import com.att.university.exception.service.NameIncorrectException;
@@ -15,6 +16,7 @@ import com.att.university.exception.service.PasswordTooShortException;
 import com.att.university.exception.service.PasswordsAreNotTheSameException;
 import com.att.university.exception.service.WrongEmailFormatException;
 import com.att.university.request.person.student.StudentRegisterRequest;
+import com.att.university.request.person.student.StudentUpdateRequest;
 import com.att.university.service.GroupService;
 import com.att.university.service.StudentService;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,27 +25,29 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
@@ -52,6 +56,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ContextConfiguration(classes = {H2Config.class, WebTestConfig.class})
 @WebAppConfiguration
 class StudentControllerTest {
+    @Value("${person.default.page}")
+    private int defaultPage;
+
+    @Value("${person.default.items}")
+    private int itemsOnPage;
 
     private MockMvc mockMvc;
 
@@ -86,7 +95,7 @@ class StudentControllerTest {
         doThrow(WrongEmailFormatException.class).when(studentService).register(any(StudentRegisterRequest.class));
 
         this.mockMvc.perform(post("/students/register").param("email", "test@test.ru"))
-                .andExpect(status().is(400))
+                .andExpect(status().is(302))
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof WrongEmailFormatException));
     }
 
@@ -95,7 +104,7 @@ class StudentControllerTest {
         doThrow(EmailAlreadyExistsException.class).when(studentService).register(any(StudentRegisterRequest.class));
 
         this.mockMvc.perform(post("/students/register").param("email", "test@test.ru"))
-                .andExpect(status().is(400))
+                .andExpect(status().is(302))
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof EmailAlreadyExistsException));
     }
 
@@ -104,7 +113,6 @@ class StudentControllerTest {
         doThrow(RuntimeException.class).when(studentService).register(any(StudentRegisterRequest.class));
 
         this.mockMvc.perform(post("/students/register").param("email", "test@test.ru"))
-                .andExpect(status().is(500))
                 .andExpect(view().name("errors/error"));
     }
 
@@ -113,7 +121,7 @@ class StudentControllerTest {
         doThrow(PasswordTooShortException.class).when(studentService).register(any(StudentRegisterRequest.class));
 
         this.mockMvc.perform(post("/students/register").param("email", "test@test.ru"))
-                .andExpect(status().is(400))
+                .andExpect(status().is(302))
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof PasswordTooShortException));
     }
 
@@ -122,7 +130,7 @@ class StudentControllerTest {
         doThrow(NameIncorrectException.class).when(studentService).register(any(StudentRegisterRequest.class));
 
         this.mockMvc.perform(post("/students/register").param("email", "test@test.ru"))
-                .andExpect(status().is(400))
+                .andExpect(status().is(302))
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof NameIncorrectException));
     }
 
@@ -141,7 +149,7 @@ class StudentControllerTest {
         doThrow(NullPointerException.class).when(studentService).register(any(StudentRegisterRequest.class));
 
         this.mockMvc.perform(post("/students/register").param("email", "test@test.ru"))
-                .andExpect(status().is(500))
+                .andExpect(status().is(302))
                 .andExpect(result ->
                         assertTrue(result.getResolvedException() instanceof NullPointerException));
     }
@@ -177,7 +185,7 @@ class StudentControllerTest {
     }
 
     @Test
-    void performLoginPostRequestShouldReturn400StatusIfLoginAndPasswordAreIncorrect() throws Exception {
+    void performLoginPostRequestShouldReturn302StatusIfLoginAndPasswordAreIncorrect() throws Exception {
         when(studentService.login(anyString(), anyString())).thenReturn(false);
 
         this.mockMvc
@@ -215,6 +223,56 @@ class StudentControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(model().attributeExists("countPages", "page", "count", "students"))
                 .andReturn();
+    }
+
+    @Test
+    void performPostUpdateStudentShouldReturn302Status() throws Exception {
+        StudentUpdateRequest updateRequest = StudentUpdateRequest.builder()
+                .withId(1)
+                .withFirstName("name")
+                .withLastName("last")
+                .withEmail("email")
+                .withGroupId(1)
+                .build();
+
+        doNothing().when(studentService).update(updateRequest);
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .post("/students/update")
+                .flashAttr("studentUpdateRequest", updateRequest);
+
+        this.mockMvc.perform(request)
+                .andExpect(status().is(302))
+                .andExpect(view().name("redirect:/students/show?id=1"));
+
+        verify(studentService).update(updateRequest);
+    }
+
+    @Test
+    void performPostStudentUpdateRequestShouldThrowGroupNotFoundException() throws Exception {
+        doThrow(GroupNotFoundException.class).when(studentService).update(any(StudentUpdateRequest.class));
+
+        this.mockMvc.perform(post("/students/update").param("email", "test@test.ru"))
+                .andExpect(status().is(302))
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof GroupNotFoundException));
+    }
+
+    @Test
+    void performDeleteStudentShouldReturn302Status() throws Exception {
+        ReflectionTestUtils.setField(studentController, "itemsOnPage", itemsOnPage);
+        ReflectionTestUtils.setField(studentController, "defaultPage", defaultPage);
+
+        doNothing().when(studentService).delete(anyInt());
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .delete("/students/delete")
+                .param("id", "1");
+
+        this.mockMvc.perform(request)
+                .andExpect(status().is(302))
+                .andExpect(view().name("redirect:/students/1/3"));
+
+        verify(studentService).delete(anyInt());
     }
 
     private List<Student> generateStudents() {

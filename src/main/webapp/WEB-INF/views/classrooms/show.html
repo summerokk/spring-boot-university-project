@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="fragments/head :: head (${classroom.building.address})"></head>
+
+<body>
+
+<div th:replace="fragments/menu :: menu"></div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <form class="mb-3" th:action="@{/classrooms/update}" method="POST" th:object="${updateRequest}">
+                <input type="hidden" name="id" th:value="${classroom.id}" id="id">
+
+                <div class="form-group">
+                    <label for="number" th:text="#{classroom}"></label>
+                    <input type="text" class="form-control" name="number" th:value="${classroom.number}" id="number">
+                </div>
+                <div class="form-group">
+                    <label th:text="#{address}"></label>
+                    <select class="form-control" name="buildingId">
+                        <option th:each="building : ${buildings}"
+                                th:value="${building.id}"
+                                th:text="${building.address}"
+                                th:selected="${building.id == classroom.building.id}"
+                        ></option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary" th:text="#{button.update}"></button>
+            </form>
+            <form th:action="@{/classrooms/delete}" th:method="DELETE">
+                <input type="hidden" th:field="${classroom.id}">
+                <button type="submit" class="btn btn-danger" th:text="#{button.delete}"></button>
+            </form>
+        </div>
+    </div>
+
+    <footer th:replace="fragments/footer :: footer"></footer>
+</div>
+
+<th:block th:include="fragments/js :: assets"></th:block>
+</body>
+</html>

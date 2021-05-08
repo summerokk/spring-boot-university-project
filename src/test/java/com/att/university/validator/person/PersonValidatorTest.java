@@ -33,6 +33,8 @@ class PersonValidatorTest {
     void personValidatorShouldThrowExceptionIfFirstNameIfNull() {
         StudentRegisterRequest studentRegisterRequest = StudentRegisterRequest.builder()
                 .withFirstName(null)
+                .withPassword("testasdassd")
+                .withPasswordConfirm("testasdassd")
                 .build();
 
         Exception exception = assertThrows(RuntimeException.class,

@@ -27,6 +27,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -365,11 +366,56 @@ class LessonServiceTest {
         verify(lessonDao).findByDateBetween(any(LocalDate.class), any(LocalDate.class));
     }
 
+    @Test
+    void findByIdShouldThrowExceptionWhenLessonDoesNotExist() {
+        Integer id = 4;
+
+        when(lessonDao.findById(anyInt())).thenReturn(Optional.empty());
+
+        assertThrows(LessonNotFoundException.class, () -> lessonService.findById(id));
+
+        verify(lessonDao).findById(anyInt());
+        verifyNoMoreInteractions(lessonDao);
+    }
+
+    @Test
+    void findByIdShouldReturnLessonWhenStudentExists() {
+        Integer id = 4;
+
+        when(lessonDao.findById(anyInt())).thenReturn(Optional.of(generateLesson()));
+
+        lessonService.findById(id);
+
+        verify(lessonDao).findById(anyInt());
+        verifyNoMoreInteractions(lessonDao);
+    }
+
+    @Test
+    void deleteLessonShouldThrowNotFoundExceptionIfLessonNotFound() {
+        when(lessonDao.findById(anyInt())).thenReturn(Optional.empty());
+
+        assertThrows(LessonNotFoundException.class, () -> lessonService.deleteById(1));
+
+        verify(lessonDao).findById(anyInt());
+        verifyNoMoreInteractions(lessonDao);
+    }
+
+    @Test
+    void deleteStudentShouldNotThrowExceptionIfStudentIsFound() {
+        when(lessonDao.findById(anyInt())).thenReturn(Optional.of(generateLesson()));
+
+        lessonService.deleteById(1);
+
+        verify(lessonDao).findById(anyInt());
+        verify(lessonDao).deleteById(anyInt());
+        verifyNoMoreInteractions(lessonDao);
+    }
+
     private LessonAddRequest generateAddRequest() {
         return LessonAddRequest.builder()
                 .withTeacherId(1)
                 .withClassroomId(1)
-                .withDate("2004-10-20T10:23")
+                .withDate(LocalDateTime.parse("2004-10-20T10:23"))
                 .withCourseId(1)
                 .withGroupId(1)
                 .build();
@@ -380,7 +426,7 @@ class LessonServiceTest {
                 .withId(1)
                 .withTeacherId(1)
                 .withClassroomId(1)
-                .withDate("2004-10-20T10:23")
+                .withDate(LocalDateTime.parse("2004-10-20T10:23"))
                 .withCourseId(1)
                 .withGroupId(1)
                 .build();
