@@ -4,12 +4,15 @@ import com.att.university.entity.Group;
 import com.att.university.entity.Student;
 import com.att.university.exception.service.LoginFailException;
 import com.att.university.request.person.student.StudentRegisterRequest;
+import com.att.university.request.person.student.StudentUpdateRequest;
 import com.att.university.service.GroupService;
 import com.att.university.service.StudentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,6 +29,13 @@ import java.util.List;
 @RequestMapping("students")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class StudentController {
+
+    @Value("${person.default.page}")
+    private int defaultPage;
+
+    @Value("${person.default.items}")
+    private int itemsOnPage;
+
     private final StudentService studentService;
     private final GroupService groupService;
 
@@ -71,6 +81,7 @@ public class StudentController {
 
         model.addAttribute("student", student);
         model.addAttribute("groups", groups);
+        model.addAttribute("updateRequest", new StudentUpdateRequest());
 
         return "students/show";
     }
@@ -87,5 +98,19 @@ public class StudentController {
         model.addAttribute("count", count);
 
         return "students/all";
+    }
+
+    @PostMapping("/update")
+    public String update(@ModelAttribute StudentUpdateRequest updateRequest) {
+        studentService.update(updateRequest);
+
+        return String.format("redirect:/students/show?id=%d", updateRequest.getId());
+    }
+
+    @DeleteMapping("/delete")
+    public String delete(@RequestParam Integer id) {
+        studentService.delete(id);
+
+        return String.format("redirect:/students/%d/%d", defaultPage, itemsOnPage);
     }
 }

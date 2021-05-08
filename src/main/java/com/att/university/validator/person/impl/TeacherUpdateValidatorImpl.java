@@ -8,10 +8,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class TeacherUpdateValidatorImpl extends AbstractPersonValidatorImpl<TeacherUpdateRequest>
         implements TeacherUpdateValidator {
-    public TeacherUpdateValidatorImpl(@Value("${password.min.length}") int minPasswordLength) {
-        super(minPasswordLength);
-    }
-
     @Override
     public void validate(TeacherUpdateRequest updateRequest) {
         baseInfoValidate(updateRequest);

@@ -10,6 +10,7 @@ import com.att.university.entity.Course;
 import com.att.university.entity.Group;
 import com.att.university.entity.Lesson;
 import com.att.university.entity.Teacher;
+import com.att.university.exception.dao.GroupNotFoundException;
 import com.att.university.exception.dao.LessonNotFoundException;
 import com.att.university.request.lesson.LessonAddRequest;
 import com.att.university.request.lesson.LessonUpdateRequest;
@@ -31,6 +32,8 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class LessonServiceImpl implements LessonService {
+    private static final String LESSON_NOT_FOUND = "Lesson with Id %d is not found";
+
     private final LessonAddValidator lessonAddValidator;
     private final LessonUpdateValidator lessonUpdateValidator;
     private final TeacherDao teacherDao;
@@ -42,9 +45,9 @@ public class LessonServiceImpl implements LessonService {
     @Override
     @Transactional
     public void add(LessonAddRequest addRequest) {
-        log.debug("Adding lesson with request {}", addRequest);
-
         lessonAddValidator.validate(addRequest);
+
+        log.debug("Adding lesson with request {}", addRequest);
 
         Course course = courseDao.findById(addRequest.getCourseId())
                 .orElseThrow(() -> new LessonNotFoundException("Course is not found"));
@@ -58,12 +61,10 @@ public class LessonServiceImpl implements LessonService {
         Teacher teacher = teacherDao.findById(addRequest.getTeacherId())
                 .orElseThrow(() -> new LessonNotFoundException("Teacher is not found"));
 
-        LocalDateTime date = LocalDateTime.parse(addRequest.getDate());
-
         lessonDao.save(Lesson.builder()
                 .withTeacher(teacher)
                 .withGroup(group)
-                .withDate(date)
+                .withDate(addRequest.getDate())
                 .withClassroom(classroom)
                 .withCourse(course)
                 .build());
@@ -77,7 +78,7 @@ public class LessonServiceImpl implements LessonService {
         lessonUpdateValidator.validate(updateRequest);
 
         Lesson lesson = lessonDao.findById(updateRequest.getId())
-                .orElseThrow(() -> new LessonNotFoundException("Lesson is not found"));
+                .orElseThrow(() -> new LessonNotFoundException(String.format(LESSON_NOT_FOUND, updateRequest.getId())));
 
         Course course = courseDao.findById(updateRequest.getCourseId())
                 .orElseThrow(() -> new LessonNotFoundException("Course is not found"));
@@ -91,16 +92,20 @@ public class LessonServiceImpl implements LessonService {
         Teacher teacher = teacherDao.findById(updateRequest.getTeacherId())
                 .orElseThrow(() -> new LessonNotFoundException("Teacher is not found"));
 
-        LocalDateTime date = LocalDateTime.parse(updateRequest.getDate());
-
         lessonDao.update(Lesson.builder()
                 .withId(lesson.getId())
                 .withTeacher(teacher)
                 .withGroup(group)
-                .withDate(date)
+                .withDate(updateRequest.getDate())
                 .withClassroom(classroom)
                 .withCourse(course)
                 .build());
+    }
+
+    @Override
+    public Lesson findById(Integer id) {
+        return lessonDao.findById(id)
+                .orElseThrow(() -> new LessonNotFoundException(String.format(LESSON_NOT_FOUND, id)));
     }
 
     @Override
@@ -127,5 +132,16 @@ public class LessonServiceImpl implements LessonService {
     @Override
     public List<Lesson> findByDateBetween(LocalDate startDate, LocalDate endDate) {
         return lessonDao.findByDateBetween(startDate, endDate);
+    }
+
+    @Override
+    public void deleteById(Integer id) {
+        if (!lessonDao.findById(id).isPresent()) {
+            throw new LessonNotFoundException(String.format(LESSON_NOT_FOUND, id));
+        }
+
+        log.debug("Lesson deleting with id {}", id);
+
+        lessonDao.deleteById(id);
     }
 }

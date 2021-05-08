@@ -14,9 +14,15 @@ import lombok.ToString;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 public class StudentRegisterRequest extends PersonRequest {
+    private String password;
+    private String passwordConfirm;
+
     @Builder(setterPrefix = "with")
     public StudentRegisterRequest(String firstName, String lastName, String email, String password,
                                   String passwordConfirm) {
-        super(firstName, lastName, email, password, passwordConfirm);
+        super(firstName, lastName, email);
+
+        this.password = password;
+        this.passwordConfirm = passwordConfirm;
     }
 }

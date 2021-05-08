@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/head :: head (#{menu.building})"></head>
+
+<body>
+
+<div th:replace="fragments/menu :: menu"></div>
+
+<div class="container">
+    <div class="row justify-content-end mb-3">
+        <div class="col-3 d-flex justify-content-end">
+            <a th:href="@{|/buildings/create|}" class="btn btn-primary">Create</a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <table class="table table-striped" aria-describedby="All buildings">
+                <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col" th:text="#{address}"></th>
+                    <th scope="col"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="building : ${buildings}">
+                    <th th:text="${building.id}"/>
+                    <td th:text="${building.address}"/>
+                    <td>
+                        <a th:href="@{|/buildings/show/${building.id}|}" class="btn btn-primary" th:text="#{button.show}"></a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <footer th:replace="fragments/footer :: footer"></footer>
+</div>
+
+<th:block th:include="fragments/js :: assets"></th:block>
+
+</body>
+</html>

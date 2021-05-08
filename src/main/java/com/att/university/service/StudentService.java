@@ -13,6 +13,8 @@ public interface StudentService {
 
     boolean login(String email, String password);
 
+    void delete(Integer id);
+
     Student findById(Integer id);
 
     Student findByEmail(String email);

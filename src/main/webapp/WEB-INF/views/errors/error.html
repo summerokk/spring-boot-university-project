@@ -8,11 +8,23 @@
 <div th:replace="fragments/menu :: menu"></div>
 
 <div class="container">
-    <div class="row" th:if="${error}">
+    <div class="row" th:if="${exception}">
         <div class="col-12">
-            <div class="alert alert-danger" role="alert">
-                <h4 class="alert-heading">Error</h4>
-                <p th:text="${error}"></p>
+            <div class="card">
+                <div class="card-header">
+                    Error
+                </div>
+                <div class="card-body">
+                    <h3 class="card-title">Debug information</h3>
+                    <div class="card-text">
+                        <p th:text="${exception.getMessage()}"></p>
+                        <p th:text="'URL = ' + ${requestUrl}"></p>
+                        <div>
+                            <h5>Exception stack trace</h5>
+                            <p th:each="stack : ${exception.getStackTrace()}" th:text="${stack.toString()}"></p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

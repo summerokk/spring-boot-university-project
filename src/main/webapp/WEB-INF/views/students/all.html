@@ -28,7 +28,7 @@
                     <td th:text="${student.email}"/>
                     <td th:text="${student.group == null} ? 'No group' : ${student.group.name}"/>
                     <td>
-                        <a th:href="@{|/students/show?id=${student.id}|}" class="btn btn-info" th:text="#{button.show}"></a>
+                        <a th:href="@{|/students/show?id=${student.id}|}" class="btn btn-primary" th:text="#{button.show}"></a>
                     </td>
                 </tr>
                 </tbody>

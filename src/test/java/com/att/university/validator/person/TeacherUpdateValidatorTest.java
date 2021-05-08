@@ -8,9 +8,8 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 
 class TeacherUpdateValidatorTest {
-    private final int MIN_PASSWORD_LENGTH = 6;
     private final TeacherUpdateValidator teacherUpdateValidator =
-            new TeacherUpdateValidatorImpl(MIN_PASSWORD_LENGTH);
+            new TeacherUpdateValidatorImpl();
 
     @Test
     void teacherUpdateValidatorShouldNotThrowRuntimeExceptionIfTeacherUpdateRequestIsValid() {
@@ -19,8 +18,6 @@ class TeacherUpdateValidatorTest {
                 .withFirstName("test")
                 .withLastName("test")
                 .withEmail("test@test.ru")
-                .withPassword("te1dsf12sdfg")
-                .withPasswordConfirm("te1dsf12sdfg")
                 .withLinkedin("http://test.ru")
                 .withAcademicRankId(1)
                 .withScienceDegreeId(1)

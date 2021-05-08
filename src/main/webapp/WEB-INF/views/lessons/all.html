@@ -9,6 +9,12 @@
 <div class="container">
     <div th:insert="${lessonSearchError} ? ~{fragments/error :: error(${lessonSearchError})} : ~{}"></div>
 
+    <div class="row justify-content-end mb-3">
+        <div class="col-3 d-flex justify-content-end">
+            <a th:href="@{|/lessons/create|}" class="btn btn-primary">Create</a>
+        </div>
+    </div>
+
     <div class="row mb-3 align-items-end">
         <div class="col-9 d-flex">
             <form th:action="@{/lessons/find}" class="d-flex align-items-end justify-content-between w-100">
@@ -54,6 +60,7 @@
                     <th scope="col" th:text="#{classroom}"></th>
                     <th scope="col" th:text="#{teacher}"></th>
                     <th scope="col" th:text="#{date}"></th>
+                    <th scope="col"></th>
                 </tr>
                 </thead>
                 <tbody>
@@ -64,6 +71,9 @@
                     <td th:text="${lesson.getClassroom().number}"/>
                     <td th:text="${lesson.getTeacher().firstName} + ' ' + ${lesson.getTeacher().lastName}"/>
                     <td th:text="${#temporals.format(lesson.date, 'dd-MM-yyyy HH:mm')}"/>
+                    <td>
+                        <a th:href="@{|/lessons/show/${lesson.id}|}" class="btn btn-primary" th:text="#{button.show}"></a>
+                    </td>
                 </tr>
                 </tbody>
             </table>

@@ -9,9 +9,8 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 class StudentUpdateValidatorTest {
-    private final int MIN_PASSWORD_LENGTH = 6;
     private final StudentUpdateValidator studentUpdateValidator =
-            new StudentUpdateValidatorImpl(MIN_PASSWORD_LENGTH);
+            new StudentUpdateValidatorImpl();
 
     @Test
     void studentUpdateValidatorShouldNotThrowRuntimeExceptionIfStudentUpdateRequestIsValid() {
@@ -20,8 +19,6 @@ class StudentUpdateValidatorTest {
                 .withFirstName("test")
                 .withLastName("test")
                 .withEmail("test@test.ru")
-                .withPassword("te1dsf12sdfg")
-                .withPasswordConfirm("te1dsf12sdfg")
                 .withGroupId(1)
                 .build();
 

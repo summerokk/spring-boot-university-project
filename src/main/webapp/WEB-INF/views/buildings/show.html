@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="fragments/head :: head (${building.address})"></head>
+
+<body>
+
+<div th:replace="fragments/menu :: menu"></div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <form class="mb-3" th:action="@{/buildings/update}" method="POST" th:object="${updateRequest}">
+                <input type="hidden" name="id" th:value="${building.id}" id="id">
+
+                <div class="form-group">
+                    <label for="address" th:text="#{address}"></label>
+                    <input type="text" class="form-control" name="address" th:value="${building.address}" id="address">
+                </div>
+                <button type="submit" class="btn btn-primary" th:text="#{button.update}"></button>
+            </form>
+            <form th:action="@{/buildings/delete}" th:method="DELETE">
+                <input type="hidden" th:field="${building.id}">
+                <button type="submit" class="btn btn-danger" th:text="#{button.delete}"></button>
+            </form>
+        </div>
+    </div>
+
+    <footer th:replace="fragments/footer :: footer"></footer>
+</div>
+
+<th:block th:include="fragments/js :: assets"></th:block>
+</body>
+</html>

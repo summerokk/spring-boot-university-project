@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/head :: head (#{menu.teachers})"></head>
+
+<body>
+
+<div th:replace="fragments/menu :: menu"></div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <table class="table table-striped" aria-describedby="All teachers">
+                <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col" th:text="#{form.name}"></th>
+                    <th scope="col" th:text="#{form.lastname}"></th>
+                    <th scope="col" th:text="#{form.email}"></th>
+                    <th scope="col" th:text="#{form.academic}"></th>
+                    <th scope="col" th:text="#{form.science}"></th>
+                    <th scope="col"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="teacher : ${teachers}">
+                    <th th:text="${teacher.id}"/>
+                    <td th:text="${teacher.firstName}"/>
+                    <td th:text="${teacher.lastName}"/>
+                    <td th:text="${teacher.email}"/>
+                    <td th:text="${teacher.academicRank.name}"/>
+                    <td th:text="${teacher.scienceDegree.name}"/>
+                    <td>
+                        <a th:href="@{|/teachers/show?id=${teacher.id}|}" class="btn btn-primary" th:text="#{button.show}"></a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <nav th:replace="fragments/pagination :: pagination ('teachers', ${countPages}, ${page}, ${count})"></nav>
+        </div>
+    </div>
+
+    <footer th:replace="fragments/footer :: footer"></footer>
+</div>
+
+<th:block th:include="fragments/js :: assets"></th:block>
+
+</body>
+</html>

@@ -12,6 +12,10 @@ public interface LessonService {
 
     void update(LessonUpdateRequest updateRequest);
 
+    Lesson findById(Integer id);
+
+    void deleteById(Integer id);
+
     List<LocalDate> findTeacherLessonWeeks(LocalDate startDate, LocalDate endDate, Integer teacherId);
 
     List<Lesson> findByDateBetween(LocalDate startDate, LocalDate endDate);

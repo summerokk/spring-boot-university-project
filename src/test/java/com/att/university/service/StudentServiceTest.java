@@ -8,6 +8,7 @@ import com.att.university.entity.Student;
 import com.att.university.exception.dao.GroupNotFoundException;
 import com.att.university.exception.dao.PersonNotFoundException;
 import com.att.university.mapper.student.StudentRegisterRequestMapper;
+import com.att.university.mapper.student.StudentUpdateRequestMapper;
 import com.att.university.request.person.student.StudentRegisterRequest;
 import com.att.university.request.person.student.StudentUpdateRequest;
 import com.att.university.service.impl.StudentServiceImpl;
@@ -52,6 +53,9 @@ class StudentServiceTest {
 
     @Mock
     private StudentRegisterRequestMapper registerRequestMapper;
+
+    @Mock
+    private StudentUpdateRequestMapper updateRequestMapper;
 
     @InjectMocks
     private StudentServiceImpl studentService;
@@ -116,7 +120,6 @@ class StudentServiceTest {
                 .withFirstName("name")
                 .withLastName("last")
                 .withEmail("email")
-                .withPassword("123456789")
                 .withGroupId(1)
                 .build();
 
@@ -133,10 +136,12 @@ class StudentServiceTest {
         doNothing().when(studentUpdateValidator).validate(any(StudentUpdateRequest.class));
         when(studentDao.findById(studentId)).thenReturn(Optional.of(student));
         when(groupDao.findById(groupId)).thenReturn(Optional.of(group));
+        when(updateRequestMapper.convertToEntity(studentRequest, group)).thenReturn(student);
 
         studentService.update(studentRequest);
 
         verify(studentUpdateValidator).validate(any(StudentUpdateRequest.class));
+        verify(updateRequestMapper).convertToEntity(any(StudentUpdateRequest.class), any(Group.class));
         verify(studentDao).findById(anyInt());
         verify(studentDao).update(any(Student.class));
     }
@@ -150,7 +155,6 @@ class StudentServiceTest {
                 .withFirstName("name")
                 .withLastName("last")
                 .withEmail("email")
-                .withPassword("123456789")
                 .build();
 
         doNothing().when(studentUpdateValidator).validate(any(StudentUpdateRequest.class));
@@ -172,8 +176,6 @@ class StudentServiceTest {
                 .withFirstName("name")
                 .withLastName("last")
                 .withEmail("email")
-                .withPassword("123456789")
-                .withPasswordConfirm("123456789")
                 .withGroupId(1)
                 .build();
 
@@ -294,6 +296,27 @@ class StudentServiceTest {
         assertDoesNotThrow(() -> studentService.count());
 
         verify(studentDao).count();
+    }
+
+    @Test
+    void deleteStudentShouldThrowNotFoundExceptionIfStudentNotFound() {
+        when(studentDao.findById(anyInt())).thenReturn(Optional.empty());
+
+        assertThrows(PersonNotFoundException.class, () -> studentService.delete(1));
+
+        verify(studentDao).findById(anyInt());
+        verifyNoMoreInteractions(studentDao);
+    }
+
+    @Test
+    void deleteStudentShouldNotThrowExceptionIfStudentIsFound() {
+        when(studentDao.findById(anyInt())).thenReturn(Optional.of(generateEntity()));
+
+        studentService.delete(1);
+
+        verify(studentDao).findById(anyInt());
+        verify(studentDao).deleteById(anyInt());
+        verifyNoMoreInteractions(studentDao);
     }
 
     private Student generateEntity() {

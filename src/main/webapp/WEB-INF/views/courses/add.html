@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/head :: head (#{course})"></head>
+
+<body>
+
+<div th:replace="fragments/menu :: menu"></div>
+
+<div class="container">
+    <div th:insert="${successCreate} ? ~{fragments/success :: success(#{notify.success.add})} : ~{}"></div>
+
+    <div class="row">
+        <div class="col-12">
+            <form th:action="@{/courses/store}" method="POST" th:object="${addRequest}">
+                <div class="form-group">
+                    <label for="name" th:text="#{course}">Course name</label>
+                    <input type="text" th:field="*{name}" class="form-control" id="name">
+                </div>
+                <button type="submit" class="btn btn-primary" th:text="#{button.create}">Add</button>
+            </form>
+        </div>
+    </div>
+
+    <footer th:replace="fragments/footer :: footer"></footer>
+</div>
+
+<th:block th:include="fragments/js :: assets"></th:block>
+</body>
+</html>

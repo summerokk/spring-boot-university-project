@@ -1,18 +1,26 @@
 package com.att.university.request.lesson;
 
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
-import lombok.experimental.SuperBuilder;
+import org.springframework.format.annotation.DateTimeFormat;
 
-@SuperBuilder(setterPrefix = "with", toBuilder = true)
+import java.time.LocalDateTime;
+
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
+@Setter
 @ToString
 @EqualsAndHashCode
 public abstract class LessonRequest {
-    private final Integer courseId;
-    private final Integer groupId;
-    private final Integer classroomId;
-    private final Integer teacherId;
-    private final String date;
+    private Integer courseId;
+    private Integer groupId;
+    private Integer classroomId;
+    private Integer teacherId;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    private LocalDateTime date;
 }
