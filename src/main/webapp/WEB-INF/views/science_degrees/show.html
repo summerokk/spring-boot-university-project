@@ -10,7 +10,7 @@
 <div class="container">
     <div class="row">
         <div class="col-12">
-            <form class="mb-3" th:action="@{/sciencedegree/supdate}" method="POST" th:object="${updateRequest}">
+            <form class="mb-3" th:action="@{/sciencedegree/update}" method="POST" th:object="${updateRequest}">
                 <input type="hidden" name="id" th:value="${scienceDegree.id}" id="id">
 
                 <div class="form-group">

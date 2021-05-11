@@ -1,0 +1,19 @@
+version: '3.7'
+services:
+  db:
+    build: ./docker/postgres
+    volumes:
+      - db-university:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_DB=university
+      - POSTGRES_PASSWORD=test
+  app:
+    build:
+      context: ./
+      dockerfile: ./docker/tomcat/Dockerfile
+    ports:
+      - "8082:8080"
+    depends_on:
+      - db
+volumes:
+  db-university:

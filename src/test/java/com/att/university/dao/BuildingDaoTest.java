@@ -12,14 +12,14 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 import javax.sql.DataSource;
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = { H2Config.class, WebTestConfig.class})
+@ContextConfiguration(classes = {H2Config.class, WebTestConfig.class})
 @WebAppConfiguration
 class BuildingDaoTest extends AbstractTest {
     @Autowired
