@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -46,6 +47,7 @@ public class ClassroomServiceImpl implements ClassroomService {
     }
 
     @Override
+    @Transactional
     public void create(ClassroomAddRequest addRequest) {
         log.debug("Classroom creating with request {}", addRequest);
 
@@ -59,6 +61,7 @@ public class ClassroomServiceImpl implements ClassroomService {
     }
 
     @Override
+    @Transactional
     public void update(ClassroomUpdateRequest updateRequest) {
         updateValidator.validate(updateRequest);
 
@@ -74,6 +77,7 @@ public class ClassroomServiceImpl implements ClassroomService {
     }
 
     @Override
+    @Transactional
     public void deleteById(Integer id) {
         if (!classroomDao.findById(id).isPresent()) {
             throw new ClassroomNotFoundException(String.format(CLASSROOM_NOT_FOUND, id));

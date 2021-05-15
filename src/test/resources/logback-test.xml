@@ -25,6 +25,10 @@
         <appender-ref ref="FILE"/>
     </logger>
 
+    <logger name="org.hibernate.engine.jdbc.batch.internal.BatchingBatch" level="DEBUG">
+        <appender-ref ref="FILE"/>
+    </logger>
+
     <root level="INFO">
         <appender-ref ref="STDOUT"/>
     </root>

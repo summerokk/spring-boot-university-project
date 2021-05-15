@@ -21,6 +21,10 @@
         </encoder>
     </appender>
 
+    <logger name="org.hibernate.engine.jdbc.batch.internal.BatchingBatch" level="DEBUG">
+        <appender-ref ref="FILE"/>
+    </logger>
+
     <logger name="com.att.university" level="DEBUG">
         <appender-ref ref="FILE"/>
     </logger>

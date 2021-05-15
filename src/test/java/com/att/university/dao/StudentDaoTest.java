@@ -5,15 +5,15 @@ import com.att.university.config.WebTestConfig;
 import com.att.university.entity.Faculty;
 import com.att.university.entity.Group;
 import com.att.university.entity.Student;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 
-import javax.sql.DataSource;
+import javax.transaction.Transactional;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -21,19 +21,13 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = { H2Config.class, WebTestConfig.class})
+@ContextConfiguration(classes = {H2Config.class, WebTestConfig.class})
 @WebAppConfiguration
-class StudentDaoTest extends AbstractTest {
-    @Autowired
-    private DataSource dataSource;
-
+@Transactional
+@Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = {"classpath:TestData.sql"})
+class StudentDaoTest {
     @Autowired
     private StudentDao studentDao;
-
-    @BeforeEach
-    void tearDown() {
-        recreateDb(dataSource);
-    }
 
     @Test
     void findAllShouldReturnResultWhenDatabaseHaveStudents() {
@@ -142,7 +136,7 @@ class StudentDaoTest extends AbstractTest {
     @Test
     void deleteByIdShouldReturnResultWhenDatabaseHaveStudents() {
         int currentCount = studentDao.count();
-        studentDao.deleteById(1);
+        studentDao.deleteById(3);
 
         assertThat(studentDao.count()).isEqualTo(currentCount - 1);
     }
@@ -159,6 +153,7 @@ class StudentDaoTest extends AbstractTest {
                 .withPassword("password")
                 .withGroup(group)
                 .build();
+
         studentDao.update(newStudent);
 
         Optional<Student> updateStudent = studentDao.findById(1);

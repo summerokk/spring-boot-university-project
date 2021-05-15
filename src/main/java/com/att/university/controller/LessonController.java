@@ -28,7 +28,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpServletResponse;
-import java.time.LocalDate;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Controller
@@ -44,16 +46,14 @@ public class LessonController {
 
     @GetMapping("/")
     public String index(Model model) {
-        LocalDate endDate = LocalDate.now();
-        LocalDate startDate = endDate.minusMonths(1);
+        LocalDateTime endDate = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
+        LocalDateTime startDate = endDate.minusMonths(1).truncatedTo(ChronoUnit.MINUTES);
 
         List<Lesson> lessons = lessonService.findByDateBetween(startDate, endDate);
-        List<Teacher> teachers = teacherService.findAllWithoutPagination();
-        Teacher teacher = teachers.get(0);
+        List<Teacher> teachers = teacherService.findAll();
 
         model.addAttribute("lessons", lessons);
         model.addAttribute("teachers", teachers);
-        model.addAttribute("currentTeacher", teacher);
         model.addAttribute("startDate", startDate);
         model.addAttribute("endDate", endDate);
 
@@ -61,20 +61,19 @@ public class LessonController {
     }
 
     @GetMapping("/find")
-    public String findLessons(@RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-                                      LocalDate startDate,
-                              @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-                                      LocalDate endDate, @RequestParam Integer teacherId,
+    public String findLessons(@RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+                                      LocalDateTime startDate,
+                              @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+                                      LocalDateTime endDate, @RequestParam Integer teacherId,
                               @RequestParam(defaultValue = "1", name = "page") int currentPage, Model model) {
-
         try {
             Teacher teacher = teacherService.findById(teacherId);
 
-            List<LocalDate> lessonWeeks = lessonService.findTeacherLessonWeeks(startDate, endDate, teacherId);
+            List<LocalDateTime> lessonWeeks = lessonService.findTeacherLessonWeeks(startDate, endDate, teacherId);
 
             List<Lesson> lessons = lessonService.findTeacherWeekSchedule(currentPage, lessonWeeks, teacherId);
 
-            List<Teacher> teachers = teacherService.findAllWithoutPagination();
+            List<Teacher> teachers = teacherService.findAll();
 
             model.addAttribute("lessons", lessons);
             model.addAttribute("startDate", startDate);
@@ -91,11 +90,11 @@ public class LessonController {
     }
 
     @GetMapping("/pdf")
-    public void exportSchedulePdf(@RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-                                          LocalDate startDate,
-                                  @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-                                          LocalDate endDate, @RequestParam Integer teacherId,
-                                  HttpServletResponse response) throws Exception {
+    public void exportSchedulePdf(@RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+                                          LocalDateTime startDate,
+                                  @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+                                          LocalDateTime endDate, @RequestParam Integer teacherId,
+                                  HttpServletResponse response) throws IOException {
         List<Lesson> lessons = lessonService.findByDateBetweenAndTeacherId(startDate, endDate, teacherId);
 
         response.setContentType("application/pdf");
@@ -111,7 +110,7 @@ public class LessonController {
         model.addAttribute("lesson", lesson);
         model.addAttribute("updateRequest", new LessonUpdateRequest());
         model.addAttribute("classrooms", classroomService.findAll());
-        model.addAttribute("teachers", teacherService.findAllWithoutPagination());
+        model.addAttribute("teachers", teacherService.findAll());
         model.addAttribute("groups", groupService.findAll());
         model.addAttribute("courses", courseService.findAll());
 
@@ -129,7 +128,7 @@ public class LessonController {
     public String create(Model model) {
         model.addAttribute("addRequest", new LessonAddRequest());
         model.addAttribute("classrooms", classroomService.findAll());
-        model.addAttribute("teachers", teacherService.findAllWithoutPagination());
+        model.addAttribute("teachers", teacherService.findAll());
         model.addAttribute("groups", groupService.findAll());
         model.addAttribute("courses", courseService.findAll());
 

@@ -4,15 +4,15 @@ import com.att.university.config.H2Config;
 import com.att.university.config.WebTestConfig;
 import com.att.university.entity.Building;
 import com.att.university.entity.Classroom;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 
-import javax.sql.DataSource;
+import javax.transaction.Transactional;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -20,19 +20,12 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = { H2Config.class, WebTestConfig.class})
+@ContextConfiguration(classes = {H2Config.class, WebTestConfig.class})
 @WebAppConfiguration
-class ClassroomDaoTest extends AbstractTest {
-    @Autowired
-    private DataSource dataSource;
-
+@Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = {"classpath:TestData.sql"})
+class ClassroomDaoTest {
     @Autowired
     private ClassroomDao classroomDao;
-
-    @BeforeEach
-    void tearDown() {
-        recreateDb(dataSource);
-    }
 
     @Test
     void findAllShouldReturnResultWhenDatabaseHaveClassrooms() {
@@ -61,6 +54,7 @@ class ClassroomDaoTest extends AbstractTest {
     }
 
     @Test
+    @Transactional
     void saveShouldReturnResultWhenDatabaseHaveClassrooms() {
         Classroom newClassroom = new Classroom(null, 233, new Building(1, "Kirova 32"));
         int currentCount = classroomDao.count();
@@ -71,6 +65,7 @@ class ClassroomDaoTest extends AbstractTest {
     }
 
     @Test
+    @Transactional
     void saveAllShouldReturnResultWhenDatabaseHaveClassrooms() {
         List<Classroom> newClassrooms = Arrays.asList(
                 new Classroom(null, 233, new Building(1, "Kirova 32")),
@@ -84,14 +79,16 @@ class ClassroomDaoTest extends AbstractTest {
     }
 
     @Test
+    @Transactional
     void deleteByIdShouldReturnResultWhenDatabaseHaveClassrooms() {
         int currentCount = classroomDao.count();
-        classroomDao.deleteById(1);
+        classroomDao.deleteById(3);
 
         assertThat(classroomDao.count()).isEqualTo(currentCount - 1);
     }
 
     @Test
+    @Transactional
     void updateShouldReturnResultWhenDatabaseHaveClassrooms() {
         Classroom newClassroom = new Classroom(1, 14, new Building(1, "Kirova 32"));
         classroomDao.update(newClassroom);

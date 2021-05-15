@@ -8,13 +8,15 @@ public interface CrudDao<E, I> {
 
     void saveAll(List<E> entities);
 
+    void update(E entity);
+
     Optional<E> findById(I id);
 
     void deleteById(I id);
 
     List<E> findAll(int page, int count);
 
-    void update(E entity);
+    List<E> findAll();
 
     int count();
 }

@@ -2,13 +2,11 @@ package com.att.university.service;
 
 import com.att.university.dao.CourseDao;
 import com.att.university.entity.Course;
-import com.att.university.entity.Teacher;
 import com.att.university.exception.dao.CourseNotFoundException;
 import com.att.university.mapper.course.CourseAddRequestMapper;
 import com.att.university.mapper.course.CourseUpdateRequestMapper;
 import com.att.university.request.course.CourseAddRequest;
 import com.att.university.request.course.CourseUpdateRequest;
-import com.att.university.request.person.teacher.TeacherRegisterRequest;
 import com.att.university.service.impl.CourseServiceImpl;
 import com.att.university.validator.course.CourseAddValidator;
 import com.att.university.validator.course.CourseUpdateValidator;
@@ -23,12 +21,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;

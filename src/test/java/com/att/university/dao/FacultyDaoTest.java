@@ -3,15 +3,15 @@ package com.att.university.dao;
 import com.att.university.config.H2Config;
 import com.att.university.config.WebTestConfig;
 import com.att.university.entity.Faculty;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 
-import javax.sql.DataSource;
+import javax.transaction.Transactional;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -19,26 +19,21 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = { H2Config.class, WebTestConfig.class})
+@ContextConfiguration(classes = {H2Config.class, WebTestConfig.class})
 @WebAppConfiguration
-class FacultyDaoTest extends AbstractTest {
-    @Autowired
-    private DataSource dataSource;
-
+@Transactional
+@Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = {"classpath:TestData.sql"})
+class FacultyDaoTest {
     @Autowired
     private FacultyDao facultyDao;
-
-    @BeforeEach
-    void tearDown() {
-        recreateDb(dataSource);
-    }
 
     @Test
     void findAllShouldReturnResultWhenDatabaseHaveFaculties() {
         List<Faculty> expected = Arrays.asList(
                 new Faculty(1, "School of Visual arts"),
                 new Faculty(2, "Department of Geography"),
-                new Faculty(3, "Department of Plant Science")
+                new Faculty(3, "Department of Plant Science"),
+                new Faculty(4, "Geography")
         );
 
         assertThat(facultyDao.findAll(1, facultyDao.count())).isEqualTo(expected);
@@ -54,7 +49,7 @@ class FacultyDaoTest extends AbstractTest {
 
     @Test
     void countShouldReturnResultWhenDatabaseHaveFaculties() {
-        int expected = 3;
+        int expected = 4;
 
         assertThat(facultyDao.count()).isEqualTo(expected);
     }
@@ -85,7 +80,7 @@ class FacultyDaoTest extends AbstractTest {
     @Test
     void deleteByIdShouldReturnResultWhenDatabaseHaveFaculties() {
         int currentCount = facultyDao.count();
-        facultyDao.deleteById(1);
+        facultyDao.deleteById(4);
 
         assertThat(facultyDao.count()).isEqualTo(currentCount - 1);
     }

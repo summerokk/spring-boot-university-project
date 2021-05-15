@@ -11,17 +11,16 @@ import com.att.university.entity.Group;
 import com.att.university.entity.Lesson;
 import com.att.university.entity.ScienceDegree;
 import com.att.university.entity.Teacher;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 
-import javax.sql.DataSource;
+import javax.transaction.Transactional;
 import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
@@ -31,19 +30,13 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = { H2Config.class, WebTestConfig.class})
+@ContextConfiguration(classes = {H2Config.class, WebTestConfig.class})
 @WebAppConfiguration
-class LessonDaoTest extends AbstractTest {
-    @Autowired
-    private DataSource dataSource;
-
+@Transactional
+@Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = {"classpath:TestData.sql"})
+class LessonDaoTest {
     @Autowired
     private LessonDao lessonDao;
-
-    @BeforeEach
-    void tearDown() {
-        recreateDb(dataSource);
-    }
 
     @Test
     void findAllShouldReturnResultWhenDatabaseHaveLessons() {
@@ -70,25 +63,28 @@ class LessonDaoTest extends AbstractTest {
 
     @Test
     void countShouldReturnResultWhenDatabaseHaveLessons() {
-        int expected = 2;
+        int expected = 3;
 
         assertThat(lessonDao.count()).isEqualTo(expected);
     }
 
     @Test
     void saveShouldReturnResultWhenDatabaseHaveLessons() {
-        Lesson newLesson = getTestLessons().get(0);
+        Lesson newLesson = generateLesson();
 
         int currentCount = lessonDao.count();
 
-        lessonDao.save(newLesson);
+        lessonDao.update(newLesson);
 
         assertThat(lessonDao.count()).isEqualTo(currentCount + 1);
     }
 
     @Test
     void saveAllShouldReturnResultWhenDatabaseHaveLessons() {
-        List<Lesson> newLessons = getTestLessons();
+        List<Lesson> newLessons = Arrays.asList(
+                generateLesson(),
+                generateLesson()
+        );
 
         int currentCount = lessonDao.count();
         lessonDao.saveAll(newLessons);
@@ -99,32 +95,16 @@ class LessonDaoTest extends AbstractTest {
     @Test
     void deleteByIdShouldReturnResultWhenDatabaseHaveLessons() {
         int currentCount = lessonDao.count();
-        lessonDao.deleteById(1);
+        lessonDao.deleteById(3);
 
         assertThat(lessonDao.count()).isEqualTo(currentCount - 1);
     }
 
     @Test
-    void updateShouldReturnResultWhenDatabaseHaveLessons() {
-        Lesson current = getTestLessons().get(0);
-
-        Lesson lesson = current.toBuilder()
-                .withDate(LocalDateTime.parse("2004-10-20T10:23"))
-                .build();
-
-        lessonDao.update(lesson);
-
-        Optional<Lesson> update = lessonDao.findById(1);
-
-        assertThat(update).isPresent();
-        assertThat(update.get().getDate()).isEqualTo(LocalDateTime.parse("2004-10-20T10:23"));
-    }
-
-    @Test
     void findByDateBetweenShouldReturnScheduleIfLessonsExist() {
-        LocalDate start = LocalDate.parse("2004-10-18");
-        LocalDate end = LocalDate.parse("2004-11-18");
-        List<Lesson> expected = getTestLessons();
+        LocalDateTime start = LocalDateTime.parse("2004-10-18T10:23");
+        LocalDateTime end = LocalDateTime.parse("2004-11-18T10:23");
+        List<Lesson> expected = Arrays.asList(getTestLessons().get(0), getTestLessons().get(1));
 
         List<Lesson> schedule = lessonDao.findByDateBetween(start, end);
 
@@ -132,14 +112,14 @@ class LessonDaoTest extends AbstractTest {
     }
 
     @Test
-    void findTeacherLessonWeeksShouldReturnLocalDatesIfLessonsExist() {
-        LocalDate start = LocalDate.of(2004, 10, 18);
-        LocalDate end = LocalDate.of(2004, 10, 20);
+    void findTeacherLessonWeeksShouldReturnLocalDateTimesIfLessonsExist() {
+        LocalDateTime start = LocalDateTime.of(2004, 10, 18, 0, 0);
+        LocalDateTime end = LocalDateTime.of(2004, 10, 20, 0, 0);
 
-        List<LocalDate> actual = lessonDao.findTeacherLessonWeeks(start, end, 1);
+        List<LocalDateTime> actual = lessonDao.findTeacherLessonWeeks(start, end, 1);
 
-        List<LocalDate> expected = Collections.singletonList(
-                LocalDate.of(2004, 10, 18)
+        List<LocalDateTime> expected = Collections.singletonList(
+                LocalDateTime.of(2004, 10, 18, 0, 0)
         );
 
         assertThat(actual).isEqualTo(expected);
@@ -147,55 +127,91 @@ class LessonDaoTest extends AbstractTest {
 
     @Test
     void findTeacherWeekScheduleShouldReturnScheduleIfLessonsExist() {
-        LocalDate start = LocalDate.parse("2004-10-18");
-        LocalDate end = start.with(DayOfWeek.SUNDAY);
-        List<Lesson> expected = getTestLessons();
+        LocalDateTime start = LocalDateTime.parse("2004-10-18T10:23");
+        LocalDateTime end = start.with(DayOfWeek.SUNDAY);
+        List<Lesson> expected = Arrays.asList(getTestLessons().get(0), getTestLessons().get(1));
 
         List<Lesson> schedule = lessonDao.findByDateBetweenAndTeacherId(1, start, end);
 
         assertThat(schedule).isEqualTo(expected);
     }
 
-    private List<Lesson> getTestLessons() {
-        AcademicRank academicRank = new AcademicRank(1, "Assistant Professor");
-        ScienceDegree scienceDegree = new ScienceDegree(2, "Doctoral degree");
 
-        Teacher teacher = Teacher.builder()
+    private List<Lesson> getTestLessons() {
+        return Arrays.asList(
+                Lesson.builder()
+                        .withId(1)
+                        .withCourse(generateCourse().get(0))
+                        .withGroup(generateGroups().get(0))
+                        .withTeacher(generateTeacher())
+                        .withDate(LocalDateTime.parse("2004-10-19T10:23"))
+                        .withClassroom(generateClassroom())
+                        .build(),
+                Lesson.builder()
+                        .withId(2)
+                        .withCourse(generateCourse().get(1))
+                        .withGroup(generateGroups().get(1))
+                        .withTeacher(generateTeacher())
+                        .withDate(LocalDateTime.parse("2004-10-20T10:23"))
+                        .withClassroom(generateClassroom())
+                        .build(),
+                Lesson.builder()
+                        .withId(3)
+                        .withCourse(generateCourse().get(1))
+                        .withGroup(generateGroups().get(1))
+                        .withTeacher(generateTeacher())
+                        .withDate(LocalDateTime.parse("2020-10-20T10:23"))
+                        .withClassroom(generateClassroom())
+                        .build()
+        );
+    }
+
+    private Lesson generateLesson() {
+        return Lesson.builder()
+                .withCourse(generateCourse().get(0))
+                .withGroup(generateGroups().get(1))
+                .withTeacher(generateTeacher())
+                .withDate(LocalDateTime.parse("2004-10-20T10:23"))
+                .withClassroom(generateClassroom())
+                .build();
+    }
+
+    private Teacher generateTeacher() {
+        return Teacher.builder()
                 .withId(1)
                 .withFirstName("Fedor")
                 .withLastName("Tolov")
                 .withEmail("tolof234@tmail.com")
                 .withPassword("password")
-                .withAcademicRank(academicRank)
-                .withScienceDegree(scienceDegree)
+                .withAcademicRank(generateAcademicRank())
+                .withScienceDegree(generateScienceDegree())
                 .withLinkedin("https://link.ru")
                 .build();
+    }
 
-        Course course = new Course(1, "Special Topics in Agronomy");
-        Course course2 = new Course(2, "Math");
+    private AcademicRank generateAcademicRank() {
+        return new AcademicRank(1, "Assistant Professor");
+    }
 
-        Group group = new Group(1, "GT-23", new Faculty(1, "School of Visual arts"));
-        Group group2 = new Group(2, "HT-22", new Faculty(2, "Department of Geography"));
+    private ScienceDegree generateScienceDegree() {
+        return new ScienceDegree(2, "Doctoral degree");
+    }
 
-        Classroom classroom = new Classroom(1, 12, new Building(1, "Kirova 32"));
-
+    private List<Group> generateGroups() {
         return Arrays.asList(
-                Lesson.builder()
-                        .withId(1)
-                        .withCourse(course)
-                        .withGroup(group)
-                        .withTeacher(teacher)
-                        .withDate(LocalDateTime.parse("2004-10-19T10:23"))
-                        .withClassroom(classroom)
-                        .build(),
-                Lesson.builder()
-                        .withId(2)
-                        .withCourse(course2)
-                        .withGroup(group2)
-                        .withTeacher(teacher)
-                        .withDate(LocalDateTime.parse("2004-10-20T10:23"))
-                        .withClassroom(classroom)
-                        .build()
+                new Group(1, "GT-23", new Faculty(1, "School of Visual arts")),
+                new Group(2, "HT-22", new Faculty(2, "Department of Geography"))
         );
+    }
+
+    private List<Course> generateCourse() {
+        return Arrays.asList(
+                new Course(1, "Special Topics in Agronomy"),
+                new Course(2, "Math")
+        );
+    }
+
+    private Classroom generateClassroom() {
+        return new Classroom(1, 12, new Building(1, "Kirova 32"));
     }
 }

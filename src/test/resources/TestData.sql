@@ -1,37 +1,98 @@
-INSERT INTO buildings(address) VALUES ('Kirova 32');
-INSERT INTO buildings(address) VALUES ('Pertova 42');
+DELETE FROM lessons;
+DELETE FROM teachers;
+DELETE FROM students;
+DELETE FROM courses;
+DELETE FROM groups;
+DELETE FROM faculties;
+DELETE FROM classrooms;
+DELETE FROM buildings;
+DELETE FROM academic_ranks;
+DELETE FROM science_degrees;
 
-INSERT INTO classrooms(number, building_id) VALUES (12, 1);
-INSERT INTO classrooms(number, building_id) VALUES (13, 1);
-INSERT INTO classrooms(number, building_id) VALUES (131, 2);
+ALTER SEQUENCE academic_ranks_id_seq RESTART WITH 6;
+ALTER SEQUENCE buildings_id_seq RESTART WITH 6;
+ALTER SEQUENCE classrooms_id_seq RESTART WITH 6;
+ALTER SEQUENCE courses_id_seq RESTART WITH 6;
+ALTER SEQUENCE faculties_id_seq RESTART WITH 6;
+ALTER SEQUENCE groups_id_seq RESTART WITH 6;
+ALTER SEQUENCE lessons_id_seq RESTART WITH 6;
+ALTER SEQUENCE teachers_id_seq RESTART WITH 6;
+ALTER SEQUENCE students_id_seq RESTART WITH 6;
+ALTER SEQUENCE science_degrees_id_seq RESTART WITH 6;
 
-INSERT INTO academic_ranks(name) VALUES ('Assistant Professor');
-INSERT INTO academic_ranks(name) VALUES ('Full Professor');
-INSERT INTO academic_ranks(name) VALUES ('Endowed Professor');
 
-INSERT INTO science_degrees(name) VALUES ('Associate degree');
-INSERT INTO science_degrees(name) VALUES ('Doctoral degree');
-INSERT INTO science_degrees(name) VALUES ('Bachelor''s degree');
-INSERT INTO science_degrees(name) VALUES ('Master''s degree');
+INSERT INTO buildings(id, address)
+VALUES (1, 'Kirova 32');
+INSERT INTO buildings(id, address)
+VALUES (2, 'Pertova 42');
+INSERT INTO buildings(id, address)
+VALUES (3, 'Pertova 2');
 
-INSERT INTO faculties(name) VALUES ('School of Visual arts');
-INSERT INTO faculties(name) VALUES ('Department of Geography');
-INSERT INTO faculties(name) VALUES ('Department of Plant Science');
+INSERT INTO classrooms(id, number, building_id)
+VALUES (1, 12, 1);
+INSERT INTO classrooms(id, number, building_id)
+VALUES (2, 13, 1);
+INSERT INTO classrooms(id, number, building_id)
+VALUES (3, 131, 2);
 
-INSERT INTO courses(name) VALUES ('Special Topics in Agronomy');
-INSERT INTO courses(name) VALUES ('Math');
-INSERT INTO courses(name) VALUES ('Biology');
+INSERT INTO academic_ranks(id, name)
+VALUES (1, 'Assistant Professor');
+INSERT INTO academic_ranks(id, name)
+VALUES (2, 'Full Professor');
+INSERT INTO academic_ranks(id, name)
+VALUES (3, 'Endowed Professor');
 
-INSERT INTO groups(name, faculty_id) VALUES ('GT-23', 1);
-INSERT INTO groups(name, faculty_id) VALUES ('HT-22', 2);
-INSERT INTO groups(name, faculty_id) VALUES ('HY-53', 3);
+INSERT INTO science_degrees(id, name)
+VALUES (1, 'Associate degree');
+INSERT INTO science_degrees(id, name)
+VALUES (2, 'Doctoral degree');
+INSERT INTO science_degrees(id, name)
+VALUES (3, 'Bachelor''s degree');
+INSERT INTO science_degrees(id, name)
+VALUES (4, 'Master''s degree');
 
-INSERT INTO students(first_name, last_name, email, password, group_id) VALUES ('Fedor', 'Tolov', 'tolof234@tmail.com', 'password', 1);
-INSERT INTO students(first_name, last_name, email, password, group_id) VALUES ('Anton', 'Petrov', 'p.anton@tmail.com', 'password', 1);
-INSERT INTO students(first_name, last_name, email, password, group_id) VALUES ('Fedor', 'Petrov', 'anton@tmail.com', 'password', null);
+INSERT INTO faculties(id, name)
+VALUES (1, 'School of Visual arts');
+INSERT INTO faculties(id, name)
+VALUES (2, 'Department of Geography');
+INSERT INTO faculties(id, name)
+VALUES (3, 'Department of Plant Science');
+INSERT INTO faculties(id, name)
+VALUES (4, 'Geography');
 
-INSERT INTO teachers(first_name, last_name, email, password, academic_rank_id, science_degree_id, linkedin) VALUES ('Fedor', 'Tolov', 'tolof234@tmail.com', 'password', 1, 2, 'https://link.ru');
-INSERT INTO teachers(first_name, last_name, email, password, academic_rank_id, science_degree_id, linkedin) VALUES ('Alex', 'Popov', 'email234@tmail.com', 'password', 1, 2, 'https://link.ru');
+INSERT INTO courses(id, name)
+VALUES (1, 'Special Topics in Agronomy');
+INSERT INTO courses(id, name)
+VALUES (2, 'Math');
+INSERT INTO courses(id, name)
+VALUES (3, 'Biology');
 
-INSERT INTO lessons(course_id, group_id, teacher_id, date, classroom_id) VALUES (1, 1, 1, '2004-10-19 10:23', 1);
-INSERT INTO lessons(course_id, group_id, teacher_id, date, classroom_id) VALUES (2, 2, 1, '2004-10-20 10:23', 1);
+
+INSERT INTO groups(id, name, faculty_id)
+VALUES (1, 'GT-23', 1);
+INSERT INTO groups(id, name, faculty_id)
+VALUES (2, 'HT-22', 2);
+INSERT INTO groups(id, name, faculty_id)
+VALUES (3, 'HY-53', 3);
+
+INSERT INTO students(id, first_name, last_name, email, password, group_id)
+VALUES (1, 'Fedor', 'Tolov', 'tolof234@tmail.com', 'password', 1);
+INSERT INTO students(id, first_name, last_name, email, password, group_id)
+VALUES (2, 'Anton', 'Petrov', 'p.anton@tmail.com', 'password', 1);
+INSERT INTO students(id, first_name, last_name, email, password, group_id)
+VALUES (3, 'Fedor', 'Petrov', 'anton@tmail.com', 'password', null);
+
+INSERT INTO teachers(id, first_name, last_name, email, password, academic_rank_id, science_degree_id, linkedin)
+VALUES (1, 'Fedor', 'Tolov', 'tolof234@tmail.com', 'password', 1, 2, 'https://link.ru');
+INSERT INTO teachers(id, first_name, last_name, email, password, academic_rank_id, science_degree_id, linkedin)
+VALUES (2, 'Alex', 'Popov', 'email234@tmail.com', 'password', 1, 2, 'https://link.ru');
+INSERT INTO teachers(id, first_name, last_name, email, password, academic_rank_id, science_degree_id, linkedin)
+VALUES (3, 'Dima', 'Antipov', 'ant213@tmail.com', 'password', 1, 2, 'https://link.ru');
+
+INSERT INTO lessons(id, course_id, group_id, teacher_id, date, classroom_id)
+VALUES (1, 1, 1, 1, '2004-10-19 10:23', 1);
+INSERT INTO lessons(id, course_id, group_id, teacher_id, date, classroom_id)
+VALUES (2, 2, 2, 1, '2004-10-20 10:23', 1);
+INSERT INTO lessons(id, course_id, group_id, teacher_id, date, classroom_id)
+VALUES (3, 2, 2, 1, '2020-10-20 10:23', 1);
+

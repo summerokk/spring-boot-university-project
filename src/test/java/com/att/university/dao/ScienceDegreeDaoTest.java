@@ -3,15 +3,15 @@ package com.att.university.dao;
 import com.att.university.config.H2Config;
 import com.att.university.config.WebTestConfig;
 import com.att.university.entity.ScienceDegree;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 
-import javax.sql.DataSource;
+import javax.transaction.Transactional;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -19,19 +19,13 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = { H2Config.class, WebTestConfig.class})
+@ContextConfiguration(classes = {H2Config.class, WebTestConfig.class})
 @WebAppConfiguration
-class ScienceDegreeDaoTest extends AbstractTest {
-    @Autowired
-    private DataSource dataSource;
-
+@Transactional
+@Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = {"classpath:TestData.sql"})
+class ScienceDegreeDaoTest {
     @Autowired
     private ScienceDegreeDao scienceDegreeDao;
-
-    @BeforeEach
-    void tearDown() {
-        recreateDb(dataSource);
-    }
 
     @Test
     void findAllShouldReturnResultWhenDatabaseHaveScienceDegrees() {
@@ -86,7 +80,7 @@ class ScienceDegreeDaoTest extends AbstractTest {
     @Test
     void deleteByIdShouldReturnResultWhenDatabaseHaveScienceDegrees() {
         int currentCount = scienceDegreeDao.count();
-        scienceDegreeDao.deleteById(1);
+        scienceDegreeDao.deleteById(3);
 
         assertThat(scienceDegreeDao.count()).isEqualTo(currentCount - 1);
     }

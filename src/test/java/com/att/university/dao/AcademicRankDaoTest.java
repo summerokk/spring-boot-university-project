@@ -3,15 +3,15 @@ package com.att.university.dao;
 import com.att.university.config.H2Config;
 import com.att.university.config.WebTestConfig;
 import com.att.university.entity.AcademicRank;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 
-import javax.sql.DataSource;
+import javax.transaction.Transactional;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -19,19 +19,12 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = { H2Config.class, WebTestConfig.class})
+@ContextConfiguration(classes = {H2Config.class, WebTestConfig.class})
 @WebAppConfiguration
-class AcademicRankDaoTest extends AbstractTest {
-    @Autowired
-    private DataSource dataSource;
-
+@Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = {"classpath:TestData.sql"})
+class AcademicRankDaoTest {
     @Autowired
     private AcademicRankDao academicRankDao;
-
-    @BeforeEach
-    void tearDown() {
-        recreateDb(dataSource);
-    }
 
     @Test
     void findAllShouldReturnResultWhenDatabaseHaveAcademicRanks() {
@@ -60,6 +53,7 @@ class AcademicRankDaoTest extends AbstractTest {
     }
 
     @Test
+    @Transactional
     void saveShouldReturnResultWhenDatabaseHaveAcademicRanks() {
         AcademicRank newAcademicRank = new AcademicRank(null, "new");
         int currentCount = academicRankDao.count();
@@ -70,6 +64,7 @@ class AcademicRankDaoTest extends AbstractTest {
     }
 
     @Test
+    @Transactional
     void saveAllShouldReturnResultWhenDatabaseHaveAcademicRanks() {
         List<AcademicRank> newAcademicRanks = Arrays.asList(
                 new AcademicRank(null, "new"),
@@ -83,14 +78,16 @@ class AcademicRankDaoTest extends AbstractTest {
     }
 
     @Test
+    @Transactional
     void deleteByIdShouldReturnResultWhenDatabaseHaveAcademicRanks() {
         int currentCount = academicRankDao.count();
-        academicRankDao.deleteById(1);
+        academicRankDao.deleteById(3);
 
         assertThat(academicRankDao.count()).isEqualTo(currentCount - 1);
     }
 
     @Test
+    @Transactional
     void updateShouldReturnResultWhenDatabaseHaveAcademicRanks() {
         AcademicRank newAcademicRank = new AcademicRank(1, "update");
         academicRankDao.update(newAcademicRank);

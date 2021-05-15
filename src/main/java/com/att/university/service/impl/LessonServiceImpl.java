@@ -10,7 +10,6 @@ import com.att.university.entity.Course;
 import com.att.university.entity.Group;
 import com.att.university.entity.Lesson;
 import com.att.university.entity.Teacher;
-import com.att.university.exception.dao.GroupNotFoundException;
 import com.att.university.exception.dao.LessonNotFoundException;
 import com.att.university.request.lesson.LessonAddRequest;
 import com.att.university.request.lesson.LessonUpdateRequest;
@@ -24,13 +23,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Component
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@Transactional
 public class LessonServiceImpl implements LessonService {
     private static final String LESSON_NOT_FOUND = "Lesson with Id %d is not found";
 
@@ -43,7 +42,6 @@ public class LessonServiceImpl implements LessonService {
     private final ClassroomDao classroomDao;
 
     @Override
-    @Transactional
     public void add(LessonAddRequest addRequest) {
         lessonAddValidator.validate(addRequest);
 
@@ -71,7 +69,6 @@ public class LessonServiceImpl implements LessonService {
     }
 
     @Override
-    @Transactional
     public void update(LessonUpdateRequest updateRequest) {
         log.debug("Updating lesson with request {}", updateRequest);
 
@@ -109,28 +106,25 @@ public class LessonServiceImpl implements LessonService {
     }
 
     @Override
-    public List<LocalDate> findTeacherLessonWeeks(LocalDate startDate, LocalDate endDate, Integer teacherId) {
-        List<LocalDate> weeks = lessonDao.findTeacherLessonWeeks(startDate, endDate, teacherId);
-        weeks.set(0, startDate);
-
-        return weeks;
+    public List<LocalDateTime> findTeacherLessonWeeks(LocalDateTime startDate, LocalDateTime endDate, Integer teacherId) {
+        return lessonDao.findTeacherLessonWeeks(startDate, endDate, teacherId);
     }
 
     @Override
-    public List<Lesson> findTeacherWeekSchedule(int currentPage, List<LocalDate> weeks, Integer teacherId) {
-        LocalDate startDate = weeks.get(currentPage - 1);
-        LocalDate endDate = startDate.with(DayOfWeek.SUNDAY);
+    public List<Lesson> findTeacherWeekSchedule(int currentPage, List<LocalDateTime> weeks, Integer teacherId) {
+        LocalDateTime startDate = weeks.get(currentPage - 1);
+        LocalDateTime endDate = startDate.with(DayOfWeek.SUNDAY);
 
         return lessonDao.findByDateBetweenAndTeacherId(teacherId, startDate, endDate);
     }
 
     @Override
-    public List<Lesson> findByDateBetweenAndTeacherId(LocalDate startDate, LocalDate endDate, Integer teacherId) {
+    public List<Lesson> findByDateBetweenAndTeacherId(LocalDateTime startDate, LocalDateTime endDate, Integer teacherId) {
         return lessonDao.findByDateBetweenAndTeacherId(teacherId, startDate, endDate);
     }
 
     @Override
-    public List<Lesson> findByDateBetween(LocalDate startDate, LocalDate endDate) {
+    public List<Lesson> findByDateBetween(LocalDateTime startDate, LocalDateTime endDate) {
         return lessonDao.findByDateBetween(startDate, endDate);
     }
 

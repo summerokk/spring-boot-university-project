@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -41,6 +42,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    @Transactional
     public void create(CourseAddRequest addRequest) {
         log.debug("Course creating with request {}", addRequest);
 
@@ -50,6 +52,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    @Transactional
     public void update(CourseUpdateRequest updateRequest) {
         updateValidator.validate(updateRequest);
 
@@ -61,6 +64,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    @Transactional
     public void deleteById(Integer id) {
         if (!courseDao.findById(id).isPresent()) {
             throw new CourseNotFoundException(String.format(COURSE_NOT_FOUND, id));

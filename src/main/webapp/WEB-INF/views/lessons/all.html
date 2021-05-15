@@ -19,11 +19,11 @@
         <div class="col-9 d-flex">
             <form th:action="@{/lessons/find}" class="d-flex align-items-end justify-content-between w-100">
                 <div>
-                    <input type="date" name="startDate" th:value="${startDate}" class="form-control" id="start-date">
+                    <input type="datetime-local" name="startDate" th:value="${startDate}" class="form-control" id="start-date">
                 </div>
 
                 <div>
-                    <input type="date" name="endDate" th:value="${endDate}" class="form-control" id="end-date">
+                    <input type="datetime-local" name="endDate" th:value="${endDate}" class="form-control" id="end-date">
                 </div>
 
                 <div>
@@ -31,7 +31,7 @@
                     <select class="form-control" id="teacher-id" name="teacherId">
                         <option th:each="teacher : ${teachers}"
                                 th:value="${teacher.id}"
-                                th:selected="${currentTeacher.id == teacher.id}"
+                                th:selected="${currentTeacher} and ${currentTeacher.id == teacher.id}"
                                 th:text="${teacher.firstName} + ' ' + ${teacher.lastName}"
                         ></option>
                     </select>
@@ -41,9 +41,9 @@
             </form>
         </div>
         <div class="col-3">
-            <form th:action="@{/lessons/pdf}" class="text-right">
-                <input hidden type="date" name="startDate" th:value="${startDate}">
-                <input hidden type="date" name="endDate" th:value="${endDate}">
+            <form th:if="${currentTeacher}" th:action="@{/lessons/pdf}" class="text-right">
+                <input hidden type="datetime-local" name="startDate" th:value="${startDate}">
+                <input hidden type="datetime-local" name="endDate" th:value="${endDate}">
                 <input hidden type="text" name="teacherId" th:value="${currentTeacher.id}">
                 <button type="submit" class="btn btn-primary" th:text="#{download.pdf}"></button>
             </form>
@@ -65,7 +65,7 @@
                 </thead>
                 <tbody>
                 <tr th:each="lesson : ${lessons}">
-                    <th th:text="${lesson.id}"/>
+                    <td th:text="${lesson.id}"/>
                     <td th:text="${lesson.getGroup().name}"/>
                     <td th:text="${lesson.getClassroom().getBuilding().address}"/>
                     <td th:text="${lesson.getClassroom().number}"/>

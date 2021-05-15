@@ -64,7 +64,7 @@ class TeacherServiceTest {
     private TeacherServiceImpl teacherService;
 
     @Test
-    void findAllShouldNotThrowException() {
+    void findAllPaginationShouldNotThrowException() {
         when(teacherDao.findAll(anyInt(), anyInt())).thenReturn(new ArrayList<>());
 
         assertDoesNotThrow(() -> teacherService.findAll(1, 3));
@@ -269,14 +269,12 @@ class TeacherServiceTest {
     }
 
     @Test
-    void findAllWithoutPaginationShouldNotThrowException() {
-        when(teacherDao.count()).thenReturn(2);
-        when(teacherDao.findAll(anyInt(), anyInt())).thenReturn(new ArrayList<>());
+    void findAllShouldNotThrowException() {
+        when(teacherDao.findAll()).thenReturn(new ArrayList<>());
 
-        assertDoesNotThrow(() -> teacherService.findAllWithoutPagination());
+        assertDoesNotThrow(() -> teacherService.findAll());
 
-        verify(teacherDao).findAll(anyInt(), anyInt());
-        verify(teacherDao).count();
+        verify(teacherDao).findAll();
     }
     
     @Test

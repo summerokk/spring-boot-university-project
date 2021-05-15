@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -43,6 +44,7 @@ public class AcademicRankServiceImpl implements AcademicRankService {
     }
 
     @Override
+    @Transactional
     public void create(AcademicRankAddRequest addRequest) {
         log.debug("Academic rank creating with request {}", addRequest);
 
@@ -52,6 +54,7 @@ public class AcademicRankServiceImpl implements AcademicRankService {
     }
 
     @Override
+    @Transactional
     public void update(AcademicRankUpdateRequest updateRequest) {
         updateValidator.validate(updateRequest);
 
@@ -63,6 +66,7 @@ public class AcademicRankServiceImpl implements AcademicRankService {
     }
 
     @Override
+    @Transactional
     public void deleteById(Integer id) {
         if (!academicRankDao.findById(id).isPresent()) {
             throw new AcademicRankNotFoundException(String.format(ACADEMIC_RANK_NOT_FOUND, id));

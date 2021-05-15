@@ -9,10 +9,11 @@
 
 <div class="container">
     <div th:insert="${error} ? ~{fragments/error :: error(${error})} : ~{}"></div>
+    <div th:insert="${incorrectName} ? ~{fragments/error :: error(#{notify.error.name.format})} : ~{}"></div>
 
     <div class="row">
         <div class="col-12">
-            <form class="mb-3" th:action="@{/teachers/update}" th:method="DELETE" th:object="${updateRequest}">
+            <form class="mb-3" th:action="@{/teachers/update}" th:method="POST" th:object="${updateRequest}">
                 <input type="hidden" name="id" th:value="${teacher.id}" id="id">
 
                 <div class="form-group">

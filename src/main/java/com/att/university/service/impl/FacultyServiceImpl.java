@@ -3,7 +3,6 @@ package com.att.university.service.impl;
 import com.att.university.dao.FacultyDao;
 import com.att.university.entity.Faculty;
 import com.att.university.exception.dao.FacultyNotFoundException;
-import com.att.university.exception.dao.GroupNotFoundException;
 import com.att.university.mapper.faculty.FacultyAddRequestMapper;
 import com.att.university.mapper.faculty.FacultyUpdateRequestMapper;
 import com.att.university.request.faculty.FacultyAddRequest;
@@ -15,12 +14,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@Transactional
 public class FacultyServiceImpl implements FacultyService {
     private static final String FACULTY_NOT_FOUND = "Faculty with Id %d is not found";
 

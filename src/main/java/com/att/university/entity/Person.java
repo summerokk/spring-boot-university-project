@@ -1,18 +1,25 @@
 package com.att.university.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
-import lombok.experimental.SuperBuilder;
 
-@SuperBuilder(setterPrefix = "with", toBuilder = true)
+import javax.persistence.Column;
+import javax.persistence.MappedSuperclass;
+
+@MappedSuperclass
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @ToString
 @EqualsAndHashCode
 public abstract class Person {
-    private final Integer id;
-    private final String firstName;
-    private final String lastName;
-    private final String email;
-    private final String password;
+    @Column(name = "first_name")
+    private String firstName;
+    @Column(name = "last_name")
+    private String lastName;
+    private String email;
+    private String password;
 }

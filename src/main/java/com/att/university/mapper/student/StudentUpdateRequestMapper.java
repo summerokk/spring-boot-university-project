@@ -7,12 +7,13 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class StudentUpdateRequestMapper {
-    public Student convertToEntity(StudentUpdateRequest updateRequest, Group group) {
+    public Student convertToEntity(StudentUpdateRequest updateRequest, Group group, String password) {
         return Student.builder()
                 .withId(updateRequest.getId())
                 .withFirstName(updateRequest.getFirstName())
                 .withLastName(updateRequest.getLastName())
                 .withEmail(updateRequest.getEmail())
+                .withPassword(password)
                 .withGroup(group)
                 .build();
     }

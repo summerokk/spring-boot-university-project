@@ -2,98 +2,39 @@ package com.att.university.dao.impl;
 
 import com.att.university.dao.StudentDao;
 import com.att.university.entity.Student;
-import com.att.university.entity.Faculty;
-import com.att.university.entity.Group;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
+import javax.persistence.EntityManager;
 import java.util.Optional;
 
 @Repository("studentDao")
 @Slf4j
 public class StudentDaoImpl extends AbstractDaoImpl<Student> implements StudentDao {
-    private static final String SAVE_QUERY = "INSERT INTO students(first_name, last_name, email, password) " +
-            "VALUES(?, ?, ?, ?)";
-    private static final String FIND_ALL_QUERY = "SELECT s.*, g.id as group_id, g.name as group_name, " +
-            "f.id as faculty_id, f.name faculty_name " +
-            "FROM students s " +
-            "LEFT JOIN groups g on g.id = s.group_id " +
-            "LEFT JOIN faculties f on g.faculty_id = f.id ORDER BY s.id OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
-    private static final String FIND_BY_ID_QUERY = "SELECT s.*, g.id as group_id, g.name as group_name, " +
-            "f.id as faculty_id, f.name faculty_name " +
-            "FROM students s " +
-            "LEFT JOIN groups g on g.id = s.group_id " +
-            "LEFT JOIN faculties f on g.faculty_id = f.id WHERE s.id = ?";
-    private static final String FIND_BY_EMAIL = "SELECT s.*, g.id as group_id, g.name as group_name, " +
-            "f.id as faculty_id, f.name faculty_name " +
-            "FROM students s " +
-            "LEFT JOIN groups g on g.id = s.group_id " +
-            "LEFT JOIN faculties f on g.faculty_id = f.id WHERE s.email = ?";
-    private static final String DELETE_BY_ID_QUERY = "DELETE FROM students WHERE id = ?";
-    private static final String UPDATE_QUERY = "UPDATE students SET first_name = ?, last_name = ?, email = ?, " +
-            "group_id = ?  WHERE id = ?";
-    private static final String COUNT_QUERY = "SELECT COUNT(*) FROM students";
-
-    private static final RowMapper<Student> ROW_MAPPER = (resultSet, rowNum) -> {
-        Group group = null;
-
-        Integer groupId = resultSet.getInt("group_id");
-
-        if (!resultSet.wasNull()) {
-
-            Faculty faculty = new Faculty(resultSet.getInt("faculty_id"),
-                    resultSet.getString("faculty_name"));
-            group = new Group(
-                    groupId,
-                    resultSet.getString("group_name"),
-                    faculty
-            );
-        }
-
-        return Student.builder()
-                .withId(resultSet.getInt("id"))
-                .withGroup(group)
-                .withFirstName(resultSet.getString("first_name"))
-                .withLastName(resultSet.getString("last_name"))
-                .withEmail(resultSet.getString("email"))
-                .withPassword(resultSet.getString("password"))
-                .build();
-    };
+    private static final String FIND_ALL_QUERY = "select b from Student b order by id asc";
+    private static final String FIND_BY_EMAIL_QUERY = "select s from Student s where s.email = :email";
+    private static final String DELETE_BY_ID_QUERY = "delete from Student where id = :id";
+    private static final String COUNT_QUERY = "select count(id) from Student";
 
     @Autowired
-    public StudentDaoImpl(JdbcTemplate jdbcTemplate) {
-        super(jdbcTemplate, ROW_MAPPER, FIND_BY_ID_QUERY, FIND_ALL_QUERY, DELETE_BY_ID_QUERY, COUNT_QUERY);
+    public StudentDaoImpl(EntityManager entityManager, @Value("${hibernate.batch_size}") int batchSize) {
+        super(entityManager, FIND_ALL_QUERY, DELETE_BY_ID_QUERY, COUNT_QUERY, batchSize);
     }
 
     @Override
-    protected void insert(Student student) {
-        log.debug("Inserting the student to the database...");
-
-        this.jdbcTemplate.update(SAVE_QUERY,
-                student.getFirstName(),
-                student.getLastName(),
-                student.getEmail(),
-                student.getPassword()
-        );
+    public Optional<Student> findById(Integer id) {
+        return Optional.ofNullable(entityManager.find(Student.class, id));
     }
 
     @Override
-    public void update(Student student) {
-        this.jdbcTemplate.update(UPDATE_QUERY,
-                student.getFirstName(),
-                student.getLastName(),
-                student.getEmail(),
-                student.getGroup().getId(),
-                student.getId()
-        );
-    }
-
+    @SuppressWarnings("unchecked")
     public Optional<Student> findByEmail(String email) {
         log.debug("Find student by email {}", email);
 
-        return findByParam(email, FIND_BY_EMAIL);
+        return entityManager.createQuery(FIND_BY_EMAIL_QUERY)
+                .setParameter("email", email)
+                .getResultList().stream().findFirst();
     }
 }

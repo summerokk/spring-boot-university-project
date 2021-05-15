@@ -3,36 +3,25 @@ package com.att.university.dao.impl;
 import com.att.university.dao.AcademicRankDao;
 import com.att.university.entity.AcademicRank;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
-import javax.sql.DataSource;
+import javax.persistence.EntityManager;
+import java.util.Optional;
 
 @Repository("academicRankDao")
 public class AcademicRankDaoImpl extends AbstractDaoImpl<AcademicRank> implements AcademicRankDao {
-    private static final String SAVE_QUERY = "INSERT INTO academic_ranks(name) VALUES(?)";
-    private static final String FIND_BY_ID_QUERY = "SELECT * FROM academic_ranks WHERE id = ?";
-    private static final String FIND_ALL_QUERY = "SELECT * FROM academic_ranks OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
-    private static final String DELETE_BY_ID_QUERY = "DELETE FROM academic_ranks WHERE id = ?";
-    private static final String UPDATE_QUERY = "UPDATE academic_ranks SET name = ? WHERE id = ?";
-    private static final String COUNT_QUERY = "SELECT COUNT(*) FROM academic_ranks";
-
-    private static final RowMapper<AcademicRank> ROW_MAPPER = (resultSet, rowNum) ->
-            new AcademicRank(resultSet.getInt(1), resultSet.getString("name"));
+    private static final String FIND_ALL_QUERY = "select b from AcademicRank b order by id asc";
+    private static final String DELETE_BY_ID_QUERY = "delete from AcademicRank where id = :id";
+    private static final String COUNT_QUERY = "select count(id) from AcademicRank";
 
     @Autowired
-    public AcademicRankDaoImpl(JdbcTemplate jdbcTemplate) {
-        super(jdbcTemplate, ROW_MAPPER, FIND_BY_ID_QUERY, FIND_ALL_QUERY, DELETE_BY_ID_QUERY, COUNT_QUERY);
+    public AcademicRankDaoImpl(EntityManager entityManager, @Value("${hibernate.batch_size}") int batchSize) {
+        super(entityManager, FIND_ALL_QUERY, DELETE_BY_ID_QUERY, COUNT_QUERY, batchSize);
     }
 
     @Override
-    protected void insert(AcademicRank academicRank) {
-        this.jdbcTemplate.update(SAVE_QUERY, academicRank.getName());
-    }
-
-    @Override
-    public void update(AcademicRank academicRank) {
-        this.jdbcTemplate.update(UPDATE_QUERY, academicRank.getName(), academicRank.getId());
+    public Optional<AcademicRank> findById(Integer id) {
+        return Optional.ofNullable(entityManager.find(AcademicRank.class, id));
     }
 }

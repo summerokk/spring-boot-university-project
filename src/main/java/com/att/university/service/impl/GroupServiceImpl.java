@@ -17,12 +17,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Slf4j
+@Transactional
 public class GroupServiceImpl implements GroupService {
     private static final String GROUP_NOT_FOUND = "Group with Id %d is not found";
     private static final String FACULTY_NOT_FOUND = "Faculty with Id %d is not found";

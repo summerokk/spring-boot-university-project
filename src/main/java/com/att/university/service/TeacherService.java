@@ -15,7 +15,7 @@ public interface TeacherService {
 
     List<Teacher> findAll(int page, int count);
 
-    List<Teacher> findAllWithoutPagination();
+    List<Teacher> findAll();
 
     Teacher findById(Integer id);
 

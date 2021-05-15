@@ -136,12 +136,12 @@ class StudentServiceTest {
         doNothing().when(studentUpdateValidator).validate(any(StudentUpdateRequest.class));
         when(studentDao.findById(studentId)).thenReturn(Optional.of(student));
         when(groupDao.findById(groupId)).thenReturn(Optional.of(group));
-        when(updateRequestMapper.convertToEntity(studentRequest, group)).thenReturn(student);
+        when(updateRequestMapper.convertToEntity(studentRequest, group, student.getPassword())).thenReturn(student);
 
         studentService.update(studentRequest);
 
         verify(studentUpdateValidator).validate(any(StudentUpdateRequest.class));
-        verify(updateRequestMapper).convertToEntity(any(StudentUpdateRequest.class), any(Group.class));
+        verify(updateRequestMapper).convertToEntity(any(StudentUpdateRequest.class), any(Group.class), anyString());
         verify(studentDao).findById(anyInt());
         verify(studentDao).update(any(Student.class));
     }

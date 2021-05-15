@@ -5,15 +5,15 @@ import com.att.university.config.WebTestConfig;
 import com.att.university.entity.AcademicRank;
 import com.att.university.entity.ScienceDegree;
 import com.att.university.entity.Teacher;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 
-import javax.sql.DataSource;
+import javax.transaction.Transactional;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -21,19 +21,13 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = { H2Config.class, WebTestConfig.class})
+@ContextConfiguration(classes = {H2Config.class, WebTestConfig.class})
 @WebAppConfiguration
-class TeacherDaoTest extends AbstractTest {
-    @Autowired
-    private DataSource dataSource;
-
+@Transactional
+@Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = {"classpath:TestData.sql"})
+class TeacherDaoTest {
     @Autowired
     private TeacherDao teacherDao;
-
-    @BeforeEach
-    void tearDown() {
-        recreateDb(dataSource);
-    }
 
     @Test
     void findAllShouldReturnResultWhenDatabaseHaveTeachers() {
@@ -56,6 +50,16 @@ class TeacherDaoTest extends AbstractTest {
                         .withFirstName("Alex")
                         .withLastName("Popov")
                         .withEmail("email234@tmail.com")
+                        .withPassword("password")
+                        .withAcademicRank(academicRank)
+                        .withScienceDegree(scienceDegree)
+                        .withLinkedin("https://link.ru")
+                        .build(),
+                Teacher.builder()
+                        .withId(3)
+                        .withFirstName("Dima")
+                        .withLastName("Antipov")
+                        .withEmail("ant213@tmail.com")
                         .withPassword("password")
                         .withAcademicRank(academicRank)
                         .withScienceDegree(scienceDegree)
@@ -89,7 +93,7 @@ class TeacherDaoTest extends AbstractTest {
 
     @Test
     void countShouldReturnResultWhenDatabaseHaveTeachers() {
-        int expected = 2;
+        int expected = 3;
 
         assertThat(teacherDao.count()).isEqualTo(expected);
     }
@@ -100,7 +104,6 @@ class TeacherDaoTest extends AbstractTest {
         ScienceDegree scienceDegree = new ScienceDegree(2, "Doctoral degree");
 
         Teacher newTeacher = Teacher.builder()
-                .withId(1)
                 .withFirstName("new")
                 .withLastName("Tolov")
                 .withEmail("toloffsdf234@tmail.com")
@@ -124,7 +127,6 @@ class TeacherDaoTest extends AbstractTest {
 
         List<Teacher> newTeachers = Arrays.asList(
                 Teacher.builder()
-                        .withId(1)
                         .withFirstName("new")
                         .withLastName("Tolov")
                         .withEmail("tolof234@tmail.com")
@@ -134,7 +136,6 @@ class TeacherDaoTest extends AbstractTest {
                         .withLinkedin("https://link.ru")
                         .build(),
                 Teacher.builder()
-                        .withId(2)
                         .withFirstName("new")
                         .withLastName("Popov")
                         .withEmail("email234@tmail.com")
@@ -154,7 +155,7 @@ class TeacherDaoTest extends AbstractTest {
     @Test
     void deleteByIdShouldReturnResultWhenDatabaseHaveTeachers() {
         int currentCount = teacherDao.count();
-        teacherDao.deleteById(1);
+        teacherDao.deleteById(3);
 
         assertThat(teacherDao.count()).isEqualTo(currentCount - 1);
     }

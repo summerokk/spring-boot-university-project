@@ -21,12 +21,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Component("teacherService")
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@Transactional
 public class TeacherServiceImpl implements TeacherService {
     private static final String TEACHER_NOT_FOUND = "Teacher with Id %d is not found";
     private static final String TEACHER_NOT_FOUND_WITH_EMAIL = "Teacher with email %s is not found";
@@ -94,8 +96,8 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
-    public List<Teacher> findAllWithoutPagination() {
-        return teacherDao.findAll(1, teacherDao.count());
+    public List<Teacher> findAll() {
+        return teacherDao.findAll();
     }
 
     @Override

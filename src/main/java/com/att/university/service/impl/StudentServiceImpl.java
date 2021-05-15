@@ -20,12 +20,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Component("studentService")
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@Transactional
 public class StudentServiceImpl implements StudentService {
     private static final String STUDENT_NOT_FOUND = "Student is not found";
 
@@ -56,14 +58,13 @@ public class StudentServiceImpl implements StudentService {
 
         log.debug("Student update with request {}", studentUpdateRequest);
 
-        if(!studentDao.findById(studentUpdateRequest.getId()).isPresent()) {
-            throw new PersonNotFoundException(STUDENT_NOT_FOUND);
-        }
+        Student student = studentDao.findById(studentUpdateRequest.getId())
+                .orElseThrow(() -> new PersonNotFoundException(STUDENT_NOT_FOUND));
 
         Group group = groupDao.findById(studentUpdateRequest.getGroupId())
                 .orElseThrow(() -> new GroupNotFoundException("Group is not found"));
 
-        studentDao.update(updateRequestMapper.convertToEntity(studentUpdateRequest, group));
+        studentDao.update(updateRequestMapper.convertToEntity(studentUpdateRequest, group, student.getPassword()));
     }
 
     @Override

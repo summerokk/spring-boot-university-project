@@ -33,7 +33,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.io.OutputStream;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
@@ -88,54 +87,54 @@ class LessonControllerTest {
 
     @Test
     void getLessonsShouldReturn200Status() throws Exception {
-        when(lessonService.findByDateBetween(any(LocalDate.class), any(LocalDate.class)))
+        when(lessonService.findByDateBetween(any(LocalDateTime.class), any(LocalDateTime.class)))
                 .thenReturn(Collections.singletonList(generateLesson()));
-        when(teacherService.findAllWithoutPagination()).thenReturn(Collections.singletonList(generateTeacher()));
+        when(teacherService.findAll()).thenReturn(Collections.singletonList(generateTeacher()));
 
         this.mockMvc.perform(get("/lessons/")).andExpect(status().isOk());
 
-        verify(lessonService).findByDateBetween(any(LocalDate.class), any(LocalDate.class));
-        verify(teacherService).findAllWithoutPagination();
+        verify(lessonService).findByDateBetween(any(LocalDateTime.class), any(LocalDateTime.class));
+        verify(teacherService).findAll();
     }
 
     @Test
     void exportSchedulePdfShouldNotThrowException() throws Exception {
-        when(lessonService.findByDateBetweenAndTeacherId(any(LocalDate.class), any(LocalDate.class), anyInt()))
+        when(lessonService.findByDateBetweenAndTeacherId(any(LocalDateTime.class), any(LocalDateTime.class), anyInt()))
                 .thenReturn(Collections.singletonList(generateLesson()));
 
         doNothing().when(fileProvider).provideFile(any(OutputStream.class), anyList());
 
         this.mockMvc.perform(
                 get("/lessons/pdf")
-                        .param("startDate", LocalDate.now().toString())
-                        .param("endDate", LocalDate.now().toString())
+                        .param("startDate", LocalDateTime.now().toString())
+                        .param("endDate", LocalDateTime.now().toString())
                         .param("teacherId", "1"))
                 .andExpect(status().isOk());
 
-        verify(lessonService).findByDateBetweenAndTeacherId(any(LocalDate.class), any(LocalDate.class), anyInt());
+        verify(lessonService).findByDateBetweenAndTeacherId(any(LocalDateTime.class), any(LocalDateTime.class), anyInt());
     }
 
     @Test
     void findLessonsShouldNotThrowException() throws Exception {
-        List<LocalDate> weeks = Arrays.asList(
-                LocalDate.now(),
-                LocalDate.now()
+        List<LocalDateTime> weeks = Arrays.asList(
+                LocalDateTime.now(),
+                LocalDateTime.now()
         );
 
         when(teacherService.findById(anyInt())).thenReturn(generateTeacher());
-        when(lessonService.findTeacherLessonWeeks(any(LocalDate.class), any(LocalDate.class), any())).thenReturn(weeks);
+        when(lessonService.findTeacherLessonWeeks(any(LocalDateTime.class), any(LocalDateTime.class), any())).thenReturn(weeks);
         when(lessonService.findTeacherWeekSchedule(anyInt(), anyList(), any()))
                 .thenReturn(Collections.singletonList(generateLesson()));
-        when(teacherService.findAllWithoutPagination()).thenReturn(Collections.singletonList(generateTeacher()));
+        when(teacherService.findAll()).thenReturn(Collections.singletonList(generateTeacher()));
 
 
         this.mockMvc.perform(get("/lessons/find")
-                .param("startDate", LocalDate.now().toString())
-                .param("endDate", LocalDate.now().toString())
+                .param("startDate", LocalDateTime.now().toString())
+                .param("endDate", LocalDateTime.now().toString())
                 .param("teacherId", "1"))
                 .andExpect(status().isOk());
 
-        verify(lessonService).findTeacherLessonWeeks(any(LocalDate.class), any(LocalDate.class), any());
+        verify(lessonService).findTeacherLessonWeeks(any(LocalDateTime.class), any(LocalDateTime.class), any());
     }
 
     @Test
@@ -143,8 +142,8 @@ class LessonControllerTest {
         doThrow(PersonNotFoundException.class).when(teacherService).findById(anyInt());
 
         this.mockMvc.perform(get("/lessons/find")
-                .param("startDate", LocalDate.now().toString())
-                .param("endDate", LocalDate.now().toString())
+                .param("startDate", LocalDateTime.now().toString())
+                .param("endDate", LocalDateTime.now().toString())
                 .param("teacherId", "1"))
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof LessonSearchException));
     }
@@ -152,7 +151,7 @@ class LessonControllerTest {
     @Test
     void performGetShowLessonShouldReturn200StatusWithAttributes() throws Exception {
         when(lessonService.findById(anyInt())).thenReturn(generateLesson());
-        when(teacherService.findAllWithoutPagination()).thenReturn(Collections.singletonList(generateTeacher()));
+        when(teacherService.findAll()).thenReturn(Collections.singletonList(generateTeacher()));
         when(groupService.findAll()).thenReturn(Collections.singletonList(generateGroup()));
         when(courseService.findAll()).thenReturn(Collections.singletonList(generateCourse()));
         when(classroomService.findAll()).thenReturn(Collections.singletonList(generateClassroom()));
@@ -168,7 +167,7 @@ class LessonControllerTest {
 
     @Test
     void performGetCreateLessonShouldReturnOkStatus() throws Exception {
-        when(teacherService.findAllWithoutPagination()).thenReturn(Collections.singletonList(generateTeacher()));
+        when(teacherService.findAll()).thenReturn(Collections.singletonList(generateTeacher()));
         when(groupService.findAll()).thenReturn(Collections.singletonList(generateGroup()));
         when(courseService.findAll()).thenReturn(Collections.singletonList(generateCourse()));
         when(classroomService.findAll()).thenReturn(Collections.singletonList(generateClassroom()));
@@ -183,7 +182,7 @@ class LessonControllerTest {
                 .andExpect(view().name("lessons/add"));
 
         verify(classroomService).findAll();
-        verify(teacherService).findAllWithoutPagination();
+        verify(teacherService).findAll();
         verify(groupService).findAll();
         verify(classroomService).findAll();
     }
