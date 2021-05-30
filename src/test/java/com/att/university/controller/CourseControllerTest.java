@@ -1,20 +1,19 @@
 package com.att.university.controller;
 
 import com.att.university.entity.Course;
-import com.att.university.exception.ExceptionHandlerAdvice;
 import com.att.university.request.course.CourseAddRequest;
 import com.att.university.request.course.CourseUpdateRequest;
 import com.att.university.service.CourseService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.Arrays;
 import java.util.List;
@@ -29,24 +28,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
-@ExtendWith(MockitoExtension.class)
+@ExtendWith(SpringExtension.class)
+@WebMvcTest(controllers = CourseController.class)
+@AutoConfigureMockMvc(addFilters = false)
 class CourseControllerTest {
 
+    @Autowired
     private MockMvc mockMvc;
 
-    @Mock
+    @MockBean
     private CourseService courseService;
-
-    @InjectMocks
-    private CourseController controller;
-
-    @BeforeEach
-    public void setup() {
-        this.mockMvc = MockMvcBuilders
-                .standaloneSetup(controller)
-                .setControllerAdvice(new ExceptionHandlerAdvice())
-                .build();
-    }
 
     @Test
     void performGetCoursesShouldReturnOkStatus() throws Exception {

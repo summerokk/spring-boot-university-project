@@ -2,21 +2,20 @@ package com.att.university.controller;
 
 import com.att.university.entity.Building;
 import com.att.university.entity.Classroom;
-import com.att.university.exception.ExceptionHandlerAdvice;
 import com.att.university.request.classroom.ClassroomAddRequest;
 import com.att.university.request.classroom.ClassroomUpdateRequest;
 import com.att.university.service.BuildingService;
 import com.att.university.service.ClassroomService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.Arrays;
 import java.util.List;
@@ -32,26 +31,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
-@ExtendWith(MockitoExtension.class)
+@ExtendWith(SpringExtension.class)
+@WebMvcTest(controllers = ClassroomController.class)
+@AutoConfigureMockMvc(addFilters = false)
 class ClassroomControllerTest {
+    @Autowired
     private MockMvc mockMvc;
 
-    @Mock
+    @MockBean
     private ClassroomService classroomService;
 
-    @Mock
+    @MockBean
     private BuildingService buildingService;
-
-    @InjectMocks
-    private ClassroomController controller;
-
-    @BeforeEach
-    public void setup() {
-        this.mockMvc = MockMvcBuilders
-                .standaloneSetup(controller)
-                .setControllerAdvice(new ExceptionHandlerAdvice())
-                .build();
-    }
 
     @Test
     void performGetClassroomsShouldReturnOkStatus() throws Exception {

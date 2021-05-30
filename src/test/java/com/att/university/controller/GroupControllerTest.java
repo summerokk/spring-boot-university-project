@@ -2,21 +2,20 @@ package com.att.university.controller;
 
 import com.att.university.entity.Faculty;
 import com.att.university.entity.Group;
-import com.att.university.exception.ExceptionHandlerAdvice;
 import com.att.university.request.group.GroupAddRequest;
 import com.att.university.request.group.GroupUpdateRequest;
 import com.att.university.service.FacultyService;
 import com.att.university.service.GroupService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.Arrays;
 import java.util.List;
@@ -32,26 +31,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
-@ExtendWith(MockitoExtension.class)
+@ExtendWith(SpringExtension.class)
+@WebMvcTest(controllers = GroupController.class)
+@AutoConfigureMockMvc(addFilters = false)
 class GroupControllerTest {
+    @Autowired
     private MockMvc mockMvc;
 
-    @Mock
+    @MockBean
     private GroupService groupService;
 
-    @Mock
+    @MockBean
     private FacultyService facultyService;
-
-    @InjectMocks
-    private GroupController controller;
-
-    @BeforeEach
-    public void setup() {
-        this.mockMvc = MockMvcBuilders
-                .standaloneSetup(controller)
-                .setControllerAdvice(new ExceptionHandlerAdvice())
-                .build();
-    }
 
     @Test
     void performGetGroupsShouldReturnOkStatus() throws Exception {

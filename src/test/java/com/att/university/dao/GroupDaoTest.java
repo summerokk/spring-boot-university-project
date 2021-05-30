@@ -1,16 +1,14 @@
 package com.att.university.dao;
 
-import com.att.university.config.H2Config;
-import com.att.university.config.WebTestConfig;
 import com.att.university.entity.Faculty;
 import com.att.university.entity.Group;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.context.web.WebAppConfiguration;
 
 import javax.transaction.Transactional;
 import java.util.Arrays;
@@ -20,9 +18,8 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {H2Config.class, WebTestConfig.class})
-@WebAppConfiguration
-@Transactional
+@SpringBootTest
+@TestPropertySource("/application-test.properties")
 @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = {"classpath:TestData.sql"})
 class GroupDaoTest {
     @Autowired
@@ -55,6 +52,7 @@ class GroupDaoTest {
     }
 
     @Test
+    @Transactional
     void saveShouldReturnResultWhenDatabaseHaveGroups() {
         Group newGroup = new Group(null, "GT-232", new Faculty(1, "School of Visual arts"));
         int currentCount = groupDao.count();
@@ -65,6 +63,7 @@ class GroupDaoTest {
     }
 
     @Test
+    @Transactional
     void saveAllShouldReturnResultWhenDatabaseHaveGroups() {
         List<Group> newGroups = Arrays.asList(
                 new Group(null, "GT-23", new Faculty(1, "School of Visual arts")),
@@ -78,6 +77,7 @@ class GroupDaoTest {
     }
 
     @Test
+    @Transactional
     void deleteByIdShouldReturnResultWhenDatabaseHaveGroups() {
         int currentCount = groupDao.count();
         groupDao.deleteById(3);
@@ -86,6 +86,7 @@ class GroupDaoTest {
     }
 
     @Test
+    @Transactional
     void updateShouldReturnResultWhenDatabaseHaveGroups() {
         Group newGroup = new Group(1, "GT-24", new Faculty(1, "School of Visual arts"));
         groupDao.update(newGroup);

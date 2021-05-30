@@ -1,13 +1,8 @@
 package com.att.university.controller;
 
-import com.att.university.config.H2Config;
-import com.att.university.config.WebTestConfig;
 import com.att.university.entity.Faculty;
 import com.att.university.entity.Group;
 import com.att.university.entity.Student;
-import com.att.university.exception.ExceptionHandlerAdvice;
-import com.att.university.exception.PersonHandleAdvice;
-import com.att.university.exception.StudentControllerAdvice;
 import com.att.university.exception.dao.GroupNotFoundException;
 import com.att.university.exception.service.EmailAlreadyExistsException;
 import com.att.university.exception.service.LoginFailException;
@@ -19,21 +14,16 @@ import com.att.university.request.person.student.StudentRegisterRequest;
 import com.att.university.request.person.student.StudentUpdateRequest;
 import com.att.university.service.GroupService;
 import com.att.university.service.StudentService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.Arrays;
 import java.util.List;
@@ -53,35 +43,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {H2Config.class, WebTestConfig.class})
-@WebAppConfiguration
+@WebMvcTest(controllers = StudentController.class)
+@AutoConfigureMockMvc(addFilters = false)
 class StudentControllerTest {
-    @Value("${person.default.page}")
-    private int defaultPage;
-
-    @Value("${person.default.items}")
-    private int itemsOnPage;
-
+    @Autowired
     private MockMvc mockMvc;
 
-    @Mock
+    @MockBean
     private StudentService studentService;
 
-    @Mock
+    @MockBean
     private GroupService groupService;
-
-    @InjectMocks
-    private StudentController studentController;
-
-    @BeforeEach
-    public void setup() {
-        MockitoAnnotations.initMocks(this);
-
-        this.mockMvc = MockMvcBuilders
-                .standaloneSetup(studentController)
-                .setControllerAdvice(new StudentControllerAdvice(), new PersonHandleAdvice(), new ExceptionHandlerAdvice())
-                .build();
-    }
 
     @Test
     void performGetStudentCreateShouldReturnOkStatus() throws Exception {
@@ -259,9 +231,6 @@ class StudentControllerTest {
 
     @Test
     void performDeleteStudentShouldReturn302Status() throws Exception {
-        ReflectionTestUtils.setField(studentController, "itemsOnPage", itemsOnPage);
-        ReflectionTestUtils.setField(studentController, "defaultPage", defaultPage);
-
         doNothing().when(studentService).delete(anyInt());
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders

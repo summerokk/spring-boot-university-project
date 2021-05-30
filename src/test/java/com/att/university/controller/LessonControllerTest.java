@@ -9,8 +9,6 @@ import com.att.university.entity.Group;
 import com.att.university.entity.Lesson;
 import com.att.university.entity.ScienceDegree;
 import com.att.university.entity.Teacher;
-import com.att.university.exception.ExceptionHandlerAdvice;
-import com.att.university.exception.LessonControllerAdvice;
 import com.att.university.exception.dao.PersonNotFoundException;
 import com.att.university.exception.service.lesson.LessonSearchException;
 import com.att.university.provider.lesson.LessonPdfFileProvider;
@@ -21,16 +19,16 @@ import com.att.university.service.CourseService;
 import com.att.university.service.GroupService;
 import com.att.university.service.LessonService;
 import com.att.university.service.TeacherService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.io.OutputStream;
 import java.time.LocalDateTime;
@@ -52,39 +50,31 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
-@ExtendWith(MockitoExtension.class)
+@ExtendWith(SpringExtension.class)
+@WebMvcTest(controllers = LessonController.class)
+@AutoConfigureMockMvc(addFilters = false)
 class LessonControllerTest {
+    @Autowired
     private MockMvc mockMvc;
 
-    @Mock
+    @MockBean
     private LessonService lessonService;
 
-    @Mock
+    @MockBean
     private TeacherService teacherService;
 
-    @Mock
+    @MockBean
     private GroupService groupService;
 
-    @Mock
+    @MockBean
     private ClassroomService classroomService;
 
-    @Mock
+    @MockBean
     private CourseService courseService;
 
-    @Mock
+    @MockBean
     private LessonPdfFileProvider fileProvider;
-
-    @InjectMocks
-    private LessonController lessonController;
-
-    @BeforeEach
-    public void setup() {
-        this.mockMvc = MockMvcBuilders
-                .standaloneSetup(lessonController)
-                .setControllerAdvice(new LessonControllerAdvice(), new ExceptionHandlerAdvice())
-                .build();
-    }
-
+    
     @Test
     void getLessonsShouldReturn200Status() throws Exception {
         when(lessonService.findByDateBetween(any(LocalDateTime.class), any(LocalDateTime.class)))
@@ -256,7 +246,7 @@ class LessonControllerTest {
                 .withLastName("test")
                 .withEmail("test@test.ru")
                 .withPassword("1234567890")
-                .withLinkedin("http://test.ru")
+                .withLinkedin("https://test.ru")
                 .withAcademicRank(academicRank)
                 .withScienceDegree(scienceDegree)
                 .build();

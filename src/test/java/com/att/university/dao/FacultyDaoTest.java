@@ -1,15 +1,13 @@
 package com.att.university.dao;
 
-import com.att.university.config.H2Config;
-import com.att.university.config.WebTestConfig;
 import com.att.university.entity.Faculty;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.context.web.WebAppConfiguration;
 
 import javax.transaction.Transactional;
 import java.util.Arrays;
@@ -19,9 +17,8 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {H2Config.class, WebTestConfig.class})
-@WebAppConfiguration
-@Transactional
+@SpringBootTest
+@TestPropertySource("/application-test.properties")
 @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = {"classpath:TestData.sql"})
 class FacultyDaoTest {
     @Autowired
@@ -55,6 +52,7 @@ class FacultyDaoTest {
     }
 
     @Test
+    @Transactional
     void saveShouldReturnResultWhenDatabaseHaveFaculties() {
         Faculty newFaculty = new Faculty(null, "new");
         int currentCount = facultyDao.count();
@@ -65,6 +63,7 @@ class FacultyDaoTest {
     }
 
     @Test
+    @Transactional
     void saveAllShouldReturnResultWhenDatabaseHaveFaculties() {
         List<Faculty> newFaculties = Arrays.asList(
                 new Faculty(null, "new"),
@@ -78,6 +77,7 @@ class FacultyDaoTest {
     }
 
     @Test
+    @Transactional
     void deleteByIdShouldReturnResultWhenDatabaseHaveFaculties() {
         int currentCount = facultyDao.count();
         facultyDao.deleteById(4);
@@ -86,6 +86,7 @@ class FacultyDaoTest {
     }
 
     @Test
+    @Transactional
     void updateShouldReturnResultWhenDatabaseHaveFaculties() {
         Faculty newFaculty = new Faculty(1, "update");
         facultyDao.update(newFaculty);
