@@ -72,3 +72,14 @@ INSERT INTO lessons(id, course_id, group_id, teacher_id, date, classroom_id)
 VALUES (2, 2, 2, 1, '2004-10-20 10:23', 1);
 INSERT INTO lessons(id, course_id, group_id, teacher_id, date, classroom_id)
 VALUES (3, 2, 2, 1, '2020-10-20 10:23', 1);
+
+ALTER SEQUENCE academic_ranks_id_seq RESTART WITH 6;
+ALTER SEQUENCE buildings_id_seq RESTART WITH 6;
+ALTER SEQUENCE classrooms_id_seq RESTART WITH 6;
+ALTER SEQUENCE courses_id_seq RESTART WITH 6;
+ALTER SEQUENCE faculties_id_seq RESTART WITH 6;
+ALTER SEQUENCE groups_id_seq RESTART WITH 6;
+ALTER SEQUENCE lessons_id_seq RESTART WITH 6;
+ALTER SEQUENCE teachers_id_seq RESTART WITH 6;
+ALTER SEQUENCE students_id_seq RESTART WITH 6;
+ALTER SEQUENCE science_degrees_id_seq RESTART WITH 6;
