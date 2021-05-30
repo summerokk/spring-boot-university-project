@@ -16,7 +16,8 @@ public class FacultyDaoImpl extends AbstractDaoImpl<Faculty> implements FacultyD
     private static final String COUNT_QUERY = "select count(id) from Faculty";
 
     @Autowired
-    public FacultyDaoImpl(EntityManager entityManager, @Value("${hibernate.batch_size}") int batchSize) {
+    public FacultyDaoImpl(EntityManager entityManager,
+                          @Value("${spring.jpa.properties.hibernate.jdbc.batch_size}") int batchSize) {
         super(entityManager, FIND_ALL_QUERY, DELETE_BY_ID_QUERY, COUNT_QUERY, batchSize);
     }
 

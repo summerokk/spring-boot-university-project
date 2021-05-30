@@ -19,7 +19,8 @@ public class TeacherDaoImpl extends AbstractDaoImpl<Teacher> implements TeacherD
     private static final String COUNT_QUERY = "select count(id) from Teacher";
 
     @Autowired
-    public TeacherDaoImpl(EntityManager entityManager, @Value("${hibernate.batch_size}") int batchSize) {
+    public TeacherDaoImpl(EntityManager entityManager,
+                          @Value("${spring.jpa.properties.hibernate.jdbc.batch_size}") int batchSize) {
         super(entityManager, FIND_ALL_QUERY, DELETE_BY_ID_QUERY, COUNT_QUERY, batchSize);
     }
 

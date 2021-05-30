@@ -27,7 +27,8 @@ public class LessonDaoImpl extends AbstractDaoImpl<Lesson> implements LessonDao 
             "FROM lessons WHERE teacher_id=:id and date between :sd and :ed GROUP BY week ORDER BY week ASC";
 
     @Autowired
-    public LessonDaoImpl(EntityManager entityManager, @Value("${hibernate.batch_size}") int batchSize) {
+    public LessonDaoImpl(EntityManager entityManager,
+                         @Value("${spring.jpa.properties.hibernate.jdbc.batch_size}") int batchSize) {
         super(entityManager, FIND_ALL_QUERY, DELETE_BY_ID_QUERY, COUNT_QUERY, batchSize);
     }
 

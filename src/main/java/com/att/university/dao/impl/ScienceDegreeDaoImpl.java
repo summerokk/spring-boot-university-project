@@ -16,7 +16,8 @@ public class ScienceDegreeDaoImpl extends AbstractDaoImpl<ScienceDegree> impleme
     private static final String COUNT_QUERY = "select count(id) from ScienceDegree";
 
     @Autowired
-    public ScienceDegreeDaoImpl(EntityManager entityManager, @Value("${hibernate.batch_size}") int batchSize) {
+    public ScienceDegreeDaoImpl(EntityManager entityManager,
+                                @Value("${spring.jpa.properties.hibernate.jdbc.batch_size}") int batchSize) {
         super(entityManager, FIND_ALL_QUERY, DELETE_BY_ID_QUERY, COUNT_QUERY, batchSize);
     }
 

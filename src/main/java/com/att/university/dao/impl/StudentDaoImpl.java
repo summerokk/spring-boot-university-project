@@ -19,7 +19,8 @@ public class StudentDaoImpl extends AbstractDaoImpl<Student> implements StudentD
     private static final String COUNT_QUERY = "select count(id) from Student";
 
     @Autowired
-    public StudentDaoImpl(EntityManager entityManager, @Value("${hibernate.batch_size}") int batchSize) {
+    public StudentDaoImpl(EntityManager entityManager,
+                          @Value("${spring.jpa.properties.hibernate.jdbc.batch_size}") int batchSize) {
         super(entityManager, FIND_ALL_QUERY, DELETE_BY_ID_QUERY, COUNT_QUERY, batchSize);
     }
 
