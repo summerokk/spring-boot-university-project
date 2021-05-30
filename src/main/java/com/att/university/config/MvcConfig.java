@@ -1,5 +1,6 @@
 package com.att.university.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ResourceBundleMessageSource;
@@ -13,6 +14,12 @@ import java.util.Locale;
 
 @Configuration
 public class MvcConfig implements WebMvcConfigurer {
+    @Value("${web.encoding}")
+    private String defaultEncoding;
+
+    @Value("${language.param}")
+    private String languageGetParam;
+
     @Bean
     public LocaleResolver localeResolver() {
         SessionLocaleResolver slr = new SessionLocaleResolver();
@@ -23,7 +30,7 @@ public class MvcConfig implements WebMvcConfigurer {
     @Bean
     public LocaleChangeInterceptor localeChangeInterceptor() {
         LocaleChangeInterceptor lci = new LocaleChangeInterceptor();
-        lci.setParamName("lang");
+        lci.setParamName(languageGetParam);
         return lci;
     }
 
@@ -31,7 +38,7 @@ public class MvcConfig implements WebMvcConfigurer {
     public ResourceBundleMessageSource messageSource() {
         ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
         messageSource.setBasename("language/messages");
-        messageSource.setDefaultEncoding("UTF-8");
+        messageSource.setDefaultEncoding(defaultEncoding);
 
         return messageSource;
     }
