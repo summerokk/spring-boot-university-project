@@ -20,7 +20,6 @@ ALTER SEQUENCE teachers_id_seq RESTART WITH 6;
 ALTER SEQUENCE students_id_seq RESTART WITH 6;
 ALTER SEQUENCE science_degrees_id_seq RESTART WITH 6;
 
-
 INSERT INTO buildings(id, address)
 VALUES (1, 'Kirova 32');
 INSERT INTO buildings(id, address)
