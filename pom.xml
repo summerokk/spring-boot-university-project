@@ -17,28 +17,9 @@
     <name>University</name>
 
     <properties>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <thymeleaf.version>3.0.12.RELEASE</thymeleaf.version>
-        <thymeleaf.java8time.version>3.0.4.RELEASE</thymeleaf.java8time.version>
-        <spring.mvc.version>5.3.3</spring.mvc.version>
-        <h2.version>1.4.200</h2.version>
-        <hibernate.version>5.4.28.Final</hibernate.version>
-        <hikari.version>3.2.0</hikari.version>
-        <postgres.version>42.2.18</postgres.version>
-        <spring.version>5.3.3</spring.version>
-        <spring.security.version>5.4.0</spring.security.version>
-        <commons.dbcp.version>1.4</commons.dbcp.version>
-        <assertj.version>3.19.0</assertj.version>
-        <mockito.version>2.23.4</mockito.version>
-        <junit.version>5.7.0</junit.version>
-        <logback.version>1.2.3</logback.version>
+        <java.version>1.8</java.version>
         <projectlombok.version>1.18.18</projectlombok.version>
-        <javax.servlet.api>4.0.1</javax.servlet.api>
-        <hamcrest.library.version>2.2</hamcrest.library.version>
         <itext.version>7.1.7</itext.version>
-        <spring.data.jpa.version>2.5.1</spring.data.jpa.version>
     </properties>
 
     <dependencies>
