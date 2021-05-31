@@ -3,6 +3,8 @@ package com.att.university.service;
 import com.att.university.entity.Teacher;
 import com.att.university.request.person.teacher.TeacherRegisterRequest;
 import com.att.university.request.person.teacher.TeacherUpdateRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -13,15 +15,13 @@ public interface TeacherService {
 
     boolean login(String email, String password);
 
-    List<Teacher> findAll(int page, int count);
+    Page<Teacher> findAll(Pageable pageable);
 
     List<Teacher> findAll();
 
     Teacher findById(Integer id);
 
     Teacher findByEmail(String email);
-
-    int count();
 
     void deleteById(Integer id);
 }

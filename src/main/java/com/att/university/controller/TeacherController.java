@@ -12,6 +12,8 @@ import com.att.university.service.TeacherService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -95,14 +97,9 @@ public class TeacherController {
 
     @GetMapping("/{page}/{count}")
     public String showAllTeacher(@PathVariable("page") int page, @PathVariable("count") int count, Model model) {
-        List<Teacher> teachers = teacherService.findAll(page, count);
-
-        int countPages = (int) Math.ceil((double) teacherService.count() / count);
+        Page<Teacher> teachers = teacherService.findAll(PageRequest.of(page - 1, count));
 
         model.addAttribute("teachers", teachers);
-        model.addAttribute("countPages", countPages);
-        model.addAttribute("page", page);
-        model.addAttribute("count", count);
 
         return "teachers/all";
     }
