@@ -1,7 +1,7 @@
 package com.att.university.service.impl;
 
-import com.att.university.dao.BuildingDao;
-import com.att.university.dao.ClassroomDao;
+import com.att.university.dao.BuildingRepository;
+import com.att.university.dao.ClassroomRepository;
 import com.att.university.entity.Building;
 import com.att.university.entity.Classroom;
 import com.att.university.exception.dao.BuildingNotFoundException;
@@ -28,8 +28,8 @@ public class ClassroomServiceImpl implements ClassroomService {
     private static final String CLASSROOM_NOT_FOUND = "Classroom with Id %d is not found";
     private static final String BUILDING_RANK_NOT_FOUND = "Building with Id %d is not found";
 
-    private final ClassroomDao classroomDao;
-    private final BuildingDao buildingDao;
+    private final ClassroomRepository classroomRepository;
+    private final BuildingRepository buildingRepository;
     private final ClassroomUpdateValidator updateValidator;
     private final ClassroomAddValidator addValidator;
     private final ClassroomAddRequestMapper addRequestMapper;
@@ -37,12 +37,12 @@ public class ClassroomServiceImpl implements ClassroomService {
 
     @Override
     public List<Classroom> findAll() {
-        return classroomDao.findAll(1, classroomDao.count());
+        return classroomRepository.findAll();
     }
 
     @Override
     public Classroom findById(Integer id) {
-        return classroomDao.findById(id)
+        return classroomRepository.findById(id)
                 .orElseThrow(() -> new ClassroomNotFoundException(String.format(CLASSROOM_NOT_FOUND, id)));
     }
 
@@ -53,11 +53,11 @@ public class ClassroomServiceImpl implements ClassroomService {
 
         addValidator.validate(addRequest);
 
-        Building building = buildingDao.findById(addRequest.getBuildingId())
+        Building building = buildingRepository.findById(addRequest.getBuildingId())
                 .orElseThrow(() -> new BuildingNotFoundException(
                         String.format(BUILDING_RANK_NOT_FOUND, addRequest.getBuildingId())));
 
-        classroomDao.save(addRequestMapper.convertToEntity(addRequest, building));
+        classroomRepository.save(addRequestMapper.convertToEntity(addRequest, building));
     }
 
     @Override
@@ -65,26 +65,26 @@ public class ClassroomServiceImpl implements ClassroomService {
     public void update(ClassroomUpdateRequest updateRequest) {
         updateValidator.validate(updateRequest);
 
-        if (!classroomDao.findById(updateRequest.getId()).isPresent()) {
+        if (!classroomRepository.findById(updateRequest.getId()).isPresent()) {
             throw new ClassroomNotFoundException(String.format(CLASSROOM_NOT_FOUND, updateRequest.getId()));
         }
 
-        Building building = buildingDao.findById(updateRequest.getBuildingId())
+        Building building = buildingRepository.findById(updateRequest.getBuildingId())
                 .orElseThrow(() -> new BuildingNotFoundException(
                         String.format(BUILDING_RANK_NOT_FOUND, updateRequest.getBuildingId())));
 
-        classroomDao.update(updateRequestMapper.convertToEntity(updateRequest, building));
+        classroomRepository.save(updateRequestMapper.convertToEntity(updateRequest, building));
     }
 
     @Override
     @Transactional
     public void deleteById(Integer id) {
-        if (!classroomDao.findById(id).isPresent()) {
+        if (!classroomRepository.findById(id).isPresent()) {
             throw new ClassroomNotFoundException(String.format(CLASSROOM_NOT_FOUND, id));
         }
 
         log.debug("Classroom deleting with id {}", id);
 
-        classroomDao.deleteById(id);
+        classroomRepository.deleteById(id);
     }
 }

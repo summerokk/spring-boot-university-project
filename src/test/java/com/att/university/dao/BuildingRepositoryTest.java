@@ -20,9 +20,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @TestPropertySource("/application-test.properties")
 @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = {"classpath:TestData.sql"})
-class BuildingDaoTest {
+class BuildingRepositoryTest {
     @Autowired
-    private BuildingDao buildingDao;
+    private BuildingRepository buildingRepository;
 
     @Test
     void findAllWithParamsShouldReturnResultWhenDatabaseHaveBuildings() {
@@ -32,7 +32,7 @@ class BuildingDaoTest {
                 new Building(3, "Pertova 2")
         );
 
-        assertThat(buildingDao.findAll(1, buildingDao.count())).isEqualTo(expected);
+        assertThat(buildingRepository.findAll()).isEqualTo(expected);
     }
 
     @Test
@@ -43,13 +43,13 @@ class BuildingDaoTest {
                 new Building(3, "Pertova 2")
         );
 
-        assertThat(buildingDao.findAll()).isEqualTo(expected);
+        assertThat(buildingRepository.findAll()).isEqualTo(expected);
     }
 
     @Test
     void findByIdShouldReturnResultWhenDatabaseHaveBuildings() {
         Building expected = new Building(1, "Kirova 32");
-        Optional<Building> building = buildingDao.findById(1);
+        Optional<Building> building = buildingRepository.findById(1);
 
         assertThat(building).isPresent().hasValue(expected);
     }
@@ -58,18 +58,18 @@ class BuildingDaoTest {
     void countShouldReturnResultWhenDatabaseHaveBuildings() {
         int expected = 3;
 
-        assertThat(buildingDao.count()).isEqualTo(expected);
+        assertThat(buildingRepository.count()).isEqualTo(expected);
     }
 
     @Test
     @Transactional
     void saveShouldReturnResultWhenDatabaseHaveBuildings() {
         Building building = new Building(null, "new");
-        int currentCount = buildingDao.count();
+        long currentCount = buildingRepository.count();
 
-        buildingDao.save(building);
+        buildingRepository.save(building);
 
-        assertThat(buildingDao.count()).isEqualTo(currentCount + 1);
+        assertThat(buildingRepository.count()).isEqualTo(currentCount + 1);
     }
 
     @Test
@@ -81,28 +81,28 @@ class BuildingDaoTest {
                 new Building(null, "Kirova 32")
         );
 
-        int currentCount = buildingDao.count();
-        buildingDao.saveAll(buildings);
+        long currentCount = buildingRepository.count();
+        buildingRepository.saveAll(buildings);
 
-        assertThat(buildingDao.count()).isEqualTo(currentCount + 3);
+        assertThat(buildingRepository.count()).isEqualTo(currentCount + 3);
     }
 
     @Test
     @Transactional
     void deleteByIdShouldReturnResultWhenDatabaseHaveBuildings() {
-        int currentCount = buildingDao.count();
-        buildingDao.deleteById(3);
+        long currentCount = buildingRepository.count();
+        buildingRepository.deleteById(3);
 
-        assertThat(buildingDao.count()).isEqualTo(currentCount - 1);
+        assertThat(buildingRepository.count()).isEqualTo(currentCount - 1);
     }
 
     @Test
     @Transactional
     void updateShouldReturnResultWhenDatabaseHaveBuildings() {
         Building building = new Building(1, "updateAddress");
-        buildingDao.update(building);
+        buildingRepository.save(building);
 
-        Optional<Building> updateBuilding = buildingDao.findById(1);
+        Optional<Building> updateBuilding = buildingRepository.findById(1);
 
         assertThat(updateBuilding).isPresent();
         assertThat(updateBuilding.get().getAddress()).isEqualTo("updateAddress");

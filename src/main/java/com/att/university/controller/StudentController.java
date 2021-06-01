@@ -10,6 +10,8 @@ import com.att.university.service.StudentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -88,14 +90,9 @@ public class StudentController {
 
     @GetMapping("/{page}/{count}")
     public String showAllStudents(@PathVariable("page") int page, @PathVariable("count") int count, Model model) {
-        List<Student> students = studentService.findAll(page, count);
-
-        int countPages = (int) Math.ceil((double) studentService.count() / count);
+        Page<Student> students = studentService.findAll(PageRequest.of(page - 1, count));
 
         model.addAttribute("students", students);
-        model.addAttribute("countPages", countPages);
-        model.addAttribute("page", page);
-        model.addAttribute("count", count);
 
         return "students/all";
     }

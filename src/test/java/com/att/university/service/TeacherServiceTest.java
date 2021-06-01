@@ -1,8 +1,8 @@
 package com.att.university.service;
 
-import com.att.university.dao.AcademicRankDao;
-import com.att.university.dao.ScienceDegreeDao;
-import com.att.university.dao.TeacherDao;
+import com.att.university.dao.AcademicRankRepository;
+import com.att.university.dao.ScienceDegreeRepository;
+import com.att.university.dao.TeacherRepository;
 import com.att.university.entity.AcademicRank;
 import com.att.university.entity.ScienceDegree;
 import com.att.university.entity.Teacher;
@@ -19,9 +19,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -37,13 +41,13 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class TeacherServiceTest {
     @Mock
-    private TeacherDao teacherDao;
+    private TeacherRepository teacherRepository;
 
     @Mock
-    private AcademicRankDao academicRankDao;
+    private AcademicRankRepository academicRankRepository;
 
     @Mock
-    private ScienceDegreeDao scienceDegreeDao;
+    private ScienceDegreeRepository scienceDegreeRepository;
 
     @Mock
     private PasswordEncoder passwordEncoder;
@@ -65,35 +69,37 @@ class TeacherServiceTest {
 
     @Test
     void findAllPaginationShouldNotThrowException() {
-        when(teacherDao.findAll(anyInt(), anyInt())).thenReturn(new ArrayList<>());
+        Page<Teacher> teachers = new PageImpl<>(Collections.singletonList(generateTeacher()));
 
-        assertDoesNotThrow(() -> teacherService.findAll(1, 3));
+        when(teacherRepository.findAll(any(PageRequest.class))).thenReturn(teachers);
 
-        verify(teacherDao).findAll(anyInt(), anyInt());
+        assertDoesNotThrow(() -> teacherService.findAll(PageRequest.of(1, 2)));
+
+        verify(teacherRepository).findAll(any(PageRequest.class));
     }
 
     @Test
     void findByIdShouldThrowExceptionWhenTeacherDoesNotExist() {
         Integer id = 4;
 
-        when(teacherDao.findById(anyInt())).thenReturn(Optional.empty());
+        when(teacherRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(PersonNotFoundException.class, () -> teacherService.findById(id));
 
-        verify(teacherDao).findById(anyInt());
-        verifyNoMoreInteractions(teacherDao);
+        verify(teacherRepository).findById(anyInt());
+        verifyNoMoreInteractions(teacherRepository);
     }
 
     @Test
     void findByIdShouldReturnTeacherWhenTeacherExists() {
         Integer id = 4;
 
-        when(teacherDao.findById(anyInt())).thenReturn(Optional.of(generateTeacher()));
+        when(teacherRepository.findById(anyInt())).thenReturn(Optional.of(generateTeacher()));
 
         teacherService.findById(id);
 
-        verify(teacherDao).findById(anyInt());
-        verifyNoMoreInteractions(teacherDao);
+        verify(teacherRepository).findById(anyInt());
+        verifyNoMoreInteractions(teacherRepository);
     }
 
     @Test
@@ -102,9 +108,9 @@ class TeacherServiceTest {
         final Teacher teacher = generateTeacher();
 
         doNothing().when(teacherRegisterValidator).validate(any(TeacherRegisterRequest.class));
-        when(teacherDao.findByEmail(teacherRegisterRequest.getEmail())).thenReturn(Optional.empty());
-        when(scienceDegreeDao.findById(anyInt())).thenReturn(Optional.of(generateDegree()));
-        when(academicRankDao.findById(anyInt())).thenReturn(Optional.of(generateRank()));
+        when(teacherRepository.findByEmail(teacherRegisterRequest.getEmail())).thenReturn(Optional.empty());
+        when(scienceDegreeRepository.findById(anyInt())).thenReturn(Optional.of(generateDegree()));
+        when(academicRankRepository.findById(anyInt())).thenReturn(Optional.of(generateRank()));
         when(registerRequestMapper.convertToEntity(
                 any(TeacherRegisterRequest.class), anyString(), any(AcademicRank.class), any(ScienceDegree.class))
         ).thenReturn(teacher);
@@ -113,10 +119,10 @@ class TeacherServiceTest {
         teacherService.register(teacherRegisterRequest);
 
         verify(teacherRegisterValidator).validate(any(TeacherRegisterRequest.class));
-        verify(teacherDao).findByEmail(anyString());
-        verify(scienceDegreeDao).findById(anyInt());
-        verify(academicRankDao).findById(anyInt());
-        verify(teacherDao).save(any(Teacher.class));
+        verify(teacherRepository).findByEmail(anyString());
+        verify(scienceDegreeRepository).findById(anyInt());
+        verify(academicRankRepository).findById(anyInt());
+        verify(teacherRepository).save(any(Teacher.class));
     }
 
     @Test
@@ -125,13 +131,13 @@ class TeacherServiceTest {
         final Teacher teacher = generateTeacher();
 
         doNothing().when(teacherRegisterValidator).validate(any(TeacherRegisterRequest.class));
-        when(teacherDao.findByEmail(teacher.getEmail())).thenReturn(Optional.of(teacher));
+        when(teacherRepository.findByEmail(teacher.getEmail())).thenReturn(Optional.of(teacher));
 
         assertThrows(RuntimeException.class, () -> teacherService.register(registerRequest));
 
         verify(teacherRegisterValidator).validate(any(TeacherRegisterRequest.class));
-        verify(teacherDao).findByEmail(anyString());
-        verifyNoMoreInteractions(teacherDao, teacherRegisterValidator);
+        verify(teacherRepository).findByEmail(anyString());
+        verifyNoMoreInteractions(teacherRepository, teacherRegisterValidator);
     }
 
     @Test
@@ -139,15 +145,15 @@ class TeacherServiceTest {
         final TeacherRegisterRequest registerRequest = generateRegisterRequest();
 
         doNothing().when(teacherRegisterValidator).validate(any(TeacherRegisterRequest.class));
-        when(teacherDao.findByEmail(registerRequest.getEmail())).thenReturn(Optional.empty());
-        when(academicRankDao.findById(anyInt())).thenReturn(Optional.empty());
+        when(teacherRepository.findByEmail(registerRequest.getEmail())).thenReturn(Optional.empty());
+        when(academicRankRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(RuntimeException.class, () -> teacherService.register(registerRequest));
 
         verify(teacherRegisterValidator).validate(any(TeacherRegisterRequest.class));
-        verify(teacherDao).findByEmail(anyString());
-        verify(academicRankDao).findById(anyInt());
-        verifyNoMoreInteractions(teacherDao, teacherRegisterValidator, academicRankDao, scienceDegreeDao);
+        verify(teacherRepository).findByEmail(anyString());
+        verify(academicRankRepository).findById(anyInt());
+        verifyNoMoreInteractions(teacherRepository, teacherRegisterValidator, academicRankRepository, scienceDegreeRepository);
     }
 
     @Test
@@ -155,17 +161,17 @@ class TeacherServiceTest {
         final TeacherRegisterRequest registerRequest = generateRegisterRequest();
 
         doNothing().when(teacherRegisterValidator).validate(any(TeacherRegisterRequest.class));
-        when(teacherDao.findByEmail(registerRequest.getEmail())).thenReturn(Optional.empty());
-        when(academicRankDao.findById(anyInt())).thenReturn(Optional.of(generateRank()));
-        when(scienceDegreeDao.findById(anyInt())).thenReturn(Optional.empty());
+        when(teacherRepository.findByEmail(registerRequest.getEmail())).thenReturn(Optional.empty());
+        when(academicRankRepository.findById(anyInt())).thenReturn(Optional.of(generateRank()));
+        when(scienceDegreeRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(RuntimeException.class, () -> teacherService.register(registerRequest));
 
         verify(teacherRegisterValidator).validate(any(TeacherRegisterRequest.class));
-        verify(teacherDao).findByEmail(anyString());
-        verify(academicRankDao).findById(anyInt());
-        verify(scienceDegreeDao).findById(anyInt());
-        verifyNoMoreInteractions(teacherDao, teacherRegisterValidator, academicRankDao, scienceDegreeDao);
+        verify(teacherRepository).findByEmail(anyString());
+        verify(academicRankRepository).findById(anyInt());
+        verify(scienceDegreeRepository).findById(anyInt());
+        verifyNoMoreInteractions(teacherRepository, teacherRegisterValidator, academicRankRepository, scienceDegreeRepository);
     }
 
     @Test
@@ -174,9 +180,9 @@ class TeacherServiceTest {
         final Teacher teacher = generateTeacher();
 
         doNothing().when(teacherUpdateValidator).validate(any(TeacherUpdateRequest.class));
-        when(teacherDao.findById(teacher.getId())).thenReturn(Optional.of(teacher));
-        when(scienceDegreeDao.findById(anyInt())).thenReturn(Optional.of(generateDegree()));
-        when(academicRankDao.findById(anyInt())).thenReturn(Optional.of(generateRank()));
+        when(teacherRepository.findById(teacher.getId())).thenReturn(Optional.of(teacher));
+        when(scienceDegreeRepository.findById(anyInt())).thenReturn(Optional.of(generateDegree()));
+        when(academicRankRepository.findById(anyInt())).thenReturn(Optional.of(generateRank()));
         when(updateRequestMapper.convertToEntity(
                 any(TeacherUpdateRequest.class), any(AcademicRank.class), any(ScienceDegree.class))
         ).thenReturn(teacher);
@@ -184,10 +190,10 @@ class TeacherServiceTest {
         teacherService.update(teacherUpdateRequest);
 
         verify(teacherUpdateValidator).validate(any(TeacherUpdateRequest.class));
-        verify(teacherDao).findById(anyInt());
-        verify(scienceDegreeDao).findById(anyInt());
-        verify(academicRankDao).findById(anyInt());
-        verify(teacherDao).update(any(Teacher.class));
+        verify(teacherRepository).findById(anyInt());
+        verify(scienceDegreeRepository).findById(anyInt());
+        verify(academicRankRepository).findById(anyInt());
+        verify(teacherRepository).save(any(Teacher.class));
     }
 
     @Test
@@ -196,17 +202,17 @@ class TeacherServiceTest {
         final Teacher teacher = generateTeacher();
 
         doNothing().when(teacherUpdateValidator).validate(any(TeacherUpdateRequest.class));
-        when(teacherDao.findById(teacherUpdateRequest.getId())).thenReturn(Optional.of(teacher));
-        when(academicRankDao.findById(anyInt())).thenReturn(Optional.of(generateRank()));
-        when(scienceDegreeDao.findById(anyInt())).thenReturn(Optional.empty());
+        when(teacherRepository.findById(teacherUpdateRequest.getId())).thenReturn(Optional.of(teacher));
+        when(academicRankRepository.findById(anyInt())).thenReturn(Optional.of(generateRank()));
+        when(scienceDegreeRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(RuntimeException.class, () -> teacherService.update(teacherUpdateRequest));
 
         verify(teacherUpdateValidator).validate(any(TeacherUpdateRequest.class));
-        verify(teacherDao).findById(anyInt());
-        verify(academicRankDao).findById(anyInt());
-        verify(scienceDegreeDao).findById(anyInt());
-        verifyNoMoreInteractions(teacherDao, teacherUpdateValidator, academicRankDao, scienceDegreeDao);
+        verify(teacherRepository).findById(anyInt());
+        verify(academicRankRepository).findById(anyInt());
+        verify(scienceDegreeRepository).findById(anyInt());
+        verifyNoMoreInteractions(teacherRepository, teacherUpdateValidator, academicRankRepository, scienceDegreeRepository);
     }
 
     @Test
@@ -215,15 +221,15 @@ class TeacherServiceTest {
         final Teacher teacher = generateTeacher();
 
         doNothing().when(teacherUpdateValidator).validate(any(TeacherUpdateRequest.class));
-        when(teacherDao.findById(teacherUpdateRequest.getId())).thenReturn(Optional.of(teacher));
-        when(academicRankDao.findById(anyInt())).thenReturn(Optional.empty());
+        when(teacherRepository.findById(teacherUpdateRequest.getId())).thenReturn(Optional.of(teacher));
+        when(academicRankRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(RuntimeException.class, () -> teacherService.update(teacherUpdateRequest));
 
         verify(teacherUpdateValidator).validate(any(TeacherUpdateRequest.class));
-        verify(teacherDao).findById(anyInt());
-        verify(academicRankDao).findById(anyInt());
-        verifyNoMoreInteractions(teacherDao, teacherUpdateValidator, academicRankDao, scienceDegreeDao);
+        verify(teacherRepository).findById(anyInt());
+        verify(academicRankRepository).findById(anyInt());
+        verifyNoMoreInteractions(teacherRepository, teacherUpdateValidator, academicRankRepository, scienceDegreeRepository);
     }
 
     @Test
@@ -231,13 +237,13 @@ class TeacherServiceTest {
         final TeacherUpdateRequest teacherUpdateRequest = generateUpdateRequest();
 
         doNothing().when(teacherUpdateValidator).validate(any(TeacherUpdateRequest.class));
-        when(teacherDao.findById(teacherUpdateRequest.getId())).thenReturn(Optional.empty());
+        when(teacherRepository.findById(teacherUpdateRequest.getId())).thenReturn(Optional.empty());
 
         assertThrows(RuntimeException.class, () -> teacherService.update(teacherUpdateRequest));
 
         verify(teacherUpdateValidator).validate(any(TeacherUpdateRequest.class));
-        verify(teacherDao).findById(anyInt());
-        verifyNoMoreInteractions(teacherDao, teacherUpdateValidator);
+        verify(teacherRepository).findById(anyInt());
+        verifyNoMoreInteractions(teacherRepository, teacherUpdateValidator);
     }
 
     @Test
@@ -247,11 +253,11 @@ class TeacherServiceTest {
 
         final Teacher teacher = generateTeacher();
 
-        when(teacherDao.findByEmail(email)).thenReturn(Optional.of(teacher));
+        when(teacherRepository.findByEmail(email)).thenReturn(Optional.of(teacher));
 
         teacherService.login(email, password);
 
-        verify(teacherDao).findByEmail(anyString());
+        verify(teacherRepository).findByEmail(anyString());
         verify(passwordEncoder).matches(anyString(), anyString());
     }
 
@@ -260,75 +266,66 @@ class TeacherServiceTest {
         String email = "test@test.ru";
         String password = "12345678";
 
-        when(teacherDao.findByEmail(anyString())).thenReturn(Optional.empty());
+        when(teacherRepository.findByEmail(anyString())).thenReturn(Optional.empty());
 
         assertThrows(RuntimeException.class, () -> teacherService.login(email, password));
 
-        verify(teacherDao).findByEmail(anyString());
-        verifyNoMoreInteractions(passwordEncoder, teacherDao);
+        verify(teacherRepository).findByEmail(anyString());
+        verifyNoMoreInteractions(passwordEncoder, teacherRepository);
     }
 
     @Test
     void findAllShouldNotThrowException() {
-        when(teacherDao.findAll()).thenReturn(new ArrayList<>());
+        when(teacherRepository.findAll()).thenReturn(new ArrayList<>());
 
         assertDoesNotThrow(() -> teacherService.findAll());
 
-        verify(teacherDao).findAll();
+        verify(teacherRepository).findAll();
     }
-    
+
     @Test
     void findByEmailShouldThrowExceptionWhenStudentDoesNotExist() {
         String email = "test@test.ru";
 
-        when(teacherDao.findByEmail(anyString())).thenReturn(Optional.empty());
+        when(teacherRepository.findByEmail(anyString())).thenReturn(Optional.empty());
 
         assertThrows(PersonNotFoundException.class, () -> teacherService.findByEmail(email));
 
-        verify(teacherDao).findByEmail(anyString());
-        verifyNoMoreInteractions(teacherDao);
+        verify(teacherRepository).findByEmail(anyString());
+        verifyNoMoreInteractions(teacherRepository);
     }
 
     @Test
     void findByEmailShouldReturnStudentWhenStudentExists() {
         String email = "test@test.ru";
 
-        when(teacherDao.findByEmail(anyString())).thenReturn(Optional.of(generateTeacher()));
+        when(teacherRepository.findByEmail(anyString())).thenReturn(Optional.of(generateTeacher()));
 
         assertDoesNotThrow(() -> teacherService.findByEmail(email));
 
-        verify(teacherDao).findByEmail(anyString());
-        verifyNoMoreInteractions(teacherDao);
-    }
-
-    @Test
-    void countShouldNotThrowException() {
-        when(teacherDao.count()).thenReturn(1);
-
-        assertDoesNotThrow(() -> teacherService.count());
-
-        verify(teacherDao).count();
+        verify(teacherRepository).findByEmail(anyString());
+        verifyNoMoreInteractions(teacherRepository);
     }
 
     @Test
     void deleteTeacherShouldThrowNotFoundExceptionIfTeacherNotFound() {
-        when(teacherDao.findById(anyInt())).thenReturn(Optional.empty());
+        when(teacherRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(PersonNotFoundException.class, () -> teacherService.deleteById(1));
 
-        verify(teacherDao).findById(anyInt());
-        verifyNoMoreInteractions(teacherDao);
+        verify(teacherRepository).findById(anyInt());
+        verifyNoMoreInteractions(teacherRepository);
     }
 
     @Test
     void deleteTeacherShouldNotThrowExceptionIfTeacherIsFound() {
-        when(teacherDao.findById(anyInt())).thenReturn(Optional.of(generateTeacher()));
+        when(teacherRepository.findById(anyInt())).thenReturn(Optional.of(generateTeacher()));
 
         teacherService.deleteById(1);
 
-        verify(teacherDao).findById(anyInt());
-        verify(teacherDao).deleteById(anyInt());
-        verifyNoMoreInteractions(teacherDao);
+        verify(teacherRepository).findById(anyInt());
+        verify(teacherRepository).deleteById(anyInt());
+        verifyNoMoreInteractions(teacherRepository);
     }
 
     private TeacherRegisterRequest generateRegisterRequest() {
@@ -337,7 +334,7 @@ class TeacherServiceTest {
                 .withLastName("test")
                 .withEmail("test@test.ru")
                 .withPassword("1234567890")
-                .withLinkedin("http://test.ru")
+                .withLinkedin("https://test.ru")
                 .withAcademicRankId(1)
                 .withScienceDegreeId(1)
                 .build();
@@ -349,7 +346,7 @@ class TeacherServiceTest {
                 .withFirstName("test")
                 .withLastName("test")
                 .withEmail("test@test.ru")
-                .withLinkedin("http://test.ru")
+                .withLinkedin("https://test.ru")
                 .withAcademicRankId(1)
                 .withScienceDegreeId(1)
                 .build();
@@ -365,7 +362,7 @@ class TeacherServiceTest {
                 .withLastName("test")
                 .withEmail("test@test.ru")
                 .withPassword("1234567890")
-                .withLinkedin("http://test.ru")
+                .withLinkedin("https://test.ru")
                 .withAcademicRank(academicRank)
                 .withScienceDegree(scienceDegree)
                 .build();

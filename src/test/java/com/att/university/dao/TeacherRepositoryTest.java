@@ -22,9 +22,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @TestPropertySource("/application-test.properties")
 @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = {"classpath:TestData.sql"})
-class TeacherDaoTest {
+class TeacherRepositoryTest {
     @Autowired
-    private TeacherDao teacherDao;
+    private TeacherRepository teacherRepository;
 
     @Test
     void findAllShouldReturnResultWhenDatabaseHaveTeachers() {
@@ -64,7 +64,7 @@ class TeacherDaoTest {
                         .build()
         );
 
-        assertThat(teacherDao.findAll(1, teacherDao.count())).isEqualTo(expected);
+        assertThat(teacherRepository.findAll()).isEqualTo(expected);
     }
 
     @Test
@@ -83,7 +83,7 @@ class TeacherDaoTest {
                 .withLinkedin("https://link.ru")
                 .build();
 
-        Optional<Teacher> actual = teacherDao.findById(1);
+        Optional<Teacher> actual = teacherRepository.findById(1);
 
         assertThat(actual).isPresent().hasValue(expected);
     }
@@ -92,7 +92,7 @@ class TeacherDaoTest {
     void countShouldReturnResultWhenDatabaseHaveTeachers() {
         int expected = 3;
 
-        assertThat(teacherDao.count()).isEqualTo(expected);
+        assertThat(teacherRepository.count()).isEqualTo(expected);
     }
 
     @Test
@@ -111,11 +111,11 @@ class TeacherDaoTest {
                 .withLinkedin("https://link.ru")
                 .build();
 
-        int currentCount = teacherDao.count();
+        long currentCount = teacherRepository.count();
 
-        teacherDao.save(newTeacher);
+        teacherRepository.save(newTeacher);
 
-        assertThat(teacherDao.count()).isEqualTo(currentCount + 1);
+        assertThat(teacherRepository.count()).isEqualTo(currentCount + 1);
     }
 
     @Test
@@ -145,19 +145,19 @@ class TeacherDaoTest {
                         .build()
         );
 
-        int currentCount = teacherDao.count();
-        teacherDao.saveAll(newTeachers);
+        long currentCount = teacherRepository.count();
+        teacherRepository.saveAll(newTeachers);
 
-        assertThat(teacherDao.count()).isEqualTo(currentCount + 2);
+        assertThat(teacherRepository.count()).isEqualTo(currentCount + 2);
     }
 
     @Test
     @Transactional
     void deleteByIdShouldReturnResultWhenDatabaseHaveTeachers() {
-        int currentCount = teacherDao.count();
-        teacherDao.deleteById(3);
+        long currentCount = teacherRepository.count();
+        teacherRepository.deleteById(3);
 
-        assertThat(teacherDao.count()).isEqualTo(currentCount - 1);
+        assertThat(teacherRepository.count()).isEqualTo(currentCount - 1);
     }
 
     @Test
@@ -177,9 +177,9 @@ class TeacherDaoTest {
                 .withLinkedin("https://link.ru")
                 .build();
 
-        teacherDao.update(newTeacher);
+        teacherRepository.save(newTeacher);
 
-        Optional<Teacher> updateTeacher = teacherDao.findById(1);
+        Optional<Teacher> updateTeacher = teacherRepository.findById(1);
 
         assertThat(updateTeacher).isPresent();
         assertThat(updateTeacher.get().getFirstName()).isEqualTo("update");
@@ -202,7 +202,7 @@ class TeacherDaoTest {
                 .withLinkedin("https://link.ru")
                 .build();
 
-        Optional<Teacher> actual = teacherDao.findByEmail("tolof234@tmail.com");
+        Optional<Teacher> actual = teacherRepository.findByEmail("tolof234@tmail.com");
 
         assertThat(actual).isPresent().hasValue(expected);
     }

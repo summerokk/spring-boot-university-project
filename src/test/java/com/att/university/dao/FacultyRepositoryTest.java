@@ -20,9 +20,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @TestPropertySource("/application-test.properties")
 @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = {"classpath:TestData.sql"})
-class FacultyDaoTest {
+class FacultyRepositoryTest {
     @Autowired
-    private FacultyDao facultyDao;
+    private FacultyRepository facultyRepository;
 
     @Test
     void findAllShouldReturnResultWhenDatabaseHaveFaculties() {
@@ -33,13 +33,13 @@ class FacultyDaoTest {
                 new Faculty(4, "Geography")
         );
 
-        assertThat(facultyDao.findAll(1, facultyDao.count())).isEqualTo(expected);
+        assertThat(facultyRepository.findAll()).isEqualTo(expected);
     }
 
     @Test
     void findByIdShouldReturnResultWhenDatabaseHaveFaculties() {
         Faculty expected = new Faculty(1, "School of Visual arts");
-        Optional<Faculty> actual = facultyDao.findById(1);
+        Optional<Faculty> actual = facultyRepository.findById(1);
 
         assertThat(actual).isPresent().hasValue(expected);
     }
@@ -48,18 +48,18 @@ class FacultyDaoTest {
     void countShouldReturnResultWhenDatabaseHaveFaculties() {
         int expected = 4;
 
-        assertThat(facultyDao.count()).isEqualTo(expected);
+        assertThat(facultyRepository.count()).isEqualTo(expected);
     }
 
     @Test
     @Transactional
     void saveShouldReturnResultWhenDatabaseHaveFaculties() {
         Faculty newFaculty = new Faculty(null, "new");
-        int currentCount = facultyDao.count();
+        long currentCount = facultyRepository.count();
 
-        facultyDao.save(newFaculty);
+        facultyRepository.save(newFaculty);
 
-        assertThat(facultyDao.count()).isEqualTo(currentCount + 1);
+        assertThat(facultyRepository.count()).isEqualTo(currentCount + 1);
     }
 
     @Test
@@ -70,28 +70,28 @@ class FacultyDaoTest {
                 new Faculty(null, "new")
         );
 
-        int currentCount = facultyDao.count();
-        facultyDao.saveAll(newFaculties);
+        long currentCount = facultyRepository.count();
+        facultyRepository.saveAll(newFaculties);
 
-        assertThat(facultyDao.count()).isEqualTo(currentCount + 2);
+        assertThat(facultyRepository.count()).isEqualTo(currentCount + 2);
     }
 
     @Test
     @Transactional
     void deleteByIdShouldReturnResultWhenDatabaseHaveFaculties() {
-        int currentCount = facultyDao.count();
-        facultyDao.deleteById(4);
+        long currentCount = facultyRepository.count();
+        facultyRepository.deleteById(4);
 
-        assertThat(facultyDao.count()).isEqualTo(currentCount - 1);
+        assertThat(facultyRepository.count()).isEqualTo(currentCount - 1);
     }
 
     @Test
     @Transactional
     void updateShouldReturnResultWhenDatabaseHaveFaculties() {
         Faculty newFaculty = new Faculty(1, "update");
-        facultyDao.update(newFaculty);
+        facultyRepository.save(newFaculty);
 
-        Optional<Faculty> updateFaculty = facultyDao.findById(1);
+        Optional<Faculty> updateFaculty = facultyRepository.findById(1);
 
         assertThat(updateFaculty).isPresent();
         assertThat(updateFaculty.get().getName()).isEqualTo("update");

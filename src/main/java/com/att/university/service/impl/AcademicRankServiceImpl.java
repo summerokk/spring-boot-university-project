@@ -1,6 +1,6 @@
 package com.att.university.service.impl;
 
-import com.att.university.dao.AcademicRankDao;
+import com.att.university.dao.AcademicRankRepository;
 import com.att.university.entity.AcademicRank;
 import com.att.university.exception.dao.AcademicRankNotFoundException;
 import com.att.university.mapper.academic_rank.AcademicRankAddRequestMapper;
@@ -24,7 +24,7 @@ import java.util.List;
 public class AcademicRankServiceImpl implements AcademicRankService {
     private static final String ACADEMIC_RANK_NOT_FOUND = "Academic rank with Id %d is not found";
 
-    private final AcademicRankDao academicRankDao;
+    private final AcademicRankRepository academicRankRepository;
     private final AcademicRankUpdateValidator updateValidator;
     private final AcademicRankAddValidator addValidator;
     private final AcademicRankAddRequestMapper addRequestMapper;
@@ -34,12 +34,12 @@ public class AcademicRankServiceImpl implements AcademicRankService {
     public List<AcademicRank> findAll() {
         log.debug("Find all academic ranks...");
 
-        return academicRankDao.findAll(1, academicRankDao.count());
+        return academicRankRepository.findAll();
     }
 
     @Override
     public AcademicRank findById(Integer id) {
-        return academicRankDao.findById(id)
+        return academicRankRepository.findById(id)
                 .orElseThrow(() -> new AcademicRankNotFoundException(String.format(ACADEMIC_RANK_NOT_FOUND, id)));
     }
 
@@ -50,7 +50,7 @@ public class AcademicRankServiceImpl implements AcademicRankService {
 
         addValidator.validate(addRequest);
 
-        academicRankDao.save(addRequestMapper.convertToEntity(addRequest));
+        academicRankRepository.save(addRequestMapper.convertToEntity(addRequest));
     }
 
     @Override
@@ -58,22 +58,22 @@ public class AcademicRankServiceImpl implements AcademicRankService {
     public void update(AcademicRankUpdateRequest updateRequest) {
         updateValidator.validate(updateRequest);
 
-        if (!academicRankDao.findById(updateRequest.getId()).isPresent()) {
+        if (!academicRankRepository.findById(updateRequest.getId()).isPresent()) {
             throw new AcademicRankNotFoundException(String.format(ACADEMIC_RANK_NOT_FOUND, updateRequest.getId()));
         }
 
-        academicRankDao.update(updateRequestMapper.convertToEntity(updateRequest));
+        academicRankRepository.save(updateRequestMapper.convertToEntity(updateRequest));
     }
 
     @Override
     @Transactional
     public void deleteById(Integer id) {
-        if (!academicRankDao.findById(id).isPresent()) {
+        if (!academicRankRepository.findById(id).isPresent()) {
             throw new AcademicRankNotFoundException(String.format(ACADEMIC_RANK_NOT_FOUND, id));
         }
 
         log.debug("Academic rank deleting with id {}", id);
 
-        academicRankDao.deleteById(id);
+        academicRankRepository.deleteById(id);
     }
 }

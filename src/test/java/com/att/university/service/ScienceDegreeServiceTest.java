@@ -1,6 +1,6 @@
 package com.att.university.service;
 
-import com.att.university.dao.ScienceDegreeDao;
+import com.att.university.dao.ScienceDegreeRepository;
 import com.att.university.entity.ScienceDegree;
 import com.att.university.exception.dao.ScienceDegreeNotFoundException;
 import com.att.university.mapper.science_degree.ScienceDegreeAddRequestMapper;
@@ -33,7 +33,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class ScienceDegreeServiceTest {
     @Mock
-    private ScienceDegreeDao scienceDegreeDao;
+    private ScienceDegreeRepository scienceDegreeRepository;
 
     @Mock
     private ScienceDegreeUpdateValidator updateValidator;
@@ -56,13 +56,13 @@ class ScienceDegreeServiceTest {
         final ScienceDegree ScienceDegree = generateScienceDegrees().get(0);
 
         doNothing().when(updateValidator).validate(any(ScienceDegreeUpdateRequest.class));
-        when(scienceDegreeDao.findById(ScienceDegree.getId())).thenReturn(Optional.empty());
+        when(scienceDegreeRepository.findById(ScienceDegree.getId())).thenReturn(Optional.empty());
 
         assertThrows(ScienceDegreeNotFoundException.class, () -> scienceDegreeService.update(request));
 
         verify(updateValidator).validate(any(ScienceDegreeUpdateRequest.class));
-        verify(scienceDegreeDao).findById(anyInt());
-        verifyNoMoreInteractions(scienceDegreeDao, updateValidator);
+        verify(scienceDegreeRepository).findById(anyInt());
+        verifyNoMoreInteractions(scienceDegreeRepository, updateValidator);
     }
 
     @Test
@@ -71,24 +71,24 @@ class ScienceDegreeServiceTest {
         final ScienceDegree ScienceDegree = generateScienceDegrees().get(0);
 
         doNothing().when(updateValidator).validate(any(ScienceDegreeUpdateRequest.class));
-        when(scienceDegreeDao.findById(ScienceDegree.getId())).thenReturn(Optional.of(generateScienceDegrees().get(0)));
+        when(scienceDegreeRepository.findById(ScienceDegree.getId())).thenReturn(Optional.of(generateScienceDegrees().get(0)));
         when(updateRequestMapper.convertToEntity(any(ScienceDegreeUpdateRequest.class))).thenReturn((generateScienceDegrees().get(0)));
 
         scienceDegreeService.update(request);
 
         verify(updateValidator).validate(any(ScienceDegreeUpdateRequest.class));
-        verify(scienceDegreeDao).findById(anyInt());
-        verify(scienceDegreeDao).update(any(ScienceDegree.class));
-        verifyNoMoreInteractions(scienceDegreeDao, updateValidator);
+        verify(scienceDegreeRepository).findById(anyInt());
+        verify(scienceDegreeRepository).save(any(ScienceDegree.class));
+        verifyNoMoreInteractions(scienceDegreeRepository, updateValidator);
     }
 
     @Test
     void findAllShouldNotThrowException() {
-        when(scienceDegreeDao.findAll(anyInt(), anyInt())).thenReturn(new ArrayList<>());
+        when(scienceDegreeRepository.findAll()).thenReturn(new ArrayList<>());
 
         assertDoesNotThrow(() -> scienceDegreeService.findAll());
 
-        verify(scienceDegreeDao).findAll(anyInt(), anyInt());
+        verify(scienceDegreeRepository).findAll();
     }
 
 
@@ -96,24 +96,24 @@ class ScienceDegreeServiceTest {
     void findByIdSShouldThrowNotFoundExceptionIfScienceDegreeNotFound() {
         Integer id = 4;
 
-        when(scienceDegreeDao.findById(anyInt())).thenReturn(Optional.empty());
+        when(scienceDegreeRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(ScienceDegreeNotFoundException.class, () -> scienceDegreeService.findById(id));
 
-        verify(scienceDegreeDao).findById(anyInt());
-        verifyNoMoreInteractions(scienceDegreeDao);
+        verify(scienceDegreeRepository).findById(anyInt());
+        verifyNoMoreInteractions(scienceDegreeRepository);
     }
 
     @Test
     void findByIdShouldReturnEntityWhenScienceDegreeExists() {
         Integer id = 4;
 
-        when(scienceDegreeDao.findById(anyInt())).thenReturn(Optional.of(generateScienceDegrees().get(0)));
+        when(scienceDegreeRepository.findById(anyInt())).thenReturn(Optional.of(generateScienceDegrees().get(0)));
 
         scienceDegreeService.findById(id);
 
-        verify(scienceDegreeDao).findById(anyInt());
-        verifyNoMoreInteractions(scienceDegreeDao);
+        verify(scienceDegreeRepository).findById(anyInt());
+        verifyNoMoreInteractions(scienceDegreeRepository);
     }
 
     @Test
@@ -125,29 +125,29 @@ class ScienceDegreeServiceTest {
         scienceDegreeService.create(request);
 
         verify(addValidator).validate(any(ScienceDegreeAddRequest.class));
-        verify(scienceDegreeDao).save(any(ScienceDegree.class));
-        verifyNoMoreInteractions(scienceDegreeDao, addValidator);
+        verify(scienceDegreeRepository).save(any(ScienceDegree.class));
+        verifyNoMoreInteractions(scienceDegreeRepository, addValidator);
     }
 
     @Test
     void deleteScienceDegreeShouldThrowNotFoundExceptionIfScienceDegreeNotFound() {
-        when(scienceDegreeDao.findById(anyInt())).thenReturn(Optional.empty());
+        when(scienceDegreeRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(ScienceDegreeNotFoundException.class, () -> scienceDegreeService.deleteById(1));
 
-        verify(scienceDegreeDao).findById(anyInt());
-        verifyNoMoreInteractions(scienceDegreeDao);
+        verify(scienceDegreeRepository).findById(anyInt());
+        verifyNoMoreInteractions(scienceDegreeRepository);
     }
 
     @Test
     void deleteScienceDegreeShouldNotThrowExceptionIfScienceDegreeIsFound() {
-        when(scienceDegreeDao.findById(anyInt())).thenReturn(Optional.of(generateScienceDegrees().get(0)));
+        when(scienceDegreeRepository.findById(anyInt())).thenReturn(Optional.of(generateScienceDegrees().get(0)));
 
         scienceDegreeService.deleteById(1);
 
-        verify(scienceDegreeDao).findById(anyInt());
-        verify(scienceDegreeDao).deleteById(anyInt());
-        verifyNoMoreInteractions(scienceDegreeDao);
+        verify(scienceDegreeRepository).findById(anyInt());
+        verify(scienceDegreeRepository).deleteById(anyInt());
+        verifyNoMoreInteractions(scienceDegreeRepository);
     }
 
     private List<ScienceDegree> generateScienceDegrees() {

@@ -1,7 +1,7 @@
 package com.att.university.service.impl;
 
-import com.att.university.dao.FacultyDao;
-import com.att.university.dao.GroupDao;
+import com.att.university.dao.FacultyRepository;
+import com.att.university.dao.GroupRepository;
 import com.att.university.entity.Faculty;
 import com.att.university.entity.Group;
 import com.att.university.exception.dao.FacultyNotFoundException;
@@ -29,20 +29,20 @@ public class GroupServiceImpl implements GroupService {
     private static final String GROUP_NOT_FOUND = "Group with Id %d is not found";
     private static final String FACULTY_NOT_FOUND = "Faculty with Id %d is not found";
 
-    private final GroupDao groupDao;
-    private final FacultyDao facultyDao;
+    private final GroupRepository groupRepository;
+    private final FacultyRepository facultyRepository;
     private final GroupAddValidator addValidator;
     private final GroupUpdateValidator updateValidator;
     private final GroupAddRequestMapper addRequestMapper;
     private final GroupUpdateRequestMapper updateRequestMapper;
 
     public List<Group> findAll() {
-        return groupDao.findAll(1, groupDao.count());
+        return groupRepository.findAll();
     }
 
     @Override
     public Group findById(Integer id) {
-        return groupDao.findById(id)
+        return groupRepository.findById(id)
                 .orElseThrow(() -> new GroupNotFoundException(String.format(GROUP_NOT_FOUND, id)));
     }
 
@@ -54,36 +54,36 @@ public class GroupServiceImpl implements GroupService {
 
         Integer facultyId = addRequest.getFacultyId();
 
-        Faculty faculty = facultyDao.findById(facultyId)
+        Faculty faculty = facultyRepository.findById(facultyId)
                 .orElseThrow(() -> new FacultyNotFoundException(String.format(FACULTY_NOT_FOUND, facultyId)));
 
-        groupDao.save(addRequestMapper.convertToEntity(addRequest, faculty));
+        groupRepository.save(addRequestMapper.convertToEntity(addRequest, faculty));
     }
 
     @Override
     public void update(GroupUpdateRequest updateRequest) {
         updateValidator.validate(updateRequest);
 
-        if (!groupDao.findById(updateRequest.getId()).isPresent()) {
+        if (!groupRepository.findById(updateRequest.getId()).isPresent()) {
             throw new GroupNotFoundException(String.format(GROUP_NOT_FOUND, updateRequest.getId()));
         }
 
         Integer facultyId = updateRequest.getFacultyId();
 
-        Faculty faculty = facultyDao.findById(facultyId)
+        Faculty faculty = facultyRepository.findById(facultyId)
                 .orElseThrow(() -> new FacultyNotFoundException(String.format(FACULTY_NOT_FOUND, facultyId)));
 
-        groupDao.update(updateRequestMapper.convertToEntity(updateRequest, faculty));
+        groupRepository.save(updateRequestMapper.convertToEntity(updateRequest, faculty));
     }
 
     @Override
     public void deleteById(Integer id) {
-        if (!groupDao.findById(id).isPresent()) {
+        if (!groupRepository.findById(id).isPresent()) {
             throw new GroupNotFoundException(String.format(GROUP_NOT_FOUND, id));
         }
 
         log.debug("Group deleting with id {}", id);
 
-        groupDao.deleteById(id);
+        groupRepository.deleteById(id);
     }
 }

@@ -20,9 +20,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @TestPropertySource("/application-test.properties")
 @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = {"classpath:TestData.sql"})
-class AcademicRankDaoTest {
+class AcademicRankRepositoryTest {
     @Autowired
-    private AcademicRankDao academicRankDao;
+    private AcademicRankRepository academicRankRepository;
 
     @Test
     void findAllShouldReturnResultWhenDatabaseHaveAcademicRanks() {
@@ -32,13 +32,13 @@ class AcademicRankDaoTest {
                 new AcademicRank(3, "Endowed Professor")
         );
 
-        assertThat(academicRankDao.findAll(1, academicRankDao.count())).isEqualTo(expected);
+        assertThat(academicRankRepository.findAll()).isEqualTo(expected);
     }
 
     @Test
     void findByIdShouldReturnResultWhenDatabaseHaveAcademicRanks() {
         AcademicRank expected = new AcademicRank(1, "Assistant Professor");
-        Optional<AcademicRank> actual = academicRankDao.findById(1);
+        Optional<AcademicRank> actual = academicRankRepository.findById(1);
 
         assertThat(actual).isPresent().hasValue(expected);
     }
@@ -47,18 +47,18 @@ class AcademicRankDaoTest {
     void countShouldReturnResultWhenDatabaseHaveAcademicRanks() {
         int expected = 3;
 
-        assertThat(academicRankDao.count()).isEqualTo(expected);
+        assertThat(academicRankRepository.count()).isEqualTo(expected);
     }
 
     @Test
     @Transactional
     void saveShouldReturnResultWhenDatabaseHaveAcademicRanks() {
         AcademicRank newAcademicRank = new AcademicRank(null, "new");
-        int currentCount = academicRankDao.count();
+        long currentCount = academicRankRepository.count();
 
-        academicRankDao.save(newAcademicRank);
+        academicRankRepository.save(newAcademicRank);
 
-        assertThat(academicRankDao.count()).isEqualTo(currentCount + 1);
+        assertThat(academicRankRepository.count()).isEqualTo(currentCount + 1);
     }
 
     @Test
@@ -69,28 +69,28 @@ class AcademicRankDaoTest {
                 new AcademicRank(null, "new")
         );
 
-        int currentCount = academicRankDao.count();
-        academicRankDao.saveAll(newAcademicRanks);
+        long currentCount = academicRankRepository.count();
+        academicRankRepository.saveAll(newAcademicRanks);
 
-        assertThat(academicRankDao.count()).isEqualTo(currentCount + 2);
+        assertThat(academicRankRepository.count()).isEqualTo(currentCount + 2);
     }
 
     @Test
     @Transactional
     void deleteByIdShouldReturnResultWhenDatabaseHaveAcademicRanks() {
-        int currentCount = academicRankDao.count();
-        academicRankDao.deleteById(3);
+        long currentCount = academicRankRepository.count();
+        academicRankRepository.deleteById(3);
 
-        assertThat(academicRankDao.count()).isEqualTo(currentCount - 1);
+        assertThat(academicRankRepository.count()).isEqualTo(currentCount - 1);
     }
 
     @Test
     @Transactional
     void updateShouldReturnResultWhenDatabaseHaveAcademicRanks() {
         AcademicRank newAcademicRank = new AcademicRank(1, "update");
-        academicRankDao.update(newAcademicRank);
+        academicRankRepository.save(newAcademicRank);
 
-        Optional<AcademicRank> updateAcademicRank = academicRankDao.findById(1);
+        Optional<AcademicRank> updateAcademicRank = academicRankRepository.findById(1);
 
         assertThat(updateAcademicRank).isPresent();
         assertThat(updateAcademicRank.get().getName()).isEqualTo("update");

@@ -1,7 +1,7 @@
 package com.att.university.service;
 
-import com.att.university.dao.FacultyDao;
-import com.att.university.dao.GroupDao;
+import com.att.university.dao.FacultyRepository;
+import com.att.university.dao.GroupRepository;
 import com.att.university.entity.Faculty;
 import com.att.university.entity.Group;
 import com.att.university.exception.dao.FacultyNotFoundException;
@@ -36,10 +36,10 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class GroupServiceTest {
     @Mock
-    private GroupDao groupDao;
+    private GroupRepository groupRepository;
 
     @Mock
-    private FacultyDao facultyDao;
+    private FacultyRepository facultyRepository;
 
     @Mock
     private GroupUpdateValidator updateValidator;
@@ -58,12 +58,11 @@ class GroupServiceTest {
 
     @Test
     void findAllShouldNotThrowException() {
-        when(groupDao.count()).thenReturn(2);
-        when(groupDao.findAll(anyInt(), anyInt())).thenReturn(new ArrayList<>());
+        when(groupRepository.findAll()).thenReturn(new ArrayList<>());
 
         assertDoesNotThrow(() -> groupService.findAll());
 
-        verify(groupDao).findAll(anyInt(), anyInt());
+        verify(groupRepository).findAll();
     }
 
     @Test
@@ -71,13 +70,13 @@ class GroupServiceTest {
         final GroupUpdateRequest request = generateUpdateRequest();
 
         doNothing().when(updateValidator).validate(any(GroupUpdateRequest.class));
-        when(groupDao.findById(anyInt())).thenReturn(Optional.empty());
+        when(groupRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(GroupNotFoundException.class, () -> groupService.update(request));
 
         verify(updateValidator).validate(any(GroupUpdateRequest.class));
-        verify(groupDao).findById(anyInt());
-        verifyNoMoreInteractions(groupDao, updateValidator);
+        verify(groupRepository).findById(anyInt());
+        verifyNoMoreInteractions(groupRepository, updateValidator);
     }
 
     @Test
@@ -86,15 +85,15 @@ class GroupServiceTest {
         final Group group = generateGroups().get(0);
 
         doNothing().when(updateValidator).validate(any(GroupUpdateRequest.class));
-        when(groupDao.findById(anyInt())).thenReturn(Optional.of(group));
-        when(facultyDao.findById(anyInt())).thenReturn(Optional.empty());
+        when(groupRepository.findById(anyInt())).thenReturn(Optional.of(group));
+        when(facultyRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(FacultyNotFoundException.class, () -> groupService.update(request));
 
         verify(updateValidator).validate(any(GroupUpdateRequest.class));
-        verify(groupDao).findById(anyInt());
-        verify(facultyDao).findById(anyInt());
-        verifyNoMoreInteractions(groupDao, facultyDao, updateValidator);
+        verify(groupRepository).findById(anyInt());
+        verify(facultyRepository).findById(anyInt());
+        verifyNoMoreInteractions(groupRepository, facultyRepository, updateValidator);
     }
 
     @Test
@@ -103,41 +102,41 @@ class GroupServiceTest {
         final Group group = generateGroups().get(0);
 
         doNothing().when(updateValidator).validate(any(GroupUpdateRequest.class));
-        when(groupDao.findById(anyInt())).thenReturn(Optional.of(group));
-        when(facultyDao.findById(anyInt())).thenReturn(Optional.of(group.getFaculty()));
+        when(groupRepository.findById(anyInt())).thenReturn(Optional.of(group));
+        when(facultyRepository.findById(anyInt())).thenReturn(Optional.of(group.getFaculty()));
         when(updateRequestMapper.convertToEntity(any(GroupUpdateRequest.class), any(Faculty.class))).thenReturn(group);
 
         groupService.update(request);
 
         verify(updateValidator).validate(any(GroupUpdateRequest.class));
-        verify(groupDao).findById(anyInt());
-        verify(facultyDao).findById(anyInt());
-        verify(groupDao).update(any(Group.class));
-        verifyNoMoreInteractions(groupDao, updateValidator);
+        verify(groupRepository).findById(anyInt());
+        verify(facultyRepository).findById(anyInt());
+        verify(groupRepository).save(any(Group.class));
+        verifyNoMoreInteractions(groupRepository, updateValidator);
     }
 
     @Test
     void findByIdSShouldThrowNotFoundExceptionIfCourseNotFound() {
         Integer id = 4;
 
-        when(groupDao.findById(anyInt())).thenReturn(Optional.empty());
+        when(groupRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(GroupNotFoundException.class, () -> groupService.findById(id));
 
-        verify(groupDao).findById(anyInt());
-        verifyNoMoreInteractions(groupDao);
+        verify(groupRepository).findById(anyInt());
+        verifyNoMoreInteractions(groupRepository);
     }
 
     @Test
     void findByIdShouldReturnEntityWhenCourseExists() {
         Integer id = 4;
 
-        when(groupDao.findById(anyInt())).thenReturn(Optional.of(generateGroups().get(0)));
+        when(groupRepository.findById(anyInt())).thenReturn(Optional.of(generateGroups().get(0)));
 
         groupService.findById(id);
 
-        verify(groupDao).findById(anyInt());
-        verifyNoMoreInteractions(groupDao);
+        verify(groupRepository).findById(anyInt());
+        verifyNoMoreInteractions(groupRepository);
     }
 
     @Test
@@ -147,14 +146,14 @@ class GroupServiceTest {
 
         doNothing().when(addValidator).validate(any(GroupAddRequest.class));
         when(addRequestMapper.convertToEntity(any(GroupAddRequest.class), any(Faculty.class))).thenReturn(group);
-        when(facultyDao.findById(anyInt())).thenReturn(Optional.of(group.getFaculty()));
+        when(facultyRepository.findById(anyInt())).thenReturn(Optional.of(group.getFaculty()));
 
         groupService.create(request);
 
         verify(addValidator).validate(any(GroupAddRequest.class));
-        verify(groupDao).save(any(Group.class));
-        verify(facultyDao).findById(anyInt());
-        verifyNoMoreInteractions(groupDao, addValidator);
+        verify(groupRepository).save(any(Group.class));
+        verify(facultyRepository).findById(anyInt());
+        verifyNoMoreInteractions(groupRepository, addValidator);
     }
 
     @Test
@@ -162,34 +161,34 @@ class GroupServiceTest {
         final GroupAddRequest request = generateAddRequest();
 
         doNothing().when(addValidator).validate(any(GroupAddRequest.class));
-        when(facultyDao.findById(anyInt())).thenReturn(Optional.empty());
+        when(facultyRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(FacultyNotFoundException.class, () -> groupService.create(request));
 
         verify(addValidator).validate(any(GroupAddRequest.class));
-        verify(facultyDao).findById(anyInt());
-        verifyNoMoreInteractions(facultyDao, addValidator);
+        verify(facultyRepository).findById(anyInt());
+        verifyNoMoreInteractions(facultyRepository, addValidator);
     }
 
     @Test
     void deleteCourseShouldThrowNotFoundExceptionIfCourseNotFound() {
-        when(groupDao.findById(anyInt())).thenReturn(Optional.empty());
+        when(groupRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(GroupNotFoundException.class, () -> groupService.deleteById(1));
 
-        verify(groupDao).findById(anyInt());
-        verifyNoMoreInteractions(groupDao);
+        verify(groupRepository).findById(anyInt());
+        verifyNoMoreInteractions(groupRepository);
     }
 
     @Test
     void deleteCourseShouldNotThrowExceptionIfCourseIsFound() {
-        when(groupDao.findById(anyInt())).thenReturn(Optional.of(generateGroups().get(0)));
+        when(groupRepository.findById(anyInt())).thenReturn(Optional.of(generateGroups().get(0)));
 
         groupService.deleteById(1);
 
-        verify(groupDao).findById(anyInt());
-        verify(groupDao).deleteById(anyInt());
-        verifyNoMoreInteractions(groupDao);
+        verify(groupRepository).findById(anyInt());
+        verify(groupRepository).deleteById(anyInt());
+        verifyNoMoreInteractions(groupRepository);
     }
 
     private List<Group> generateGroups() {

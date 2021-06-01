@@ -1,6 +1,6 @@
 package com.att.university.service;
 
-import com.att.university.dao.BuildingDao;
+import com.att.university.dao.BuildingRepository;
 import com.att.university.entity.Building;
 import com.att.university.exception.dao.BuildingNotFoundException;
 import com.att.university.mapper.building.BuildingAddRequestMapper;
@@ -33,7 +33,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class BuildingServiceTest {
     @Mock
-    private BuildingDao buildingDao;
+    private BuildingRepository buildingRepository;
 
     @Mock
     private BuildingUpdateValidator updateValidator;
@@ -56,13 +56,13 @@ class BuildingServiceTest {
         final Building Building = generateBuildings().get(0);
 
         doNothing().when(updateValidator).validate(any(BuildingUpdateRequest.class));
-        when(buildingDao.findById(Building.getId())).thenReturn(Optional.empty());
+        when(buildingRepository.findById(Building.getId())).thenReturn(Optional.empty());
 
         assertThrows(BuildingNotFoundException.class, () -> buildingService.update(request));
 
         verify(updateValidator).validate(any(BuildingUpdateRequest.class));
-        verify(buildingDao).findById(anyInt());
-        verifyNoMoreInteractions(buildingDao, updateValidator);
+        verify(buildingRepository).findById(anyInt());
+        verifyNoMoreInteractions(buildingRepository, updateValidator);
     }
 
     @Test
@@ -71,24 +71,24 @@ class BuildingServiceTest {
         final Building Building = generateBuildings().get(0);
 
         doNothing().when(updateValidator).validate(any(BuildingUpdateRequest.class));
-        when(buildingDao.findById(Building.getId())).thenReturn(Optional.of(generateBuildings().get(0)));
+        when(buildingRepository.findById(Building.getId())).thenReturn(Optional.of(generateBuildings().get(0)));
         when(updateRequestMapper.convertToEntity(any(BuildingUpdateRequest.class))).thenReturn((generateBuildings().get(0)));
 
         buildingService.update(request);
 
         verify(updateValidator).validate(any(BuildingUpdateRequest.class));
-        verify(buildingDao).findById(anyInt());
-        verify(buildingDao).update(any(Building.class));
-        verifyNoMoreInteractions(buildingDao, updateValidator);
+        verify(buildingRepository).findById(anyInt());
+        verify(buildingRepository).save(any(Building.class));
+        verifyNoMoreInteractions(buildingRepository, updateValidator);
     }
 
     @Test
     void findAllShouldNotThrowException() {
-        when(buildingDao.findAll(anyInt(), anyInt())).thenReturn(new ArrayList<>());
+        when(buildingRepository.findAll()).thenReturn(new ArrayList<>());
 
         assertDoesNotThrow(() -> buildingService.findAll());
 
-        verify(buildingDao).findAll(anyInt(), anyInt());
+        verify(buildingRepository).findAll();
     }
 
 
@@ -96,24 +96,24 @@ class BuildingServiceTest {
     void findByIdSShouldThrowNotFoundExceptionIfBuildingNotFound() {
         Integer id = 4;
 
-        when(buildingDao.findById(anyInt())).thenReturn(Optional.empty());
+        when(buildingRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(BuildingNotFoundException.class, () -> buildingService.findById(id));
 
-        verify(buildingDao).findById(anyInt());
-        verifyNoMoreInteractions(buildingDao);
+        verify(buildingRepository).findById(anyInt());
+        verifyNoMoreInteractions(buildingRepository);
     }
 
     @Test
     void findByIdShouldReturnEntityWhenBuildingExists() {
         Integer id = 4;
 
-        when(buildingDao.findById(anyInt())).thenReturn(Optional.of(generateBuildings().get(0)));
+        when(buildingRepository.findById(anyInt())).thenReturn(Optional.of(generateBuildings().get(0)));
 
         buildingService.findById(id);
 
-        verify(buildingDao).findById(anyInt());
-        verifyNoMoreInteractions(buildingDao);
+        verify(buildingRepository).findById(anyInt());
+        verifyNoMoreInteractions(buildingRepository);
     }
 
     @Test
@@ -125,29 +125,29 @@ class BuildingServiceTest {
         buildingService.create(request);
 
         verify(addValidator).validate(any(BuildingAddRequest.class));
-        verify(buildingDao).save(any(Building.class));
-        verifyNoMoreInteractions(buildingDao, addValidator);
+        verify(buildingRepository).save(any(Building.class));
+        verifyNoMoreInteractions(buildingRepository, addValidator);
     }
 
     @Test
     void deleteBuildingShouldThrowNotFoundExceptionIfBuildingNotFound() {
-        when(buildingDao.findById(anyInt())).thenReturn(Optional.empty());
+        when(buildingRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(BuildingNotFoundException.class, () -> buildingService.deleteById(1));
 
-        verify(buildingDao).findById(anyInt());
-        verifyNoMoreInteractions(buildingDao);
+        verify(buildingRepository).findById(anyInt());
+        verifyNoMoreInteractions(buildingRepository);
     }
 
     @Test
     void deleteBuildingShouldNotThrowExceptionIfBuildingIsFound() {
-        when(buildingDao.findById(anyInt())).thenReturn(Optional.of(generateBuildings().get(0)));
+        when(buildingRepository.findById(anyInt())).thenReturn(Optional.of(generateBuildings().get(0)));
 
         buildingService.deleteById(1);
 
-        verify(buildingDao).findById(anyInt());
-        verify(buildingDao).deleteById(anyInt());
-        verifyNoMoreInteractions(buildingDao);
+        verify(buildingRepository).findById(anyInt());
+        verify(buildingRepository).deleteById(anyInt());
+        verifyNoMoreInteractions(buildingRepository);
     }
 
     private List<Building> generateBuildings() {

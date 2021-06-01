@@ -1,7 +1,7 @@
 package com.att.university.service;
 
-import com.att.university.dao.GroupDao;
-import com.att.university.dao.StudentDao;
+import com.att.university.dao.GroupRepository;
+import com.att.university.dao.StudentRepository;
 import com.att.university.entity.Faculty;
 import com.att.university.entity.Group;
 import com.att.university.entity.Student;
@@ -19,28 +19,31 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class StudentServiceTest {
     @Mock
-    private StudentDao studentDao;
+    private StudentRepository studentRepository;
 
     @Mock
-    private GroupDao groupDao;
+    private GroupRepository groupRepository;
 
     @Mock
     private PasswordEncoder passwordEncoder;
@@ -74,7 +77,7 @@ class StudentServiceTest {
         final Student student = generateEntity();
 
         doNothing().when(studentRegisterValidator).validate(any(StudentRegisterRequest.class));
-        when(studentDao.findByEmail(email)).thenReturn(Optional.empty());
+        when(studentRepository.findByEmail(email)).thenReturn(Optional.empty());
         when(registerRequestMapper.convertToEntity(any(StudentRegisterRequest.class), anyString())).thenReturn(student);
         when(passwordEncoder.encode(anyString())).thenReturn(anyString());
 
@@ -83,8 +86,8 @@ class StudentServiceTest {
         verify(studentRegisterValidator).validate(any(StudentRegisterRequest.class));
         verify(registerRequestMapper).convertToEntity(any(StudentRegisterRequest.class), anyString());
         verify(passwordEncoder).encode(anyString());
-        verify(studentDao).findByEmail(anyString());
-        verify(studentDao).save(any(Student.class));
+        verify(studentRepository).findByEmail(anyString());
+        verify(studentRepository).save(any(Student.class));
     }
 
     @Test
@@ -101,13 +104,13 @@ class StudentServiceTest {
         final Student student = generateEntity();
 
         doNothing().when(studentRegisterValidator).validate(any(StudentRegisterRequest.class));
-        when(studentDao.findByEmail(email)).thenReturn(Optional.of(student));
+        when(studentRepository.findByEmail(email)).thenReturn(Optional.of(student));
 
         assertThrows(RuntimeException.class, () -> studentService.register(registerRequest));
 
         verify(studentRegisterValidator).validate(any(StudentRegisterRequest.class));
-        verify(studentDao).findByEmail(anyString());
-        verifyNoMoreInteractions(studentDao, studentRegisterValidator);
+        verify(studentRepository).findByEmail(anyString());
+        verifyNoMoreInteractions(studentRepository, studentRegisterValidator);
     }
 
     @Test
@@ -134,16 +137,16 @@ class StudentServiceTest {
         final Group group = new Group(groupId, "Test", new Faculty(1, "FacultyTest"));
 
         doNothing().when(studentUpdateValidator).validate(any(StudentUpdateRequest.class));
-        when(studentDao.findById(studentId)).thenReturn(Optional.of(student));
-        when(groupDao.findById(groupId)).thenReturn(Optional.of(group));
+        when(studentRepository.findById(studentId)).thenReturn(Optional.of(student));
+        when(groupRepository.findById(groupId)).thenReturn(Optional.of(group));
         when(updateRequestMapper.convertToEntity(studentRequest, group, student.getPassword())).thenReturn(student);
 
         studentService.update(studentRequest);
 
         verify(studentUpdateValidator).validate(any(StudentUpdateRequest.class));
         verify(updateRequestMapper).convertToEntity(any(StudentUpdateRequest.class), any(Group.class), anyString());
-        verify(studentDao).findById(anyInt());
-        verify(studentDao).update(any(Student.class));
+        verify(studentRepository).findById(anyInt());
+        verify(studentRepository).save(any(Student.class));
     }
 
     @Test
@@ -158,13 +161,13 @@ class StudentServiceTest {
                 .build();
 
         doNothing().when(studentUpdateValidator).validate(any(StudentUpdateRequest.class));
-        when(studentDao.findById(studentId)).thenReturn(Optional.empty());
+        when(studentRepository.findById(studentId)).thenReturn(Optional.empty());
 
         assertThrows(PersonNotFoundException.class, () -> studentService.update(student));
 
         verify(studentUpdateValidator).validate(any(StudentUpdateRequest.class));
-        verify(studentDao).findById(anyInt());
-        verifyNoMoreInteractions(studentDao, studentUpdateValidator);
+        verify(studentRepository).findById(anyInt());
+        verifyNoMoreInteractions(studentRepository, studentUpdateValidator);
     }
 
     @Test
@@ -188,14 +191,14 @@ class StudentServiceTest {
                 .build();
 
         doNothing().when(studentUpdateValidator).validate(any(StudentUpdateRequest.class));
-        when(studentDao.findById(studentId)).thenReturn(Optional.of(student));
-        when(groupDao.findById(anyInt())).thenReturn(Optional.empty());
+        when(studentRepository.findById(studentId)).thenReturn(Optional.of(student));
+        when(groupRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(GroupNotFoundException.class, () -> studentService.update(updateRequest));
 
         verify(studentUpdateValidator).validate(any(StudentUpdateRequest.class));
-        verify(studentDao).findById(anyInt());
-        verifyNoMoreInteractions(studentDao, studentUpdateValidator);
+        verify(studentRepository).findById(anyInt());
+        verifyNoMoreInteractions(studentRepository, studentUpdateValidator);
     }
 
     @Test
@@ -211,11 +214,11 @@ class StudentServiceTest {
                 .withId(1)
                 .build();
 
-        when(studentDao.findByEmail(email)).thenReturn(Optional.of(student));
+        when(studentRepository.findByEmail(email)).thenReturn(Optional.of(student));
 
         studentService.login(email, password);
 
-        verify(studentDao).findByEmail(anyString());
+        verify(studentRepository).findByEmail(anyString());
         verify(passwordEncoder).matches(anyString(), anyString());
     }
 
@@ -224,99 +227,92 @@ class StudentServiceTest {
         String email = "test@test.ru";
         String password = "12345678";
 
-        when(studentDao.findByEmail(anyString())).thenReturn(Optional.empty());
+        when(studentRepository.findByEmail(anyString())).thenReturn(Optional.empty());
 
         assertThrows(RuntimeException.class, () -> studentService.login(email, password));
 
-        verify(studentDao).findByEmail(anyString());
-        verifyNoMoreInteractions(passwordEncoder, studentDao);
+        verify(studentRepository).findByEmail(anyString());
+        verifyNoMoreInteractions(passwordEncoder, studentRepository);
     }
 
     @Test
     void findByIdShouldThrowExceptionWhenStudentDoesNotExist() {
         Integer id = 4;
 
-        when(studentDao.findById(anyInt())).thenReturn(Optional.empty());
+        when(studentRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(PersonNotFoundException.class, () -> studentService.findById(id));
 
-        verify(studentDao).findById(anyInt());
-        verifyNoMoreInteractions(studentDao);
+        verify(studentRepository).findById(anyInt());
+        verifyNoMoreInteractions(studentRepository);
     }
 
     @Test
     void findByIdShouldReturnStudentWhenStudentExists() {
         Integer id = 4;
 
-        when(studentDao.findById(anyInt())).thenReturn(Optional.of(generateEntity()));
+        when(studentRepository.findById(anyInt())).thenReturn(Optional.of(generateEntity()));
 
         studentService.findById(id);
 
-        verify(studentDao).findById(anyInt());
-        verifyNoMoreInteractions(studentDao);
+        verify(studentRepository).findById(anyInt());
+        verifyNoMoreInteractions(studentRepository);
     }
 
     @Test
     void findByEmailShouldThrowExceptionWhenStudentDoesNotExist() {
         String email = "test@test.ru";
 
-        when(studentDao.findByEmail(anyString())).thenReturn(Optional.empty());
+        when(studentRepository.findByEmail(anyString())).thenReturn(Optional.empty());
 
         assertThrows(PersonNotFoundException.class, () -> studentService.findByEmail(email));
 
-        verify(studentDao).findByEmail(anyString());
-        verifyNoMoreInteractions(studentDao);
+        verify(studentRepository).findByEmail(anyString());
+        verifyNoMoreInteractions(studentRepository);
     }
 
     @Test
     void findByEmailShouldReturnStudentWhenStudentExists() {
         String email = "test@test.ru";
 
-        when(studentDao.findByEmail(anyString())).thenReturn(Optional.of(generateEntity()));
+        when(studentRepository.findByEmail(anyString())).thenReturn(Optional.of(generateEntity()));
 
         assertDoesNotThrow(() -> studentService.findByEmail(email));
 
-        verify(studentDao).findByEmail(anyString());
-        verifyNoMoreInteractions(studentDao);
+        verify(studentRepository).findByEmail(anyString());
+        verifyNoMoreInteractions(studentRepository);
     }
 
     @Test
     void findAllShouldNotThrowException() {
-        when(studentDao.findAll(anyInt(), anyInt())).thenReturn(new ArrayList<>());
+        Page<Student> students = new PageImpl<>(Collections.singletonList(generateEntity()));
 
-        assertDoesNotThrow(() -> studentService.findAll(1, 1));
+        when(studentRepository.findAll(any(PageRequest.class))).thenReturn(students);
 
-        verify(studentDao).findAll(anyInt(), anyInt());
-    }
+        assertDoesNotThrow(() -> studentService.findAll(PageRequest.of(0, 12)));
 
-    @Test
-    void countShouldNotThrowException() {
-        when(studentDao.count()).thenReturn(1);
-
-        assertDoesNotThrow(() -> studentService.count());
-
-        verify(studentDao).count();
+        verify(studentRepository).findAll(any(PageRequest.class));
     }
 
     @Test
     void deleteStudentShouldThrowNotFoundExceptionIfStudentNotFound() {
-        when(studentDao.findById(anyInt())).thenReturn(Optional.empty());
+        when(studentRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(PersonNotFoundException.class, () -> studentService.delete(1));
 
-        verify(studentDao).findById(anyInt());
-        verifyNoMoreInteractions(studentDao);
+        verify(studentRepository).findById(anyInt());
+        verifyNoMoreInteractions(studentRepository);
     }
 
     @Test
     void deleteStudentShouldNotThrowExceptionIfStudentIsFound() {
-        when(studentDao.findById(anyInt())).thenReturn(Optional.of(generateEntity()));
+        when(studentRepository.findById(anyInt())).thenReturn(Optional.of(generateEntity()));
 
         studentService.delete(1);
 
-        verify(studentDao).findById(anyInt());
-        verify(studentDao).deleteById(anyInt());
-        verifyNoMoreInteractions(studentDao);
+        verify(studentRepository).findById(anyInt());
+        verify(studentRepository).deleteById(anyInt());
+        verifyNoMoreInteractions(studentRepository);
     }
 
     private Student generateEntity() {

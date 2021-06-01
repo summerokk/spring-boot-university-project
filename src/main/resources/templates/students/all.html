@@ -21,7 +21,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="student : ${students}">
+                <tr th:each="student : ${students.content}">
                     <th th:text="${student.id}"/>
                     <td th:text="${student.firstName}"/>
                     <td th:text="${student.lastName}"/>
@@ -33,7 +33,7 @@
                 </tr>
                 </tbody>
             </table>
-            <nav th:replace="fragments/pagination :: pagination ('students', ${countPages}, ${page}, ${count})"></nav>
+            <nav th:replace="fragments/pagination :: pagination ('students', ${students})"></nav>
         </div>
     </div>
 

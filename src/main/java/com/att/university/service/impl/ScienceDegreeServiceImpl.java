@@ -1,6 +1,6 @@
 package com.att.university.service.impl;
 
-import com.att.university.dao.ScienceDegreeDao;
+import com.att.university.dao.ScienceDegreeRepository;
 import com.att.university.entity.ScienceDegree;
 import com.att.university.exception.dao.ScienceDegreeNotFoundException;
 import com.att.university.mapper.science_degree.ScienceDegreeAddRequestMapper;
@@ -25,7 +25,7 @@ import java.util.List;
 public class ScienceDegreeServiceImpl implements ScienceDegreeService {
     private static final String SCIENCE_DEGREE_RANK_NOT_FOUND = "Science Degree with Id %d is not found";
     
-    private final ScienceDegreeDao scienceDegreeDao;
+    private final ScienceDegreeRepository scienceDegreeRepository;
     private final ScienceDegreeUpdateValidator updateValidator;
     private final ScienceDegreeAddValidator addValidator;
     private final ScienceDegreeAddRequestMapper addRequestMapper;
@@ -33,12 +33,12 @@ public class ScienceDegreeServiceImpl implements ScienceDegreeService {
 
     @Override
     public List<ScienceDegree> findAll() {
-        return scienceDegreeDao.findAll(1, scienceDegreeDao.count());
+        return scienceDegreeRepository.findAll();
     }
 
     @Override
     public ScienceDegree findById(Integer id) {
-        return scienceDegreeDao.findById(id)
+        return scienceDegreeRepository.findById(id)
                 .orElseThrow(() -> new ScienceDegreeNotFoundException(String.format(SCIENCE_DEGREE_RANK_NOT_FOUND, id)));
     }
 
@@ -48,28 +48,28 @@ public class ScienceDegreeServiceImpl implements ScienceDegreeService {
 
         addValidator.validate(addRequest);
 
-        scienceDegreeDao.save(addRequestMapper.convertToEntity(addRequest));
+        scienceDegreeRepository.save(addRequestMapper.convertToEntity(addRequest));
     }
 
     @Override
     public void update(ScienceDegreeUpdateRequest updateRequest) {
         updateValidator.validate(updateRequest);
 
-        if (!scienceDegreeDao.findById(updateRequest.getId()).isPresent()) {
+        if (!scienceDegreeRepository.findById(updateRequest.getId()).isPresent()) {
             throw new ScienceDegreeNotFoundException(String.format(SCIENCE_DEGREE_RANK_NOT_FOUND, updateRequest.getId()));
         }
 
-        scienceDegreeDao.update(updateRequestMapper.convertToEntity(updateRequest));
+        scienceDegreeRepository.save(updateRequestMapper.convertToEntity(updateRequest));
     }
 
     @Override
     public void deleteById(Integer id) {
-        if (!scienceDegreeDao.findById(id).isPresent()) {
+        if (!scienceDegreeRepository.findById(id).isPresent()) {
             throw new ScienceDegreeNotFoundException(String.format(SCIENCE_DEGREE_RANK_NOT_FOUND, id));
         }
 
         log.debug("ScienceDegree deleting with id {}", id);
 
-        scienceDegreeDao.deleteById(id);
+        scienceDegreeRepository.deleteById(id);
     }
 }

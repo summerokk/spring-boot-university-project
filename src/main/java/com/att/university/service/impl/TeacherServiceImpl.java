@@ -34,9 +34,9 @@ public class TeacherServiceImpl implements TeacherService {
     private static final String TEACHER_NOT_FOUND = "Teacher with Id %d is not found";
     private static final String TEACHER_NOT_FOUND_WITH_EMAIL = "Teacher with email %s is not found";
 
-    private final TeacherRepository teacherDao;
-    private final AcademicRankRepository academicRankDao;
-    private final ScienceDegreeRepository scienceDegreeDao;
+    private final TeacherRepository teacherRepository;
+    private final AcademicRankRepository academicRankRepository;
+    private final ScienceDegreeRepository scienceDegreeRepository;
     private final TeacherRegisterValidator teacherRegisterValidator;
     private final TeacherUpdateValidator teacherUpdateValidator;
     private final TeacherRegisterRequestMapper teacherRegisterRequestMapper;
@@ -48,17 +48,17 @@ public class TeacherServiceImpl implements TeacherService {
 
         log.debug("Teacher register with request {}", teacherRegisterRequest);
 
-        if (teacherDao.findByEmail(teacherRegisterRequest.getEmail()).isPresent()) {
+        if (teacherRepository.findByEmail(teacherRegisterRequest.getEmail()).isPresent()) {
             throw new EmailAlreadyExistsException("Email already exists");
         }
 
-        AcademicRank academicRank = academicRankDao.findById(teacherRegisterRequest.getAcademicRankId())
+        AcademicRank academicRank = academicRankRepository.findById(teacherRegisterRequest.getAcademicRankId())
                 .orElseThrow(() -> new RuntimeException("Academic Rank does not exists"));
 
-        ScienceDegree scienceDegree = scienceDegreeDao.findById(teacherRegisterRequest.getScienceDegreeId())
+        ScienceDegree scienceDegree = scienceDegreeRepository.findById(teacherRegisterRequest.getScienceDegreeId())
                 .orElseThrow(() -> new RuntimeException("Science degree does not exists"));
 
-        teacherDao.save(teacherRegisterRequestMapper.convertToEntity(teacherRegisterRequest,
+        teacherRepository.save(teacherRegisterRequestMapper.convertToEntity(teacherRegisterRequest,
                 passwordEncoder.encode(teacherRegisterRequest.getPassword()), academicRank, scienceDegree));
     }
 
@@ -68,24 +68,24 @@ public class TeacherServiceImpl implements TeacherService {
 
         log.debug("Teacher update with request {}", teacherUpdateRequest);
 
-        if (!teacherDao.findById(teacherUpdateRequest.getId()).isPresent()) {
+        if (!teacherRepository.findById(teacherUpdateRequest.getId()).isPresent()) {
             throw new PersonNotFoundException(String.format(TEACHER_NOT_FOUND, teacherUpdateRequest.getId()));
         }
 
-        AcademicRank academicRank = academicRankDao.findById(teacherUpdateRequest.getAcademicRankId())
+        AcademicRank academicRank = academicRankRepository.findById(teacherUpdateRequest.getAcademicRankId())
                 .orElseThrow(() -> new RuntimeException("Academic Rank does not exists"));
 
-        ScienceDegree scienceDegree = scienceDegreeDao.findById(teacherUpdateRequest.getScienceDegreeId())
+        ScienceDegree scienceDegree = scienceDegreeRepository.findById(teacherUpdateRequest.getScienceDegreeId())
                 .orElseThrow(() -> new RuntimeException("Science degree does not exists"));
 
-        teacherDao.save(teacherUpdateRequestMapper.convertToEntity(teacherUpdateRequest, academicRank, scienceDegree));
+        teacherRepository.save(teacherUpdateRequestMapper.convertToEntity(teacherUpdateRequest, academicRank, scienceDegree));
     }
 
     @Override
     public boolean login(String email, String password) {
         log.debug("Teacher login with login {}", email);
 
-        Teacher teacher = teacherDao.findByEmail(email)
+        Teacher teacher = teacherRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException(TEACHER_NOT_FOUND));
 
         return passwordEncoder.matches(password, teacher.getPassword());
@@ -93,32 +93,32 @@ public class TeacherServiceImpl implements TeacherService {
 
     @Override
     public List<Teacher> findAll() {
-        return teacherDao.findAll();
+        return teacherRepository.findAll();
     }
 
     @Override
     public Page<Teacher> findAll(Pageable pageable) {
-        return teacherDao.findAll(pageable);
+        return teacherRepository.findAll(pageable);
     }
 
     @Override
     public Teacher findById(Integer id) {
-        return teacherDao.findById(id).orElseThrow(() ->
+        return teacherRepository.findById(id).orElseThrow(() ->
                 new PersonNotFoundException(String.format(TEACHER_NOT_FOUND, id)));
     }
 
     @Override
     public Teacher findByEmail(String email) {
-        return teacherDao.findByEmail(email)
+        return teacherRepository.findByEmail(email)
                 .orElseThrow(() -> new PersonNotFoundException(String.format(TEACHER_NOT_FOUND_WITH_EMAIL, email)));
     }
 
     @Override
     public void deleteById(Integer id) {
-        if (!teacherDao.findById(id).isPresent()) {
+        if (!teacherRepository.findById(id).isPresent()) {
             throw new PersonNotFoundException(String.format(TEACHER_NOT_FOUND, id));
         }
 
-        teacherDao.deleteById(id);
+        teacherRepository.deleteById(id);
     }
 }

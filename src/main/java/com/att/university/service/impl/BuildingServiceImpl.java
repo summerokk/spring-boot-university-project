@@ -1,6 +1,6 @@
 package com.att.university.service.impl;
 
-import com.att.university.dao.BuildingDao;
+import com.att.university.dao.BuildingRepository;
 import com.att.university.entity.Building;
 import com.att.university.exception.dao.BuildingNotFoundException;
 import com.att.university.mapper.building.BuildingAddRequestMapper;
@@ -24,7 +24,7 @@ import java.util.List;
 public class BuildingServiceImpl implements BuildingService {
     private static final String BUILDING_RANK_NOT_FOUND = "BUILDING with Id %d is not found";
 
-    private final BuildingDao buildingDao;
+    private final BuildingRepository buildingRepository;
     private final BuildingUpdateValidator updateValidator;
     private final BuildingAddValidator addValidator;
     private final BuildingAddRequestMapper addRequestMapper;
@@ -34,12 +34,12 @@ public class BuildingServiceImpl implements BuildingService {
     public List<Building> findAll() {
         log.debug("Find all Buildings...");
 
-        return buildingDao.findAll(1, buildingDao.count());
+        return buildingRepository.findAll();
     }
 
     @Override
     public Building findById(Integer id) {
-        return buildingDao.findById(id)
+        return buildingRepository.findById(id)
                 .orElseThrow(() -> new BuildingNotFoundException(String.format(BUILDING_RANK_NOT_FOUND, id)));
     }
 
@@ -50,7 +50,7 @@ public class BuildingServiceImpl implements BuildingService {
 
         addValidator.validate(addRequest);
 
-        buildingDao.save(addRequestMapper.convertToEntity(addRequest));
+        buildingRepository.save(addRequestMapper.convertToEntity(addRequest));
     }
 
     @Override
@@ -58,22 +58,22 @@ public class BuildingServiceImpl implements BuildingService {
     public void update(BuildingUpdateRequest updateRequest) {
         updateValidator.validate(updateRequest);
 
-        if (!buildingDao.findById(updateRequest.getId()).isPresent()) {
+        if (!buildingRepository.findById(updateRequest.getId()).isPresent()) {
             throw new BuildingNotFoundException(String.format(BUILDING_RANK_NOT_FOUND, updateRequest.getId()));
         }
 
-        buildingDao.update(updateRequestMapper.convertToEntity(updateRequest));
+        buildingRepository.save(updateRequestMapper.convertToEntity(updateRequest));
     }
 
     @Override
     @Transactional
     public void deleteById(Integer id) {
-        if (!buildingDao.findById(id).isPresent()) {
+        if (!buildingRepository.findById(id).isPresent()) {
             throw new BuildingNotFoundException(String.format(BUILDING_RANK_NOT_FOUND, id));
         }
 
         log.debug("Building deleting with id {}", id);
 
-        buildingDao.deleteById(id);
+        buildingRepository.deleteById(id);
     }
 }

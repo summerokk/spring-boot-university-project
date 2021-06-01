@@ -22,9 +22,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @TestPropertySource("/application-test.properties")
 @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = {"classpath:TestData.sql"})
-class StudentDaoTest {
+class StudentRepositoryTest {
     @Autowired
-    private StudentDao studentDao;
+    private StudentRepository studentRepository;
 
     @Test
     void findAllShouldReturnResultWhenDatabaseHaveStudents() {
@@ -57,7 +57,7 @@ class StudentDaoTest {
                         .build()
         );
 
-        assertThat(studentDao.findAll(1, studentDao.count())).isEqualTo(expected);
+        assertThat(studentRepository.findAll()).isEqualTo(expected);
     }
 
     @Test
@@ -72,7 +72,7 @@ class StudentDaoTest {
                 .withPassword("password")
                 .withGroup(group)
                 .build();
-        Optional<Student> actual = studentDao.findById(1);
+        Optional<Student> actual = studentRepository.findById(1);
 
         assertThat(actual).isPresent().hasValue(expected);
     }
@@ -81,7 +81,7 @@ class StudentDaoTest {
     void countShouldReturnResultWhenDatabaseHaveStudents() {
         int expected = 3;
 
-        assertThat(studentDao.count()).isEqualTo(expected);
+        assertThat(studentRepository.count()).isEqualTo(expected);
     }
 
     @Test
@@ -97,11 +97,11 @@ class StudentDaoTest {
                 .withGroup(group)
                 .build();
 
-        int currentCount = studentDao.count();
+        long currentCount = studentRepository.count();
 
-        studentDao.save(newStudent);
+        studentRepository.save(newStudent);
 
-        assertThat(studentDao.count()).isEqualTo(currentCount + 1);
+        assertThat(studentRepository.count()).isEqualTo(currentCount + 1);
     }
 
     @Test
@@ -126,19 +126,19 @@ class StudentDaoTest {
                         .build()
         );
 
-        int currentCount = studentDao.count();
-        studentDao.saveAll(newStudents);
+        long currentCount = studentRepository.count();
+        studentRepository.saveAll(newStudents);
 
-        assertThat(studentDao.count()).isEqualTo(currentCount + 2);
+        assertThat(studentRepository.count()).isEqualTo(currentCount + 2);
     }
 
     @Test
     @Transactional
     void deleteByIdShouldReturnResultWhenDatabaseHaveStudents() {
-        int currentCount = studentDao.count();
-        studentDao.deleteById(3);
+        long currentCount = studentRepository.count();
+        studentRepository.deleteById(3);
 
-        assertThat(studentDao.count()).isEqualTo(currentCount - 1);
+        assertThat(studentRepository.count()).isEqualTo(currentCount - 1);
     }
 
     @Test
@@ -155,9 +155,9 @@ class StudentDaoTest {
                 .withGroup(group)
                 .build();
 
-        studentDao.update(newStudent);
+        studentRepository.save(newStudent);
 
-        Optional<Student> updateStudent = studentDao.findById(1);
+        Optional<Student> updateStudent = studentRepository.findById(1);
 
         assertThat(updateStudent).isPresent();
         assertThat(updateStudent.get().getFirstName()).isEqualTo("update");
@@ -176,7 +176,7 @@ class StudentDaoTest {
                 .withPassword("password")
                 .withGroup(group)
                 .build();
-        Optional<Student> actual = studentDao.findByEmail("tolof234@tmail.com");
+        Optional<Student> actual = studentRepository.findByEmail("tolof234@tmail.com");
 
         assertThat(actual).isPresent().hasValue(expected);
     }

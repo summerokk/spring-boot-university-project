@@ -1,6 +1,6 @@
 package com.att.university.service.impl;
 
-import com.att.university.dao.FacultyDao;
+import com.att.university.dao.FacultyRepository;
 import com.att.university.entity.Faculty;
 import com.att.university.exception.dao.FacultyNotFoundException;
 import com.att.university.mapper.faculty.FacultyAddRequestMapper;
@@ -25,7 +25,7 @@ import java.util.List;
 public class FacultyServiceImpl implements FacultyService {
     private static final String FACULTY_NOT_FOUND = "Faculty with Id %d is not found";
 
-    private final FacultyDao facultyDao;
+    private final FacultyRepository facultyRepository;
     private final FacultyUpdateValidator updateValidator;
     private final FacultyAddValidator addValidator;
     private final FacultyAddRequestMapper addRequestMapper;
@@ -33,12 +33,12 @@ public class FacultyServiceImpl implements FacultyService {
 
     @Override
     public List<Faculty> findAll() {
-        return facultyDao.findAll(1, facultyDao.count());
+        return facultyRepository.findAll();
     }
 
     @Override
     public Faculty findById(Integer id) {
-        return facultyDao.findById(id)
+        return facultyRepository.findById(id)
                 .orElseThrow(() -> new FacultyNotFoundException(String.format(FACULTY_NOT_FOUND, id)));
     }
 
@@ -48,28 +48,28 @@ public class FacultyServiceImpl implements FacultyService {
 
         addValidator.validate(addRequest);
 
-        facultyDao.save(addRequestMapper.convertToEntity(addRequest));
+        facultyRepository.save(addRequestMapper.convertToEntity(addRequest));
     }
 
     @Override
     public void update(FacultyUpdateRequest updateRequest) {
         updateValidator.validate(updateRequest);
 
-        if (!facultyDao.findById(updateRequest.getId()).isPresent()) {
+        if (!facultyRepository.findById(updateRequest.getId()).isPresent()) {
             throw new FacultyNotFoundException(String.format(FACULTY_NOT_FOUND, updateRequest.getId()));
         }
 
-        facultyDao.update(updateRequestMapper.convertToEntity(updateRequest));
+        facultyRepository.save(updateRequestMapper.convertToEntity(updateRequest));
     }
 
     @Override
     public void deleteById(Integer id) {
-        if (!facultyDao.findById(id).isPresent()) {
+        if (!facultyRepository.findById(id).isPresent()) {
             throw new FacultyNotFoundException(String.format(FACULTY_NOT_FOUND, id));
         }
 
         log.debug("Faculty deleting with id {}", id);
 
-        facultyDao.deleteById(id);
+        facultyRepository.deleteById(id);
     }
 }

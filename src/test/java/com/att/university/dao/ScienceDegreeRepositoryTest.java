@@ -20,9 +20,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @TestPropertySource("/application-test.properties")
 @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = {"classpath:TestData.sql"})
-class ScienceDegreeDaoTest {
+class ScienceDegreeRepositoryTest {
     @Autowired
-    private ScienceDegreeDao scienceDegreeDao;
+    private ScienceDegreeRepository scienceDegreeRepository;
 
     @Test
     void findAllShouldReturnResultWhenDatabaseHaveScienceDegrees() {
@@ -33,13 +33,13 @@ class ScienceDegreeDaoTest {
                 new ScienceDegree(4, "Master's degree")
         );
 
-        assertThat(scienceDegreeDao.findAll(1, scienceDegreeDao.count())).isEqualTo(expected);
+        assertThat(scienceDegreeRepository.findAll()).isEqualTo(expected);
     }
 
     @Test
     void findByIdShouldReturnResultWhenDatabaseHaveScienceDegrees() {
         ScienceDegree expected = new ScienceDegree(1, "Associate degree");
-        Optional<ScienceDegree> actual = scienceDegreeDao.findById(1);
+        Optional<ScienceDegree> actual = scienceDegreeRepository.findById(1);
 
         assertThat(actual).isPresent().hasValue(expected);
     }
@@ -48,18 +48,18 @@ class ScienceDegreeDaoTest {
     void countShouldReturnResultWhenDatabaseHaveScienceDegrees() {
         int expected = 4;
 
-        assertThat(scienceDegreeDao.count()).isEqualTo(expected);
+        assertThat(scienceDegreeRepository.count()).isEqualTo(expected);
     }
 
     @Test
     @Transactional
     void saveShouldReturnResultWhenDatabaseHaveScienceDegrees() {
         ScienceDegree newScienceDegree = new ScienceDegree(null, "new");
-        int currentCount = scienceDegreeDao.count();
+        long currentCount = scienceDegreeRepository.count();
 
-        scienceDegreeDao.save(newScienceDegree);
+        scienceDegreeRepository.save(newScienceDegree);
 
-        assertThat(scienceDegreeDao.count()).isEqualTo(currentCount + 1);
+        assertThat(scienceDegreeRepository.count()).isEqualTo(currentCount + 1);
     }
 
     @Test
@@ -70,28 +70,28 @@ class ScienceDegreeDaoTest {
                 new ScienceDegree(null, "new")
         );
 
-        int currentCount = scienceDegreeDao.count();
-        scienceDegreeDao.saveAll(newScienceDegrees);
+        long currentCount = scienceDegreeRepository.count();
+        scienceDegreeRepository.saveAll(newScienceDegrees);
 
-        assertThat(scienceDegreeDao.count()).isEqualTo(currentCount + 2);
+        assertThat(scienceDegreeRepository.count()).isEqualTo(currentCount + 2);
     }
 
     @Test
     @Transactional
     void deleteByIdShouldReturnResultWhenDatabaseHaveScienceDegrees() {
-        int currentCount = scienceDegreeDao.count();
-        scienceDegreeDao.deleteById(3);
+        long currentCount = scienceDegreeRepository.count();
+        scienceDegreeRepository.deleteById(3);
 
-        assertThat(scienceDegreeDao.count()).isEqualTo(currentCount - 1);
+        assertThat(scienceDegreeRepository.count()).isEqualTo(currentCount - 1);
     }
 
     @Test
     @Transactional
     void updateShouldReturnResultWhenDatabaseHaveScienceDegrees() {
         ScienceDegree newScienceDegree = new ScienceDegree(1, "update");
-        scienceDegreeDao.update(newScienceDegree);
+        scienceDegreeRepository.save(newScienceDegree);
 
-        Optional<ScienceDegree> updateScienceDegree = scienceDegreeDao.findById(1);
+        Optional<ScienceDegree> updateScienceDegree = scienceDegreeRepository.findById(1);
 
         assertThat(updateScienceDegree).isPresent();
         assertThat(updateScienceDegree.get().getName()).isEqualTo("update");

@@ -1,10 +1,10 @@
 package com.att.university.service;
 
-import com.att.university.dao.ClassroomDao;
-import com.att.university.dao.CourseDao;
-import com.att.university.dao.GroupDao;
-import com.att.university.dao.LessonDao;
-import com.att.university.dao.TeacherDao;
+import com.att.university.dao.ClassroomRepository;
+import com.att.university.dao.CourseRepository;
+import com.att.university.dao.GroupRepository;
+import com.att.university.dao.LessonRepository;
+import com.att.university.dao.TeacherRepository;
 import com.att.university.entity.AcademicRank;
 import com.att.university.entity.Building;
 import com.att.university.entity.Classroom;
@@ -26,6 +26,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,19 +49,19 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class LessonServiceTest {
     @Mock
-    private CourseDao courseDao;
+    private CourseRepository courseRepository;
 
     @Mock
-    private TeacherDao teacherDao;
+    private TeacherRepository teacherRepository;
 
     @Mock
-    private GroupDao groupDao;
+    private GroupRepository groupRepository;
 
     @Mock
-    private LessonDao lessonDao;
+    private LessonRepository lessonRepository;
 
     @Mock
-    private ClassroomDao classroomDao;
+    private ClassroomRepository classroomRepository;
 
     @Mock
     private LessonUpdateValidator lessonUpdateValidator;
@@ -101,19 +102,19 @@ class LessonServiceTest {
         final Group group = generateGroup();
 
         doNothing().when(lessonAddValidator).validate(any(LessonAddRequest.class));
-        when(courseDao.findById(lessonAddRequest.getCourseId())).thenReturn(Optional.of(course));
-        when(teacherDao.findById(anyInt())).thenReturn(Optional.of(teacher));
-        when(groupDao.findById(anyInt())).thenReturn(Optional.of(group));
-        when(classroomDao.findById(anyInt())).thenReturn(Optional.of(classroom));
+        when(courseRepository.findById(lessonAddRequest.getCourseId())).thenReturn(Optional.of(course));
+        when(teacherRepository.findById(anyInt())).thenReturn(Optional.of(teacher));
+        when(groupRepository.findById(anyInt())).thenReturn(Optional.of(group));
+        when(classroomRepository.findById(anyInt())).thenReturn(Optional.of(classroom));
 
         lessonService.add(lessonAddRequest);
 
         verify(lessonAddValidator).validate(any(LessonAddRequest.class));
-        verify(courseDao).findById(anyInt());
-        verify(groupDao).findById(anyInt());
-        verify(teacherDao).findById(anyInt());
-        verify(classroomDao).findById(anyInt());
-        verify(lessonDao).save(any(Lesson.class));
+        verify(courseRepository).findById(anyInt());
+        verify(groupRepository).findById(anyInt());
+        verify(teacherRepository).findById(anyInt());
+        verify(classroomRepository).findById(anyInt());
+        verify(lessonRepository).save(any(Lesson.class));
     }
 
     @Test
@@ -122,13 +123,13 @@ class LessonServiceTest {
         final Course course = generateCourse();
 
         doNothing().when(lessonAddValidator).validate(any(LessonAddRequest.class));
-        when(courseDao.findById(lessonAddRequest.getCourseId())).thenReturn(Optional.of(course));
-        when(classroomDao.findById(anyInt())).thenReturn(Optional.empty());
+        when(courseRepository.findById(lessonAddRequest.getCourseId())).thenReturn(Optional.of(course));
+        when(classroomRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(RuntimeException.class, () -> lessonService.add(lessonAddRequest));
 
         verify(lessonAddValidator).validate(any(LessonAddRequest.class));
-        verifyNoMoreInteractions(courseDao, classroomDao, lessonAddValidator);
+        verifyNoMoreInteractions(courseRepository, classroomRepository, lessonAddValidator);
     }
 
     @Test
@@ -136,12 +137,12 @@ class LessonServiceTest {
         final LessonAddRequest lessonAddRequest = generateAddRequest();
 
         doNothing().when(lessonAddValidator).validate(any(LessonAddRequest.class));
-        when(courseDao.findById(lessonAddRequest.getCourseId())).thenReturn(Optional.empty());
+        when(courseRepository.findById(lessonAddRequest.getCourseId())).thenReturn(Optional.empty());
 
         assertThrows(RuntimeException.class, () -> lessonService.add(lessonAddRequest));
 
         verify(lessonAddValidator).validate(any(LessonAddRequest.class));
-        verifyNoMoreInteractions(courseDao, lessonAddValidator);
+        verifyNoMoreInteractions(courseRepository, lessonAddValidator);
     }
 
     @Test
@@ -151,14 +152,14 @@ class LessonServiceTest {
         final Classroom classroom = generateClassroom();
 
         doNothing().when(lessonAddValidator).validate(any(LessonAddRequest.class));
-        when(courseDao.findById(lessonAddRequest.getCourseId())).thenReturn(Optional.of(course));
-        when(classroomDao.findById(anyInt())).thenReturn(Optional.of(classroom));
-        when(groupDao.findById(anyInt())).thenReturn(Optional.empty());
+        when(courseRepository.findById(lessonAddRequest.getCourseId())).thenReturn(Optional.of(course));
+        when(classroomRepository.findById(anyInt())).thenReturn(Optional.of(classroom));
+        when(groupRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(RuntimeException.class, () -> lessonService.add(lessonAddRequest));
 
         verify(lessonAddValidator).validate(any(LessonAddRequest.class));
-        verifyNoMoreInteractions(courseDao, classroomDao, groupDao, lessonAddValidator);
+        verifyNoMoreInteractions(courseRepository, classroomRepository, groupRepository, lessonAddValidator);
     }
 
     @Test
@@ -169,15 +170,15 @@ class LessonServiceTest {
         final Group group = generateGroup();
 
         doNothing().when(lessonAddValidator).validate(any(LessonAddRequest.class));
-        when(courseDao.findById(lessonAddRequest.getCourseId())).thenReturn(Optional.of(course));
-        when(classroomDao.findById(anyInt())).thenReturn(Optional.of(classroom));
-        when(groupDao.findById(anyInt())).thenReturn(Optional.of(group));
-        when(teacherDao.findById(anyInt())).thenReturn(Optional.empty());
+        when(courseRepository.findById(lessonAddRequest.getCourseId())).thenReturn(Optional.of(course));
+        when(classroomRepository.findById(anyInt())).thenReturn(Optional.of(classroom));
+        when(groupRepository.findById(anyInt())).thenReturn(Optional.of(group));
+        when(teacherRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(RuntimeException.class, () -> lessonService.add(lessonAddRequest));
 
         verify(lessonAddValidator).validate(any(LessonAddRequest.class));
-        verifyNoMoreInteractions(courseDao, classroomDao, groupDao, teacherDao, lessonAddValidator);
+        verifyNoMoreInteractions(courseRepository, classroomRepository, groupRepository, teacherRepository, lessonAddValidator);
     }
 
     @Test
@@ -191,21 +192,21 @@ class LessonServiceTest {
         final Group group = generateGroup();
 
         doNothing().when(lessonUpdateValidator).validate(any(LessonUpdateRequest.class));
-        when(lessonDao.findById(anyInt())).thenReturn(Optional.of(lesson));
-        when(courseDao.findById(anyInt())).thenReturn(Optional.of(course));
-        when(teacherDao.findById(anyInt())).thenReturn(Optional.of(teacher));
-        when(groupDao.findById(anyInt())).thenReturn(Optional.of(group));
-        when(classroomDao.findById(anyInt())).thenReturn(Optional.of(classroom));
+        when(lessonRepository.findById(anyInt())).thenReturn(Optional.of(lesson));
+        when(courseRepository.findById(anyInt())).thenReturn(Optional.of(course));
+        when(teacherRepository.findById(anyInt())).thenReturn(Optional.of(teacher));
+        when(groupRepository.findById(anyInt())).thenReturn(Optional.of(group));
+        when(classroomRepository.findById(anyInt())).thenReturn(Optional.of(classroom));
 
         lessonService.update(lessonUpdateRequest);
 
         verify(lessonUpdateValidator).validate(any(LessonUpdateRequest.class));
-        verify(courseDao).findById(anyInt());
-        verify(lessonDao).findById(anyInt());
-        verify(groupDao).findById(anyInt());
-        verify(teacherDao).findById(anyInt());
-        verify(classroomDao).findById(anyInt());
-        verify(lessonDao).update(any(Lesson.class));
+        verify(courseRepository).findById(anyInt());
+        verify(lessonRepository).findById(anyInt());
+        verify(groupRepository).findById(anyInt());
+        verify(teacherRepository).findById(anyInt());
+        verify(classroomRepository).findById(anyInt());
+        verify(lessonRepository).save(any(Lesson.class));
     }
 
     @Test
@@ -214,12 +215,12 @@ class LessonServiceTest {
 
 
         doNothing().when(lessonUpdateValidator).validate(any(LessonUpdateRequest.class));
-        when(lessonDao.findById(anyInt())).thenReturn(Optional.empty());
+        when(lessonRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(LessonNotFoundException.class, () -> lessonService.update(updateRequest));
 
         verify(lessonUpdateValidator).validate(any(LessonUpdateRequest.class));
-        verifyNoMoreInteractions(lessonDao, lessonUpdateValidator);
+        verifyNoMoreInteractions(lessonRepository, lessonUpdateValidator);
     }
 
     @Test
@@ -230,14 +231,14 @@ class LessonServiceTest {
         final Course course = generateCourse();
 
         doNothing().when(lessonUpdateValidator).validate(any(LessonUpdateRequest.class));
-        when(lessonDao.findById(anyInt())).thenReturn(Optional.of(lesson));
-        when(courseDao.findById(anyInt())).thenReturn(Optional.of(course));
-        when(classroomDao.findById(anyInt())).thenReturn(Optional.empty());
+        when(lessonRepository.findById(anyInt())).thenReturn(Optional.of(lesson));
+        when(courseRepository.findById(anyInt())).thenReturn(Optional.of(course));
+        when(classroomRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(LessonNotFoundException.class, () -> lessonService.update(updateRequest));
 
         verify(lessonUpdateValidator).validate(any(LessonUpdateRequest.class));
-        verifyNoMoreInteractions(courseDao, classroomDao, lessonDao, lessonAddValidator);
+        verifyNoMoreInteractions(courseRepository, classroomRepository, lessonRepository, lessonAddValidator);
     }
 
     @Test
@@ -247,13 +248,13 @@ class LessonServiceTest {
         final Lesson lesson = generateLesson();
 
         doNothing().when(lessonUpdateValidator).validate(any(LessonUpdateRequest.class));
-        when(lessonDao.findById(anyInt())).thenReturn(Optional.of(lesson));
-        when(courseDao.findById(anyInt())).thenReturn(Optional.empty());
+        when(lessonRepository.findById(anyInt())).thenReturn(Optional.of(lesson));
+        when(courseRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(LessonNotFoundException.class, () -> lessonService.update(updateRequest));
 
         verify(lessonUpdateValidator).validate(any(LessonUpdateRequest.class));
-        verifyNoMoreInteractions(courseDao, lessonDao, lessonAddValidator);
+        verifyNoMoreInteractions(courseRepository, lessonRepository, lessonAddValidator);
     }
 
     @Test
@@ -266,21 +267,21 @@ class LessonServiceTest {
         final Group group = generateGroup();
 
         doNothing().when(lessonUpdateValidator).validate(any(LessonUpdateRequest.class));
-        when(lessonDao.findById(anyInt())).thenReturn(Optional.of(lesson));
-        when(courseDao.findById(anyInt())).thenReturn(Optional.of(course));
-        when(groupDao.findById(anyInt())).thenReturn(Optional.of(group));
-        when(classroomDao.findById(anyInt())).thenReturn(Optional.of(classroom));
-        when(teacherDao.findById(anyInt())).thenReturn(Optional.empty());
+        when(lessonRepository.findById(anyInt())).thenReturn(Optional.of(lesson));
+        when(courseRepository.findById(anyInt())).thenReturn(Optional.of(course));
+        when(groupRepository.findById(anyInt())).thenReturn(Optional.of(group));
+        when(classroomRepository.findById(anyInt())).thenReturn(Optional.of(classroom));
+        when(teacherRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(LessonNotFoundException.class, () -> lessonService.update(updateRequest));
 
         verify(lessonUpdateValidator).validate(any(LessonUpdateRequest.class));
-        verify(courseDao).findById(anyInt());
-        verify(lessonDao).findById(anyInt());
-        verify(groupDao).findById(anyInt());
-        verify(teacherDao).findById(anyInt());
-        verify(classroomDao).findById(anyInt());
-        verifyNoMoreInteractions(courseDao, lessonDao, groupDao, lessonUpdateValidator, teacherDao, classroomDao);
+        verify(courseRepository).findById(anyInt());
+        verify(lessonRepository).findById(anyInt());
+        verify(groupRepository).findById(anyInt());
+        verify(teacherRepository).findById(anyInt());
+        verify(classroomRepository).findById(anyInt());
+        verifyNoMoreInteractions(courseRepository, lessonRepository, groupRepository, lessonUpdateValidator, teacherRepository, classroomRepository);
     }
 
     @Test
@@ -292,37 +293,37 @@ class LessonServiceTest {
         final Classroom classroom = generateClassroom();
 
         doNothing().when(lessonUpdateValidator).validate(any(LessonUpdateRequest.class));
-        when(lessonDao.findById(anyInt())).thenReturn(Optional.of(lesson));
-        when(courseDao.findById(anyInt())).thenReturn(Optional.of(course));
-        when(classroomDao.findById(anyInt())).thenReturn(Optional.of(classroom));
-        when(groupDao.findById(anyInt())).thenReturn(Optional.empty());
+        when(lessonRepository.findById(anyInt())).thenReturn(Optional.of(lesson));
+        when(courseRepository.findById(anyInt())).thenReturn(Optional.of(course));
+        when(classroomRepository.findById(anyInt())).thenReturn(Optional.of(classroom));
+        when(groupRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(LessonNotFoundException.class, () -> lessonService.update(updateRequest));
 
         verify(lessonUpdateValidator).validate(any(LessonUpdateRequest.class));
-        verify(courseDao).findById(anyInt());
-        verify(lessonDao).findById(anyInt());
-        verify(groupDao).findById(anyInt());
-        verify(classroomDao).findById(anyInt());
-        verifyNoMoreInteractions(courseDao, lessonDao, groupDao, lessonUpdateValidator, teacherDao, classroomDao);
+        verify(courseRepository).findById(anyInt());
+        verify(lessonRepository).findById(anyInt());
+        verify(groupRepository).findById(anyInt());
+        verify(classroomRepository).findById(anyInt());
+        verifyNoMoreInteractions(courseRepository, lessonRepository, groupRepository, lessonUpdateValidator, teacherRepository, classroomRepository);
     }
 
     @Test
     void findTeacherLessonWeeksShouldNotThrowException() {
-        List<LocalDateTime> weeks = Arrays.asList(
-                LocalDateTime.now(),
-                LocalDateTime.now()
+        List<Timestamp> weeks = Arrays.asList(
+                Timestamp.valueOf(LocalDateTime.now()),
+                Timestamp.valueOf(LocalDateTime.now())
         );
 
         LocalDateTime startDate = LocalDateTime.parse("2020-10-12T10:23");
         LocalDateTime endDate = LocalDateTime.parse("2020-10-15T10:23");
 
-        when(lessonDao.findTeacherLessonWeeks(eq(startDate), eq(endDate), anyInt()))
+        when(lessonRepository.findTeacherLessonWeeks(eq(startDate), eq(endDate), anyInt()))
                 .thenReturn(weeks);
 
         assertDoesNotThrow(() -> lessonService.findTeacherLessonWeeks(startDate, endDate, 1));
 
-        verify(lessonDao).findTeacherLessonWeeks(any(LocalDateTime.class), any(LocalDateTime.class), anyInt());
+        verify(lessonRepository).findTeacherLessonWeeks(any(LocalDateTime.class), any(LocalDateTime.class), anyInt());
     }
 
     @Test
@@ -334,7 +335,7 @@ class LessonServiceTest {
 
         assertDoesNotThrow(() -> lessonService.findTeacherWeekSchedule(1, weeks, 1));
 
-        verify(lessonDao).findByDateBetweenAndTeacherId(eq(1), any(LocalDateTime.class), any(LocalDateTime.class));
+        verify(lessonRepository).findByDateBetweenAndTeacherId(any(LocalDateTime.class), any(LocalDateTime.class), eq(1));
     }
 
     @Test
@@ -343,12 +344,12 @@ class LessonServiceTest {
         LocalDateTime startDate = LocalDateTime.parse("2020-10-12T10:23");
         LocalDateTime endDate = LocalDateTime.parse("2020-10-15T10:23");
 
-        when(lessonDao.findByDateBetweenAndTeacherId(anyInt(), any(LocalDateTime.class), any(LocalDateTime.class)))
+        when(lessonRepository.findByDateBetweenAndTeacherId(any(LocalDateTime.class), any(LocalDateTime.class), anyInt()))
                 .thenReturn(lessons);
 
         assertDoesNotThrow(() -> lessonService.findByDateBetweenAndTeacherId(startDate, endDate, 1));
 
-        verify(lessonDao).findByDateBetweenAndTeacherId(eq(1), any(LocalDateTime.class), any(LocalDateTime.class));
+        verify(lessonRepository).findByDateBetweenAndTeacherId(any(LocalDateTime.class), any(LocalDateTime.class), eq(1));
     }
 
     @Test
@@ -357,57 +358,57 @@ class LessonServiceTest {
         LocalDateTime startDate = LocalDateTime.parse("2020-10-12T10:23");
         LocalDateTime endDate = LocalDateTime.parse("2020-10-15T10:23");
 
-        when(lessonDao.findByDateBetween(any(LocalDateTime.class), any(LocalDateTime.class)))
+        when(lessonRepository.findByDateBetween(any(LocalDateTime.class), any(LocalDateTime.class)))
                 .thenReturn(lessons);
 
         assertDoesNotThrow(() -> lessonService.findByDateBetween(startDate, endDate));
 
-        verify(lessonDao).findByDateBetween(any(LocalDateTime.class), any(LocalDateTime.class));
+        verify(lessonRepository).findByDateBetween(any(LocalDateTime.class), any(LocalDateTime.class));
     }
 
     @Test
     void findByIdShouldThrowExceptionWhenLessonDoesNotExist() {
         Integer id = 4;
 
-        when(lessonDao.findById(anyInt())).thenReturn(Optional.empty());
+        when(lessonRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(LessonNotFoundException.class, () -> lessonService.findById(id));
 
-        verify(lessonDao).findById(anyInt());
-        verifyNoMoreInteractions(lessonDao);
+        verify(lessonRepository).findById(anyInt());
+        verifyNoMoreInteractions(lessonRepository);
     }
 
     @Test
     void findByIdShouldReturnLessonWhenStudentExists() {
         Integer id = 4;
 
-        when(lessonDao.findById(anyInt())).thenReturn(Optional.of(generateLesson()));
+        when(lessonRepository.findById(anyInt())).thenReturn(Optional.of(generateLesson()));
 
         lessonService.findById(id);
 
-        verify(lessonDao).findById(anyInt());
-        verifyNoMoreInteractions(lessonDao);
+        verify(lessonRepository).findById(anyInt());
+        verifyNoMoreInteractions(lessonRepository);
     }
 
     @Test
     void deleteLessonShouldThrowNotFoundExceptionIfLessonNotFound() {
-        when(lessonDao.findById(anyInt())).thenReturn(Optional.empty());
+        when(lessonRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(LessonNotFoundException.class, () -> lessonService.deleteById(1));
 
-        verify(lessonDao).findById(anyInt());
-        verifyNoMoreInteractions(lessonDao);
+        verify(lessonRepository).findById(anyInt());
+        verifyNoMoreInteractions(lessonRepository);
     }
 
     @Test
     void deleteStudentShouldNotThrowExceptionIfStudentIsFound() {
-        when(lessonDao.findById(anyInt())).thenReturn(Optional.of(generateLesson()));
+        when(lessonRepository.findById(anyInt())).thenReturn(Optional.of(generateLesson()));
 
         lessonService.deleteById(1);
 
-        verify(lessonDao).findById(anyInt());
-        verify(lessonDao).deleteById(anyInt());
-        verifyNoMoreInteractions(lessonDao);
+        verify(lessonRepository).findById(anyInt());
+        verify(lessonRepository).deleteById(anyInt());
+        verifyNoMoreInteractions(lessonRepository);
     }
 
     private LessonAddRequest generateAddRequest() {

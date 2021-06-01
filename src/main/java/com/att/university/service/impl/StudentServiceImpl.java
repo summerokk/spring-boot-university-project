@@ -1,7 +1,7 @@
 package com.att.university.service.impl;
 
-import com.att.university.dao.GroupDao;
-import com.att.university.dao.StudentDao;
+import com.att.university.dao.GroupRepository;
+import com.att.university.dao.StudentRepository;
 import com.att.university.entity.Group;
 import com.att.university.entity.Student;
 import com.att.university.exception.dao.GroupNotFoundException;
@@ -18,11 +18,11 @@ import com.att.university.validator.person.StudentUpdateValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Component("studentService")
 @Slf4j
@@ -31,8 +31,8 @@ import java.util.List;
 public class StudentServiceImpl implements StudentService {
     private static final String STUDENT_NOT_FOUND = "Student is not found";
 
-    private final StudentDao studentDao;
-    private final GroupDao groupDao;
+    private final StudentRepository studentRepository;
+    private final GroupRepository groupRepository;
     private final StudentRegisterValidator studentRegisterValidator;
     private final StudentUpdateValidator studentUpdateValidator;
     private final PasswordEncoder passwordEncoder;
@@ -44,11 +44,11 @@ public class StudentServiceImpl implements StudentService {
 
         log.debug("Student registration with request {}", studentRegisterRequest);
 
-        if (studentDao.findByEmail(studentRegisterRequest.getEmail()).isPresent()) {
+        if (studentRepository.findByEmail(studentRegisterRequest.getEmail()).isPresent()) {
             throw new EmailAlreadyExistsException("Email already exists");
         }
 
-        studentDao.save(registerRequestMapper.convertToEntity(studentRegisterRequest,
+        studentRepository.save(registerRequestMapper.convertToEntity(studentRegisterRequest,
                 passwordEncoder.encode(studentRegisterRequest.getPassword())));
     }
 
@@ -58,20 +58,20 @@ public class StudentServiceImpl implements StudentService {
 
         log.debug("Student update with request {}", studentUpdateRequest);
 
-        Student student = studentDao.findById(studentUpdateRequest.getId())
+        Student student = studentRepository.findById(studentUpdateRequest.getId())
                 .orElseThrow(() -> new PersonNotFoundException(STUDENT_NOT_FOUND));
 
-        Group group = groupDao.findById(studentUpdateRequest.getGroupId())
+        Group group = groupRepository.findById(studentUpdateRequest.getGroupId())
                 .orElseThrow(() -> new GroupNotFoundException("Group is not found"));
 
-        studentDao.update(updateRequestMapper.convertToEntity(studentUpdateRequest, group, student.getPassword()));
+        studentRepository.save(updateRequestMapper.convertToEntity(studentUpdateRequest, group, student.getPassword()));
     }
 
     @Override
     public boolean login(String email, String password) {
         log.debug("Student login with login {}", email);
 
-        Student student = studentDao.findByEmail(email)
+        Student student = studentRepository.findByEmail(email)
                 .orElseThrow(() -> new LoginFailException(STUDENT_NOT_FOUND));
 
         return passwordEncoder.matches(password, student.getPassword());
@@ -79,34 +79,29 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public Student findById(Integer id) {
-        return studentDao.findById(id)
+        return studentRepository.findById(id)
                 .orElseThrow(() -> new PersonNotFoundException(STUDENT_NOT_FOUND));
     }
 
     @Override
     public Student findByEmail(String email) {
-        return studentDao.findByEmail(email)
+        return studentRepository.findByEmail(email)
                 .orElseThrow(() -> new PersonNotFoundException(STUDENT_NOT_FOUND));
     }
 
     @Override
-    public List<Student> findAll(int page, int count) {
-        return studentDao.findAll(page, count);
-    }
-
-    @Override
-    public int count() {
-        return studentDao.count();
+    public Page<Student> findAll(Pageable pageable) {
+        return studentRepository.findAll(pageable);
     }
 
     @Override
     public void delete(Integer id) {
-        if (!studentDao.findById(id).isPresent()) {
+        if (!studentRepository.findById(id).isPresent()) {
             throw new PersonNotFoundException(STUDENT_NOT_FOUND);
         }
 
         log.debug("Student deleting with id {}", id);
 
-        studentDao.deleteById(id);
+        studentRepository.deleteById(id);
     }
 }

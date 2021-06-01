@@ -3,8 +3,8 @@ package com.att.university.service;
 import com.att.university.entity.Student;
 import com.att.university.request.person.student.StudentRegisterRequest;
 import com.att.university.request.person.student.StudentUpdateRequest;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface StudentService {
     void register(StudentRegisterRequest student);
@@ -19,7 +19,5 @@ public interface StudentService {
 
     Student findByEmail(String email);
 
-    List<Student> findAll(int page, int count);
-
-    int count();
+    Page<Student> findAll(Pageable pageable);
 }

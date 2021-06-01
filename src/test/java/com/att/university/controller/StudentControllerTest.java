@@ -20,6 +20,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -184,8 +187,9 @@ class StudentControllerTest {
 
     @Test
     void performShowAllGetRequestStudentShouldReturn200StatusWithAttributes() throws Exception {
-        when(studentService.findAll(anyInt(), anyInt())).thenReturn(generateStudents());
-        when(groupService.findAll()).thenReturn(generateGroups());
+        Page<Student> students = new PageImpl<>(generateStudents());
+
+        when(studentService.findAll(any(PageRequest.class))).thenReturn(students);
 
         int page = 1;
         int countStudents = 2;
@@ -193,7 +197,7 @@ class StudentControllerTest {
         this.mockMvc
                 .perform(get("/students/{page}/{count}", page, countStudents))
                 .andExpect(status().isOk())
-                .andExpect(model().attributeExists("countPages", "page", "count", "students"))
+                .andExpect(model().attributeExists("students"))
                 .andReturn();
     }
 

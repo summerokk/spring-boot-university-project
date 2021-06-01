@@ -20,9 +20,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @TestPropertySource("/application-test.properties")
 @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = {"classpath:TestData.sql"})
-class CourseDaoTest {
+class CourseRepositoryTest {
     @Autowired
-    private CourseDao courseDao;
+    private CourseRepository courseRepository;
 
     @Test
     void findAllShouldReturnResultWhenDatabaseHaveCourses() {
@@ -32,13 +32,13 @@ class CourseDaoTest {
                 new Course(3, "Biology")
         );
 
-        assertThat(courseDao.findAll(1, courseDao.count())).isEqualTo(expected);
+        assertThat(courseRepository.findAll()).isEqualTo(expected);
     }
 
     @Test
     void findByIdShouldReturnResultWhenDatabaseHaveCourses() {
         Course expected = new Course(1, "Special Topics in Agronomy");
-        Optional<Course> actual = courseDao.findById(1);
+        Optional<Course> actual = courseRepository.findById(1);
 
         assertThat(actual).isPresent().hasValue(expected);
     }
@@ -47,18 +47,18 @@ class CourseDaoTest {
     void countShouldReturnResultWhenDatabaseHaveCourses() {
         int expected = 3;
 
-        assertThat(courseDao.count()).isEqualTo(expected);
+        assertThat(courseRepository.count()).isEqualTo(expected);
     }
 
     @Test
     @Transactional
     void saveShouldReturnResultWhenDatabaseHaveCourses() {
         Course newCourse = new Course(null, "new");
-        int currentCount = courseDao.count();
+        long currentCount = courseRepository.count();
 
-        courseDao.save(newCourse);
+        courseRepository.save(newCourse);
 
-        assertThat(courseDao.count()).isEqualTo(currentCount + 1);
+        assertThat(courseRepository.count()).isEqualTo(currentCount + 1);
     }
 
     @Test
@@ -69,28 +69,28 @@ class CourseDaoTest {
                 new Course(null, "new")
         );
 
-        int currentCount = courseDao.count();
-        courseDao.saveAll(newCourses);
+        long currentCount = courseRepository.count();
+        courseRepository.saveAll(newCourses);
 
-        assertThat(courseDao.count()).isEqualTo(currentCount + 2);
+        assertThat(courseRepository.count()).isEqualTo(currentCount + 2);
     }
 
     @Test
     @Transactional
     void deleteByIdShouldReturnResultWhenDatabaseHaveCourses() {
-        int currentCount = courseDao.count();
-        courseDao.deleteById(3);
+        long currentCount = courseRepository.count();
+        courseRepository.deleteById(3);
 
-        assertThat(courseDao.count()).isEqualTo(currentCount - 1);
+        assertThat(courseRepository.count()).isEqualTo(currentCount - 1);
     }
 
     @Test
     @Transactional
     void updateShouldReturnResultWhenDatabaseHaveCourses() {
         Course newCourse = new Course(1, "update");
-        courseDao.update(newCourse);
+        courseRepository.save(newCourse);
 
-        Optional<Course> updateCourse = courseDao.findById(1);
+        Optional<Course> updateCourse = courseRepository.findById(1);
 
         assertThat(updateCourse).isPresent();
         assertThat(updateCourse.get().getName()).isEqualTo("update");

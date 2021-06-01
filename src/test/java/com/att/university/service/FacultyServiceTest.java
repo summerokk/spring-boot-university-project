@@ -1,6 +1,6 @@
 package com.att.university.service;
 
-import com.att.university.dao.FacultyDao;
+import com.att.university.dao.FacultyRepository;
 import com.att.university.entity.Faculty;
 import com.att.university.exception.dao.FacultyNotFoundException;
 import com.att.university.mapper.faculty.FacultyAddRequestMapper;
@@ -33,7 +33,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class FacultyServiceTest {
     @Mock
-    private FacultyDao facultyDao;
+    private FacultyRepository facultyRepository;
 
     @Mock
     private FacultyUpdateValidator updateValidator;
@@ -56,13 +56,13 @@ class FacultyServiceTest {
         final Faculty Faculty = generateFaculties().get(0);
 
         doNothing().when(updateValidator).validate(any(FacultyUpdateRequest.class));
-        when(facultyDao.findById(Faculty.getId())).thenReturn(Optional.empty());
+        when(facultyRepository.findById(Faculty.getId())).thenReturn(Optional.empty());
 
         assertThrows(FacultyNotFoundException.class, () -> facultyService.update(request));
 
         verify(updateValidator).validate(any(FacultyUpdateRequest.class));
-        verify(facultyDao).findById(anyInt());
-        verifyNoMoreInteractions(facultyDao, updateValidator);
+        verify(facultyRepository).findById(anyInt());
+        verifyNoMoreInteractions(facultyRepository, updateValidator);
     }
 
     @Test
@@ -71,24 +71,24 @@ class FacultyServiceTest {
         final Faculty Faculty = generateFaculties().get(0);
 
         doNothing().when(updateValidator).validate(any(FacultyUpdateRequest.class));
-        when(facultyDao.findById(Faculty.getId())).thenReturn(Optional.of(generateFaculties().get(0)));
+        when(facultyRepository.findById(Faculty.getId())).thenReturn(Optional.of(generateFaculties().get(0)));
         when(updateRequestMapper.convertToEntity(any(FacultyUpdateRequest.class))).thenReturn((generateFaculties().get(0)));
 
         facultyService.update(request);
 
         verify(updateValidator).validate(any(FacultyUpdateRequest.class));
-        verify(facultyDao).findById(anyInt());
-        verify(facultyDao).update(any(Faculty.class));
-        verifyNoMoreInteractions(facultyDao, updateValidator);
+        verify(facultyRepository).findById(anyInt());
+        verify(facultyRepository).save(any(Faculty.class));
+        verifyNoMoreInteractions(facultyRepository, updateValidator);
     }
 
     @Test
     void findAllShouldNotThrowException() {
-        when(facultyDao.findAll(anyInt(), anyInt())).thenReturn(new ArrayList<>());
+        when(facultyRepository.findAll()).thenReturn(new ArrayList<>());
 
         assertDoesNotThrow(() -> facultyService.findAll());
 
-        verify(facultyDao).findAll(anyInt(), anyInt());
+        verify(facultyRepository).findAll();
     }
 
 
@@ -96,24 +96,24 @@ class FacultyServiceTest {
     void findByIdSShouldThrowNotFoundExceptionIfFacultyNotFound() {
         Integer id = 4;
 
-        when(facultyDao.findById(anyInt())).thenReturn(Optional.empty());
+        when(facultyRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(FacultyNotFoundException.class, () -> facultyService.findById(id));
 
-        verify(facultyDao).findById(anyInt());
-        verifyNoMoreInteractions(facultyDao);
+        verify(facultyRepository).findById(anyInt());
+        verifyNoMoreInteractions(facultyRepository);
     }
 
     @Test
     void findByIdShouldReturnEntityWhenFacultyExists() {
         Integer id = 4;
 
-        when(facultyDao.findById(anyInt())).thenReturn(Optional.of(generateFaculties().get(0)));
+        when(facultyRepository.findById(anyInt())).thenReturn(Optional.of(generateFaculties().get(0)));
 
         facultyService.findById(id);
 
-        verify(facultyDao).findById(anyInt());
-        verifyNoMoreInteractions(facultyDao);
+        verify(facultyRepository).findById(anyInt());
+        verifyNoMoreInteractions(facultyRepository);
     }
 
     @Test
@@ -125,29 +125,29 @@ class FacultyServiceTest {
         facultyService.create(request);
 
         verify(addValidator).validate(any(FacultyAddRequest.class));
-        verify(facultyDao).save(any(Faculty.class));
-        verifyNoMoreInteractions(facultyDao, addValidator);
+        verify(facultyRepository).save(any(Faculty.class));
+        verifyNoMoreInteractions(facultyRepository, addValidator);
     }
 
     @Test
     void deleteFacultyShouldThrowNotFoundExceptionIfFacultyNotFound() {
-        when(facultyDao.findById(anyInt())).thenReturn(Optional.empty());
+        when(facultyRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(FacultyNotFoundException.class, () -> facultyService.deleteById(1));
 
-        verify(facultyDao).findById(anyInt());
-        verifyNoMoreInteractions(facultyDao);
+        verify(facultyRepository).findById(anyInt());
+        verifyNoMoreInteractions(facultyRepository);
     }
 
     @Test
     void deleteFacultyShouldNotThrowExceptionIfFacultyIsFound() {
-        when(facultyDao.findById(anyInt())).thenReturn(Optional.of(generateFaculties().get(0)));
+        when(facultyRepository.findById(anyInt())).thenReturn(Optional.of(generateFaculties().get(0)));
 
         facultyService.deleteById(1);
 
-        verify(facultyDao).findById(anyInt());
-        verify(facultyDao).deleteById(anyInt());
-        verifyNoMoreInteractions(facultyDao);
+        verify(facultyRepository).findById(anyInt());
+        verify(facultyRepository).deleteById(anyInt());
+        verifyNoMoreInteractions(facultyRepository);
     }
 
     private List<Faculty> generateFaculties() {

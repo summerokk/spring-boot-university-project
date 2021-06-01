@@ -1,6 +1,6 @@
 package com.att.university.service.impl;
 
-import com.att.university.dao.CourseDao;
+import com.att.university.dao.CourseRepository;
 import com.att.university.entity.Course;
 import com.att.university.exception.dao.CourseNotFoundException;
 import com.att.university.mapper.course.CourseAddRequestMapper;
@@ -24,7 +24,7 @@ import java.util.List;
 public class CourseServiceImpl implements CourseService {
     private static final String COURSE_NOT_FOUND = "Course with Id %d is not found";
 
-    private final CourseDao courseDao;
+    private final CourseRepository courseRepository;
     private final CourseUpdateValidator updateValidator;
     private final CourseAddValidator addValidator;
     private final CourseAddRequestMapper addRequestMapper;
@@ -32,12 +32,12 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public List<Course> findAll() {
-        return courseDao.findAll(1, courseDao.count());
+        return courseRepository.findAll();
     }
 
     @Override
     public Course findById(Integer id) {
-        return courseDao.findById(id)
+        return courseRepository.findById(id)
                 .orElseThrow(() -> new CourseNotFoundException(String.format(COURSE_NOT_FOUND, id)));
     }
 
@@ -48,7 +48,7 @@ public class CourseServiceImpl implements CourseService {
 
         addValidator.validate(addRequest);
 
-        courseDao.save(addRequestMapper.convertToEntity(addRequest));
+        courseRepository.save(addRequestMapper.convertToEntity(addRequest));
     }
 
     @Override
@@ -56,22 +56,22 @@ public class CourseServiceImpl implements CourseService {
     public void update(CourseUpdateRequest updateRequest) {
         updateValidator.validate(updateRequest);
 
-        if (!courseDao.findById(updateRequest.getId()).isPresent()) {
+        if (!courseRepository.findById(updateRequest.getId()).isPresent()) {
             throw new CourseNotFoundException(String.format(COURSE_NOT_FOUND, updateRequest.getId()));
         }
 
-        courseDao.update(updateRequestMapper.convertToEntity(updateRequest));
+        courseRepository.save(updateRequestMapper.convertToEntity(updateRequest));
     }
 
     @Override
     @Transactional
     public void deleteById(Integer id) {
-        if (!courseDao.findById(id).isPresent()) {
+        if (!courseRepository.findById(id).isPresent()) {
             throw new CourseNotFoundException(String.format(COURSE_NOT_FOUND, id));
         }
 
         log.debug("Course deleting with id {}", id);
 
-        courseDao.deleteById(id);
+        courseRepository.deleteById(id);
     }
 }

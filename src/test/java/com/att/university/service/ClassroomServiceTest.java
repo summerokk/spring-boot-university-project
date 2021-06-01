@@ -1,7 +1,7 @@
 package com.att.university.service;
 
-import com.att.university.dao.BuildingDao;
-import com.att.university.dao.ClassroomDao;
+import com.att.university.dao.BuildingRepository;
+import com.att.university.dao.ClassroomRepository;
 import com.att.university.entity.Building;
 import com.att.university.entity.Classroom;
 import com.att.university.exception.dao.BuildingNotFoundException;
@@ -36,10 +36,10 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class ClassroomServiceTest {
     @Mock
-    private ClassroomDao classroomDao;
+    private ClassroomRepository classroomRepository;
 
     @Mock
-    private BuildingDao buildingDao;
+    private BuildingRepository buildingRepository;
 
     @Mock
     private ClassroomUpdateValidator updateValidator;
@@ -62,7 +62,7 @@ class ClassroomServiceTest {
 
         assertDoesNotThrow(() -> classroomService.findAll());
 
-        verify(classroomDao).findAll(anyInt(), anyInt());
+        verify(classroomRepository).findAll();
     }
 
     @Test
@@ -70,13 +70,13 @@ class ClassroomServiceTest {
         final ClassroomUpdateRequest request = generateUpdateRequest();
 
         doNothing().when(updateValidator).validate(any(ClassroomUpdateRequest.class));
-        when(classroomDao.findById(anyInt())).thenReturn(Optional.empty());
+        when(classroomRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(ClassroomNotFoundException.class, () -> classroomService.update(request));
 
         verify(updateValidator).validate(any(ClassroomUpdateRequest.class));
-        verify(classroomDao).findById(anyInt());
-        verifyNoMoreInteractions(classroomDao, updateValidator);
+        verify(classroomRepository).findById(anyInt());
+        verifyNoMoreInteractions(classroomRepository, updateValidator);
     }
 
     @Test
@@ -85,15 +85,15 @@ class ClassroomServiceTest {
         final Classroom Classroom = generateClassrooms().get(0);
 
         doNothing().when(updateValidator).validate(any(ClassroomUpdateRequest.class));
-        when(classroomDao.findById(anyInt())).thenReturn(Optional.of(Classroom));
-        when(buildingDao.findById(anyInt())).thenReturn(Optional.empty());
+        when(classroomRepository.findById(anyInt())).thenReturn(Optional.of(Classroom));
+        when(buildingRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(BuildingNotFoundException.class, () -> classroomService.update(request));
 
         verify(updateValidator).validate(any(ClassroomUpdateRequest.class));
-        verify(classroomDao).findById(anyInt());
-        verify(buildingDao).findById(anyInt());
-        verifyNoMoreInteractions(classroomDao, buildingDao, updateValidator);
+        verify(classroomRepository).findById(anyInt());
+        verify(buildingRepository).findById(anyInt());
+        verifyNoMoreInteractions(classroomRepository, buildingRepository, updateValidator);
     }
 
     @Test
@@ -102,41 +102,41 @@ class ClassroomServiceTest {
         final Classroom Classroom = generateClassrooms().get(0);
 
         doNothing().when(updateValidator).validate(any(ClassroomUpdateRequest.class));
-        when(classroomDao.findById(anyInt())).thenReturn(Optional.of(Classroom));
-        when(buildingDao.findById(anyInt())).thenReturn(Optional.of(Classroom.getBuilding()));
+        when(classroomRepository.findById(anyInt())).thenReturn(Optional.of(Classroom));
+        when(buildingRepository.findById(anyInt())).thenReturn(Optional.of(Classroom.getBuilding()));
         when(updateRequestMapper.convertToEntity(any(ClassroomUpdateRequest.class), any(Building.class))).thenReturn(Classroom);
 
         classroomService.update(request);
 
         verify(updateValidator).validate(any(ClassroomUpdateRequest.class));
-        verify(classroomDao).findById(anyInt());
-        verify(buildingDao).findById(anyInt());
-        verify(classroomDao).update(any(Classroom.class));
-        verifyNoMoreInteractions(classroomDao, updateValidator);
+        verify(classroomRepository).findById(anyInt());
+        verify(buildingRepository).findById(anyInt());
+        verify(classroomRepository).save(any(Classroom.class));
+        verifyNoMoreInteractions(classroomRepository, updateValidator);
     }
 
     @Test
     void findByIdSShouldThrowNotFoundExceptionIfCourseNotFound() {
         Integer id = 4;
 
-        when(classroomDao.findById(anyInt())).thenReturn(Optional.empty());
+        when(classroomRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(ClassroomNotFoundException.class, () -> classroomService.findById(id));
 
-        verify(classroomDao).findById(anyInt());
-        verifyNoMoreInteractions(classroomDao);
+        verify(classroomRepository).findById(anyInt());
+        verifyNoMoreInteractions(classroomRepository);
     }
 
     @Test
     void findByIdShouldReturnEntityWhenCourseExists() {
         Integer id = 4;
 
-        when(classroomDao.findById(anyInt())).thenReturn(Optional.of(generateClassrooms().get(0)));
+        when(classroomRepository.findById(anyInt())).thenReturn(Optional.of(generateClassrooms().get(0)));
 
         classroomService.findById(id);
 
-        verify(classroomDao).findById(anyInt());
-        verifyNoMoreInteractions(classroomDao);
+        verify(classroomRepository).findById(anyInt());
+        verifyNoMoreInteractions(classroomRepository);
     }
 
     @Test
@@ -146,14 +146,14 @@ class ClassroomServiceTest {
 
         doNothing().when(addValidator).validate(any(ClassroomAddRequest.class));
         when(addRequestMapper.convertToEntity(any(ClassroomAddRequest.class), any(Building.class))).thenReturn(Classroom);
-        when(buildingDao.findById(anyInt())).thenReturn(Optional.of(Classroom.getBuilding()));
+        when(buildingRepository.findById(anyInt())).thenReturn(Optional.of(Classroom.getBuilding()));
 
         classroomService.create(request);
 
         verify(addValidator).validate(any(ClassroomAddRequest.class));
-        verify(classroomDao).save(any(Classroom.class));
-        verify(buildingDao).findById(anyInt());
-        verifyNoMoreInteractions(classroomDao, addValidator);
+        verify(classroomRepository).save(any(Classroom.class));
+        verify(buildingRepository).findById(anyInt());
+        verifyNoMoreInteractions(classroomRepository, addValidator);
     }
 
     @Test
@@ -161,34 +161,34 @@ class ClassroomServiceTest {
         final ClassroomAddRequest request = generateAddRequest();
 
         doNothing().when(addValidator).validate(any(ClassroomAddRequest.class));
-        when(buildingDao.findById(anyInt())).thenReturn(Optional.empty());
+        when(buildingRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(BuildingNotFoundException.class, () -> classroomService.create(request));
 
         verify(addValidator).validate(any(ClassroomAddRequest.class));
-        verify(buildingDao).findById(anyInt());
-        verifyNoMoreInteractions(buildingDao, addValidator);
+        verify(buildingRepository).findById(anyInt());
+        verifyNoMoreInteractions(buildingRepository, addValidator);
     }
 
     @Test
     void deleteCourseShouldThrowNotFoundExceptionIfCourseNotFound() {
-        when(classroomDao.findById(anyInt())).thenReturn(Optional.empty());
+        when(classroomRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(ClassroomNotFoundException.class, () -> classroomService.deleteById(1));
 
-        verify(classroomDao).findById(anyInt());
-        verifyNoMoreInteractions(classroomDao);
+        verify(classroomRepository).findById(anyInt());
+        verifyNoMoreInteractions(classroomRepository);
     }
 
     @Test
     void deleteCourseShouldNotThrowExceptionIfCourseIsFound() {
-        when(classroomDao.findById(anyInt())).thenReturn(Optional.of(generateClassrooms().get(0)));
+        when(classroomRepository.findById(anyInt())).thenReturn(Optional.of(generateClassrooms().get(0)));
 
         classroomService.deleteById(1);
 
-        verify(classroomDao).findById(anyInt());
-        verify(classroomDao).deleteById(anyInt());
-        verifyNoMoreInteractions(classroomDao);
+        verify(classroomRepository).findById(anyInt());
+        verify(classroomRepository).deleteById(anyInt());
+        verifyNoMoreInteractions(classroomRepository);
     }
 
     private List<Classroom> generateClassrooms() {

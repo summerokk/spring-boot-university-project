@@ -1,6 +1,6 @@
 package com.att.university.service;
 
-import com.att.university.dao.AcademicRankDao;
+import com.att.university.dao.AcademicRankRepository;
 import com.att.university.entity.AcademicRank;
 import com.att.university.exception.dao.AcademicRankNotFoundException;
 import com.att.university.mapper.academic_rank.AcademicRankAddRequestMapper;
@@ -33,7 +33,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class AcademicRankServiceTest {
     @Mock
-    private AcademicRankDao academicRankDao;
+    private AcademicRankRepository academicRankRepository;
 
     @Mock
     private AcademicRankUpdateValidator updateValidator;
@@ -56,13 +56,13 @@ class AcademicRankServiceTest {
         final AcademicRank AcademicRank = generateAcademicRanks().get(0);
 
         doNothing().when(updateValidator).validate(any(AcademicRankUpdateRequest.class));
-        when(academicRankDao.findById(AcademicRank.getId())).thenReturn(Optional.empty());
+        when(academicRankRepository.findById(AcademicRank.getId())).thenReturn(Optional.empty());
 
         assertThrows(AcademicRankNotFoundException.class, () -> academicRankService.update(request));
 
         verify(updateValidator).validate(any(AcademicRankUpdateRequest.class));
-        verify(academicRankDao).findById(anyInt());
-        verifyNoMoreInteractions(academicRankDao, updateValidator);
+        verify(academicRankRepository).findById(anyInt());
+        verifyNoMoreInteractions(academicRankRepository, updateValidator);
     }
 
     @Test
@@ -71,24 +71,24 @@ class AcademicRankServiceTest {
         final AcademicRank AcademicRank = generateAcademicRanks().get(0);
 
         doNothing().when(updateValidator).validate(any(AcademicRankUpdateRequest.class));
-        when(academicRankDao.findById(AcademicRank.getId())).thenReturn(Optional.of(generateAcademicRanks().get(0)));
+        when(academicRankRepository.findById(AcademicRank.getId())).thenReturn(Optional.of(generateAcademicRanks().get(0)));
         when(updateRequestMapper.convertToEntity(any(AcademicRankUpdateRequest.class))).thenReturn((generateAcademicRanks().get(0)));
 
         academicRankService.update(request);
 
         verify(updateValidator).validate(any(AcademicRankUpdateRequest.class));
-        verify(academicRankDao).findById(anyInt());
-        verify(academicRankDao).update(any(AcademicRank.class));
-        verifyNoMoreInteractions(academicRankDao, updateValidator);
+        verify(academicRankRepository).findById(anyInt());
+        verify(academicRankRepository).save(any(AcademicRank.class));
+        verifyNoMoreInteractions(academicRankRepository, updateValidator);
     }
 
     @Test
     void findAllShouldNotThrowException() {
-        when(academicRankDao.findAll(anyInt(), anyInt())).thenReturn(new ArrayList<>());
+        when(academicRankRepository.findAll()).thenReturn(new ArrayList<>());
 
         assertDoesNotThrow(() -> academicRankService.findAll());
 
-        verify(academicRankDao).findAll(anyInt(), anyInt());
+        verify(academicRankRepository).findAll();
     }
 
 
@@ -96,24 +96,24 @@ class AcademicRankServiceTest {
     void findByIdSShouldThrowNotFoundExceptionIfAcademicRankNotFound() {
         Integer id = 4;
 
-        when(academicRankDao.findById(anyInt())).thenReturn(Optional.empty());
+        when(academicRankRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(AcademicRankNotFoundException.class, () -> academicRankService.findById(id));
 
-        verify(academicRankDao).findById(anyInt());
-        verifyNoMoreInteractions(academicRankDao);
+        verify(academicRankRepository).findById(anyInt());
+        verifyNoMoreInteractions(academicRankRepository);
     }
 
     @Test
     void findByIdShouldReturnEntityWhenAcademicRankExists() {
         Integer id = 4;
 
-        when(academicRankDao.findById(anyInt())).thenReturn(Optional.of(generateAcademicRanks().get(0)));
+        when(academicRankRepository.findById(anyInt())).thenReturn(Optional.of(generateAcademicRanks().get(0)));
 
         academicRankService.findById(id);
 
-        verify(academicRankDao).findById(anyInt());
-        verifyNoMoreInteractions(academicRankDao);
+        verify(academicRankRepository).findById(anyInt());
+        verifyNoMoreInteractions(academicRankRepository);
     }
 
     @Test
@@ -125,29 +125,29 @@ class AcademicRankServiceTest {
         academicRankService.create(request);
 
         verify(addValidator).validate(any(AcademicRankAddRequest.class));
-        verify(academicRankDao).save(any(AcademicRank.class));
-        verifyNoMoreInteractions(academicRankDao, addValidator);
+        verify(academicRankRepository).save(any(AcademicRank.class));
+        verifyNoMoreInteractions(academicRankRepository, addValidator);
     }
 
     @Test
     void deleteAcademicRankShouldThrowNotFoundExceptionIfAcademicRankNotFound() {
-        when(academicRankDao.findById(anyInt())).thenReturn(Optional.empty());
+        when(academicRankRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(AcademicRankNotFoundException.class, () -> academicRankService.deleteById(1));
 
-        verify(academicRankDao).findById(anyInt());
-        verifyNoMoreInteractions(academicRankDao);
+        verify(academicRankRepository).findById(anyInt());
+        verifyNoMoreInteractions(academicRankRepository);
     }
 
     @Test
     void deleteAcademicRankShouldNotThrowExceptionIfAcademicRankIsFound() {
-        when(academicRankDao.findById(anyInt())).thenReturn(Optional.of(generateAcademicRanks().get(0)));
+        when(academicRankRepository.findById(anyInt())).thenReturn(Optional.of(generateAcademicRanks().get(0)));
 
         academicRankService.deleteById(1);
 
-        verify(academicRankDao).findById(anyInt());
-        verify(academicRankDao).deleteById(anyInt());
-        verifyNoMoreInteractions(academicRankDao);
+        verify(academicRankRepository).findById(anyInt());
+        verify(academicRankRepository).deleteById(anyInt());
+        verifyNoMoreInteractions(academicRankRepository);
     }
 
     private List<AcademicRank> generateAcademicRanks() {
