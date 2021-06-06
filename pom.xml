@@ -18,23 +18,31 @@
 
     <properties>
         <java.version>1.8</java.version>
+        <itext.version>7.1.7</itext.version>
+        <projectlombok.version>1.18.18</projectlombok.version>
     </properties>
 
     <modules>
         <module>university-application</module>
         <module>university-data</module>
         <module>university-service</module>
-        <module>university-provider</module>
-        <module>university-utility</module>
-        <module>university-request</module>
-        <module>university-validator</module>
-        <module>university-exception</module>
-        <module>university-mapper</module>
         <module>coverage</module>
     </modules>
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>com.itextpdf</groupId>
+                <artifactId>itext7-core</artifactId>
+                <version>${itext.version}</version>
+                <type>pom</type>
+            </dependency>
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${projectlombok.version}</version>
+                <scope>provided</scope>
+            </dependency>
             <dependency>
                 <groupId>com.att</groupId>
                 <artifactId>university-application</artifactId>
@@ -50,48 +58,34 @@
                 <artifactId>university-service</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>
-                <groupId>com.att</groupId>
-                <artifactId>university-provider</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.att</groupId>
-                <artifactId>university-utility</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.att</groupId>
-                <artifactId>university-request</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.att</groupId>
-                <artifactId>university-validator</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.att</groupId>
-                <artifactId>university-exception</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.att</groupId>
-                <artifactId>university-mapper</artifactId>
-                <version>${project.version}</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>0.8.6</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.6</version>
                 <executions>
                     <execution>
-                        <id>prepare-agent</id>
+                        <id>default-prepare-agent</id>
                         <goals>
                             <goal>prepare-agent</goal>
                         </goals>

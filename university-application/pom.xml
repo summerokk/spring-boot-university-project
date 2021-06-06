@@ -13,7 +13,6 @@
 
     <properties>
         <java.version>1.8</java.version>
-        <projectlombok.version>1.18.18</projectlombok.version>
     </properties>
 
     <dependencies>
@@ -27,18 +26,11 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>${projectlombok.version}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.att</groupId>
@@ -47,10 +39,6 @@
         <dependency>
             <groupId>com.att</groupId>
             <artifactId>university-data</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.att</groupId>
-            <artifactId>university-provider</artifactId>
         </dependency>
     </dependencies>
     <build>

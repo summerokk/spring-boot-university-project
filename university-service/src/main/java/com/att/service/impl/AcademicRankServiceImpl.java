@@ -1,8 +1,8 @@
 package com.att.service.impl;
 
 import com.att.exception.dao.AcademicRankNotFoundException;
-import com.att.mapper.academic_rank.AcademicRankAddRequestMapper;
-import com.att.mapper.academic_rank.AcademicRankUpdateRequestMapper;
+import com.att.mapper.academicrank.AcademicRankAddRequestMapper;
+import com.att.mapper.academicrank.AcademicRankUpdateRequestMapper;
 import com.att.request.academic_rank.AcademicRankAddRequest;
 import com.att.request.academic_rank.AcademicRankUpdateRequest;
 import com.att.service.AcademicRankService;

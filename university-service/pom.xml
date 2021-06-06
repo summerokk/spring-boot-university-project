@@ -10,44 +10,32 @@
     </parent>
 
     <artifactId>university-service</artifactId>
-    <packaging>jar</packaging>
 
     <properties>
         <java.version>1.8</java.version>
-        <projectlombok.version>1.18.18</projectlombok.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
+            <artifactId>spring-boot-starter</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
+            <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>${projectlombok.version}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.att</groupId>
             <artifactId>university-data</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.att</groupId>
-            <artifactId>university-request</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.att</groupId>
-            <artifactId>university-validator</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.att</groupId>
-            <artifactId>university-mapper</artifactId>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>itext7-core</artifactId>
+            <type>pom</type>
         </dependency>
     </dependencies>
 </project>

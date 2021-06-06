@@ -1,8 +1,8 @@
 package com.att.service;
 
 import com.att.exception.dao.ScienceDegreeNotFoundException;
-import com.att.mapper.science_degree.ScienceDegreeAddRequestMapper;
-import com.att.mapper.science_degree.ScienceDegreeUpdateRequestMapper;
+import com.att.mapper.sciencedegree.ScienceDegreeAddRequestMapper;
+import com.att.mapper.sciencedegree.ScienceDegreeUpdateRequestMapper;
 import com.att.request.science_degree.ScienceDegreeAddRequest;
 import com.att.request.science_degree.ScienceDegreeUpdateRequest;
 import com.att.validator.science_degree.ScienceDegreeAddValidator;
