@@ -23,7 +23,7 @@
     </properties>
 
     <modules>
-        <module>university-application</module>
+        <module>university-ui</module>
         <module>university-data</module>
         <module>university-service</module>
         <module>coverage</module>
@@ -45,7 +45,7 @@
             </dependency>
             <dependency>
                 <groupId>com.att</groupId>
-                <artifactId>university-application</artifactId>
+                <artifactId>university-ui</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

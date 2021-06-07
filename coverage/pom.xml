@@ -22,7 +22,7 @@
         </dependency>
         <dependency>
             <groupId>com.att</groupId>
-            <artifactId>university-application</artifactId>
+            <artifactId>university-ui</artifactId>
         </dependency>
     </dependencies>
     <build>
@@ -36,7 +36,6 @@
                         <exclude>**/entity/</exclude>
                         <exclude>**/config/</exclude>
                         <exclude>**/request/</exclude>
-                        <exclude>**/mapper/</exclude>
                         <exclude>**/Application.class</exclude>
                     </excludes>
                 </configuration>

@@ -9,7 +9,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>university-application</artifactId>
+    <artifactId>university-ui</artifactId>
 
     <properties>
         <java.version>1.8</java.version>
