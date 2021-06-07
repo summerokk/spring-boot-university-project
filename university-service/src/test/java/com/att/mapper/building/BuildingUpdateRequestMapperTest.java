@@ -15,6 +15,7 @@ class BuildingUpdateRequestMapperTest {
 
         Building building = requestMapper.convertToEntity(UpdateRequest);
 
+        assertEquals(1, building.getId());
         assertEquals("test", building.getAddress());
     }
 }

@@ -19,5 +19,6 @@ class ClassroomAddRequestMapperTest {
         Classroom classroom = requestMapper.convertToEntity(request, building);
 
         assertEquals(building, classroom.getBuilding());
+        assertEquals(11, classroom.getNumber());
     }
 }

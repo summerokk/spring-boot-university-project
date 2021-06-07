@@ -15,6 +15,7 @@ class ScienceDegreeUpdateRequestMapperTest {
 
         ScienceDegree scienceDegree = requestMapper.convertToEntity(request);
 
+        assertEquals(1, scienceDegree.getId());
         assertEquals("Science", scienceDegree.getName());
     }
 }

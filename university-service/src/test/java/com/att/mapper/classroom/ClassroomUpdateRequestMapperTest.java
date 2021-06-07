@@ -18,6 +18,8 @@ class ClassroomUpdateRequestMapperTest {
 
         Classroom classroom = requestMapper.convertToEntity(request, building);
 
+        assertEquals(1, classroom.getId());
         assertEquals(building, classroom.getBuilding());
+        assertEquals(11, classroom.getNumber());
     }
 }

@@ -15,6 +15,7 @@ class AcademicRankUpdateRequestMapperTest {
 
         AcademicRank academicRank = requestMapper.convertToEntity(updateRequest);
 
+        assertEquals(1, academicRank.getId());
         assertEquals("test", academicRank.getName());
     }
 }

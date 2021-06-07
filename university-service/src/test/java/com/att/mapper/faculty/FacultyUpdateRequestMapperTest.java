@@ -15,6 +15,7 @@ class FacultyUpdateRequestMapperTest {
 
         Faculty faculty = requestMapper.convertToEntity(request);
 
+        assertEquals(1, faculty.getId());
         assertEquals("Faculty", faculty.getName());
     }
 }

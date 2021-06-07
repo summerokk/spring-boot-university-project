@@ -18,6 +18,7 @@ class TeacherUpdateRequestMapperTest {
                 .withId(1)
                 .withFirstName("Fedor")
                 .withLastName("Fedorov")
+                .withEmail("Fedorov@wewer.com")
                 .withLinkedin("https://test.ru")
                 .build();
 
@@ -27,7 +28,9 @@ class TeacherUpdateRequestMapperTest {
         Teacher teacher = requestMapper.convertToEntity(addRequest, academicRank, scienceDegree);
 
         assertAll(
+                () -> assertEquals(1, teacher.getId()),
                 () -> assertEquals("Fedorov", teacher.getLastName()),
+                () -> assertEquals("Fedorov@wewer.com", teacher.getEmail()),
                 () -> assertEquals(academicRank, teacher.getAcademicRank()),
                 () -> assertEquals(scienceDegree, teacher.getScienceDegree()),
                 () -> assertEquals("Fedor", teacher.getFirstName()),

@@ -18,6 +18,8 @@ class StudentUpdateRequestMapperTest {
                 .withId(1)
                 .withFirstName("Fedor")
                 .withLastName("Fedorov")
+                .withEmail("update@yp.com")
+                .withGroupId(1)
                 .build();
 
         Group group = new Group(1, "test", new Faculty(1, "faculty"));
@@ -27,7 +29,9 @@ class StudentUpdateRequestMapperTest {
         Student student = requestMapper.convertToEntity(request, group, password);
 
         assertAll(
+                () -> assertEquals(1, student.getId()),
                 () -> assertEquals("Fedorov", student.getLastName()),
+                () -> assertEquals("update@yp.com", student.getEmail()),
                 () -> assertEquals("Fedor", student.getFirstName()),
                 () -> assertEquals(group, student.getGroup())
         );

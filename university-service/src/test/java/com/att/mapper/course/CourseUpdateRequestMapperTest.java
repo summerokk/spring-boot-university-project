@@ -15,6 +15,7 @@ class CourseUpdateRequestMapperTest {
 
         Course course = requestMapper.convertToEntity(request);
 
+        assertEquals(1, course.getId());
         assertEquals("Course", course.getName());
     }
 }

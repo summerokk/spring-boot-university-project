@@ -18,6 +18,8 @@ class GroupUpdateRequestMapperTest {
 
         Group group = requestMapper.convertToEntity(request, faculty);
 
+        assertEquals(1, group.getId());
         assertEquals("Group", group.getName());
+        assertEquals(faculty, group.getFaculty());
     }
 }
