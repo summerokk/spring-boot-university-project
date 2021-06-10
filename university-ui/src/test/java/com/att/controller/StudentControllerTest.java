@@ -1,17 +1,13 @@
 package com.att.controller;
 
-import com.att.exception.dao.GroupNotFoundException;
-import com.att.exception.service.EmailAlreadyExistsException;
-import com.att.exception.service.LoginFailException;
-import com.att.exception.service.NameIncorrectException;
-import com.att.exception.service.PasswordTooShortException;
-import com.att.exception.service.PasswordsAreNotTheSameException;
-import com.att.exception.service.WrongEmailFormatException;
-import com.att.request.person.student.StudentRegisterRequest;
-import com.att.request.person.student.StudentUpdateRequest;
 import com.att.entity.Faculty;
 import com.att.entity.Group;
 import com.att.entity.Student;
+import com.att.exception.dao.GroupNotFoundException;
+import com.att.exception.service.EmailAlreadyExistsException;
+import com.att.exception.service.LoginFailException;
+import com.att.request.person.student.StudentRegisterRequest;
+import com.att.request.person.student.StudentUpdateRequest;
 import com.att.service.GroupService;
 import com.att.service.StudentService;
 import org.junit.jupiter.api.Test;
@@ -66,15 +62,6 @@ class StudentControllerTest {
     }
 
     @Test
-    void performPostStudentRegisterRequestShouldThrowWrongEmailFormatException() throws Exception {
-        doThrow(WrongEmailFormatException.class).when(studentService).register(any(StudentRegisterRequest.class));
-
-        this.mockMvc.perform(post("/students/register").param("email", "test@test.ru"))
-                .andExpect(status().is(302))
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof WrongEmailFormatException));
-    }
-
-    @Test
     void performPostStudentRegisterRequestShouldThrowEmailAlreadyExistsException() throws Exception {
         doThrow(EmailAlreadyExistsException.class).when(studentService).register(any(StudentRegisterRequest.class));
 
@@ -89,34 +76,6 @@ class StudentControllerTest {
 
         this.mockMvc.perform(post("/students/register").param("email", "test@test.ru"))
                 .andExpect(view().name("errors/error"));
-    }
-
-    @Test
-    void performPostStudentRegisterRequestShouldThrowPasswordTooShortException() throws Exception {
-        doThrow(PasswordTooShortException.class).when(studentService).register(any(StudentRegisterRequest.class));
-
-        this.mockMvc.perform(post("/students/register").param("email", "test@test.ru"))
-                .andExpect(status().is(302))
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof PasswordTooShortException));
-    }
-
-    @Test
-    void performPostStudentRegisterRequestShouldThrowNameIncorrectException() throws Exception {
-        doThrow(NameIncorrectException.class).when(studentService).register(any(StudentRegisterRequest.class));
-
-        this.mockMvc.perform(post("/students/register").param("email", "test@test.ru"))
-                .andExpect(status().is(302))
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof NameIncorrectException));
-    }
-
-    @Test
-    void performPostStudentRegisterRequestShouldThrowPasswordsAreNotTheSameException() throws Exception {
-        doThrow(PasswordsAreNotTheSameException.class).when(studentService).register(any(StudentRegisterRequest.class));
-
-        this.mockMvc.perform(post("/students/register").param("email", "test@test.ru"))
-                .andExpect(status().is(302))
-                .andExpect(result ->
-                        assertTrue(result.getResolvedException() instanceof PasswordsAreNotTheSameException));
     }
 
     @Test

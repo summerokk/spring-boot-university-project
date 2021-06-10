@@ -4,6 +4,7 @@ import com.att.request.course.CourseAddRequest;
 import com.att.request.course.CourseUpdateRequest;
 import com.att.entity.Course;
 
+import javax.validation.Valid;
 import java.util.List;
 
 public interface CourseService {
@@ -11,9 +12,9 @@ public interface CourseService {
 
     Course findById(Integer id);
 
-    void update(CourseUpdateRequest updateRequest);
+    void update(@Valid CourseUpdateRequest updateRequest);
 
-    void create(CourseAddRequest addRequest);
+    void create(@Valid CourseAddRequest addRequest);
 
     void deleteById(Integer id);
 }

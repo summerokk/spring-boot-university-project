@@ -25,7 +25,7 @@
         <appender-ref ref="FILE"/>
     </logger>
 
-    <logger name="com.att.university" level="DEBUG">
+    <logger name="com.att" level="DEBUG">
         <appender-ref ref="FILE"/>
     </logger>
 

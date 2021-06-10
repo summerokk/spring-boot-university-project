@@ -6,12 +6,13 @@ import com.att.entity.Teacher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import javax.validation.Valid;
 import java.util.List;
 
 public interface TeacherService {
-    void register(TeacherRegisterRequest student);
+    void register(@Valid TeacherRegisterRequest request);
 
-    void update(TeacherUpdateRequest student);
+    void update(@Valid TeacherUpdateRequest request);
 
     boolean login(String email, String password);
 

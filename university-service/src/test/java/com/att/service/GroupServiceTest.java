@@ -1,17 +1,15 @@
 package com.att.service;
 
+import com.att.dao.FacultyRepository;
+import com.att.dao.GroupRepository;
+import com.att.entity.Faculty;
+import com.att.entity.Group;
 import com.att.exception.dao.FacultyNotFoundException;
 import com.att.exception.dao.GroupNotFoundException;
 import com.att.mapper.group.GroupAddRequestMapper;
 import com.att.mapper.group.GroupUpdateRequestMapper;
 import com.att.request.group.GroupAddRequest;
 import com.att.request.group.GroupUpdateRequest;
-import com.att.validator.group.GroupAddValidator;
-import com.att.validator.group.GroupUpdateValidator;
-import com.att.dao.FacultyRepository;
-import com.att.dao.GroupRepository;
-import com.att.entity.Faculty;
-import com.att.entity.Group;
 import com.att.service.impl.GroupServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,7 +26,6 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -40,12 +37,6 @@ class GroupServiceTest {
 
     @Mock
     private FacultyRepository facultyRepository;
-
-    @Mock
-    private GroupUpdateValidator updateValidator;
-
-    @Mock
-    private GroupAddValidator addValidator;
 
     @Mock
     private GroupAddRequestMapper addRequestMapper;
@@ -69,14 +60,12 @@ class GroupServiceTest {
     void updateCourseShouldThrowNotFoundExceptionIfGroupNotFound() {
         final GroupUpdateRequest request = generateUpdateRequest();
 
-        doNothing().when(updateValidator).validate(any(GroupUpdateRequest.class));
         when(groupRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(GroupNotFoundException.class, () -> groupService.update(request));
 
-        verify(updateValidator).validate(any(GroupUpdateRequest.class));
         verify(groupRepository).findById(anyInt());
-        verifyNoMoreInteractions(groupRepository, updateValidator);
+        verifyNoMoreInteractions(groupRepository);
     }
 
     @Test
@@ -84,16 +73,14 @@ class GroupServiceTest {
         final GroupUpdateRequest request = generateUpdateRequest();
         final Group group = generateGroups().get(0);
 
-        doNothing().when(updateValidator).validate(any(GroupUpdateRequest.class));
         when(groupRepository.findById(anyInt())).thenReturn(Optional.of(group));
         when(facultyRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(FacultyNotFoundException.class, () -> groupService.update(request));
 
-        verify(updateValidator).validate(any(GroupUpdateRequest.class));
         verify(groupRepository).findById(anyInt());
         verify(facultyRepository).findById(anyInt());
-        verifyNoMoreInteractions(groupRepository, facultyRepository, updateValidator);
+        verifyNoMoreInteractions(groupRepository, facultyRepository);
     }
 
     @Test
@@ -101,18 +88,16 @@ class GroupServiceTest {
         final GroupUpdateRequest request = generateUpdateRequest();
         final Group group = generateGroups().get(0);
 
-        doNothing().when(updateValidator).validate(any(GroupUpdateRequest.class));
         when(groupRepository.findById(anyInt())).thenReturn(Optional.of(group));
         when(facultyRepository.findById(anyInt())).thenReturn(Optional.of(group.getFaculty()));
         when(updateRequestMapper.convertToEntity(any(GroupUpdateRequest.class), any(Faculty.class))).thenReturn(group);
 
         groupService.update(request);
 
-        verify(updateValidator).validate(any(GroupUpdateRequest.class));
         verify(groupRepository).findById(anyInt());
         verify(facultyRepository).findById(anyInt());
         verify(groupRepository).save(any(Group.class));
-        verifyNoMoreInteractions(groupRepository, updateValidator);
+        verifyNoMoreInteractions(groupRepository);
     }
 
     @Test
@@ -144,30 +129,26 @@ class GroupServiceTest {
         final GroupAddRequest request = generateAddRequest();
         final Group group = generateGroups().get(0);
 
-        doNothing().when(addValidator).validate(any(GroupAddRequest.class));
         when(addRequestMapper.convertToEntity(any(GroupAddRequest.class), any(Faculty.class))).thenReturn(group);
         when(facultyRepository.findById(anyInt())).thenReturn(Optional.of(group.getFaculty()));
 
         groupService.create(request);
 
-        verify(addValidator).validate(any(GroupAddRequest.class));
         verify(groupRepository).save(any(Group.class));
         verify(facultyRepository).findById(anyInt());
-        verifyNoMoreInteractions(groupRepository, addValidator);
+        verifyNoMoreInteractions(groupRepository);
     }
 
     @Test
     void createCourseShouldThrowExceptionIfFacultyNotFound() {
         final GroupAddRequest request = generateAddRequest();
 
-        doNothing().when(addValidator).validate(any(GroupAddRequest.class));
         when(facultyRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(FacultyNotFoundException.class, () -> groupService.create(request));
 
-        verify(addValidator).validate(any(GroupAddRequest.class));
         verify(facultyRepository).findById(anyInt());
-        verifyNoMoreInteractions(facultyRepository, addValidator);
+        verifyNoMoreInteractions(facultyRepository);
     }
 
     @Test

@@ -1,14 +1,12 @@
 package com.att.service;
 
+import com.att.dao.ScienceDegreeRepository;
+import com.att.entity.ScienceDegree;
 import com.att.exception.dao.ScienceDegreeNotFoundException;
 import com.att.mapper.sciencedegree.ScienceDegreeAddRequestMapper;
 import com.att.mapper.sciencedegree.ScienceDegreeUpdateRequestMapper;
 import com.att.request.science_degree.ScienceDegreeAddRequest;
 import com.att.request.science_degree.ScienceDegreeUpdateRequest;
-import com.att.validator.science_degree.ScienceDegreeAddValidator;
-import com.att.validator.science_degree.ScienceDegreeUpdateValidator;
-import com.att.dao.ScienceDegreeRepository;
-import com.att.entity.ScienceDegree;
 import com.att.service.impl.ScienceDegreeServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -34,12 +31,6 @@ import static org.mockito.Mockito.when;
 class ScienceDegreeServiceTest {
     @Mock
     private ScienceDegreeRepository scienceDegreeRepository;
-
-    @Mock
-    private ScienceDegreeUpdateValidator updateValidator;
-
-    @Mock
-    private ScienceDegreeAddValidator addValidator;
 
     @Mock
     private ScienceDegreeAddRequestMapper addRequestMapper;
@@ -55,14 +46,12 @@ class ScienceDegreeServiceTest {
         final ScienceDegreeUpdateRequest request = new ScienceDegreeUpdateRequest(1, "update");
         final ScienceDegree ScienceDegree = generateScienceDegrees().get(0);
 
-        doNothing().when(updateValidator).validate(any(ScienceDegreeUpdateRequest.class));
         when(scienceDegreeRepository.findById(ScienceDegree.getId())).thenReturn(Optional.empty());
 
         assertThrows(ScienceDegreeNotFoundException.class, () -> scienceDegreeService.update(request));
 
-        verify(updateValidator).validate(any(ScienceDegreeUpdateRequest.class));
         verify(scienceDegreeRepository).findById(anyInt());
-        verifyNoMoreInteractions(scienceDegreeRepository, updateValidator);
+        verifyNoMoreInteractions(scienceDegreeRepository);
     }
 
     @Test
@@ -70,16 +59,14 @@ class ScienceDegreeServiceTest {
         final ScienceDegreeUpdateRequest request = new ScienceDegreeUpdateRequest(1, "update");
         final ScienceDegree ScienceDegree = generateScienceDegrees().get(0);
 
-        doNothing().when(updateValidator).validate(any(ScienceDegreeUpdateRequest.class));
         when(scienceDegreeRepository.findById(ScienceDegree.getId())).thenReturn(Optional.of(generateScienceDegrees().get(0)));
         when(updateRequestMapper.convertToEntity(any(ScienceDegreeUpdateRequest.class))).thenReturn((generateScienceDegrees().get(0)));
 
         scienceDegreeService.update(request);
 
-        verify(updateValidator).validate(any(ScienceDegreeUpdateRequest.class));
         verify(scienceDegreeRepository).findById(anyInt());
         verify(scienceDegreeRepository).save(any(ScienceDegree.class));
-        verifyNoMoreInteractions(scienceDegreeRepository, updateValidator);
+        verifyNoMoreInteractions(scienceDegreeRepository);
     }
 
     @Test
@@ -119,14 +106,12 @@ class ScienceDegreeServiceTest {
     @Test
     void createScienceDegreeShouldNotThrowException() {
         final ScienceDegreeAddRequest request = new ScienceDegreeAddRequest("new");
-        doNothing().when(addValidator).validate(any(ScienceDegreeAddRequest.class));
         when(addRequestMapper.convertToEntity(request)).thenReturn(generateScienceDegrees().get(0));
 
         scienceDegreeService.create(request);
 
-        verify(addValidator).validate(any(ScienceDegreeAddRequest.class));
         verify(scienceDegreeRepository).save(any(ScienceDegree.class));
-        verifyNoMoreInteractions(scienceDegreeRepository, addValidator);
+        verifyNoMoreInteractions(scienceDegreeRepository);
     }
 
     @Test

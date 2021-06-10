@@ -1,18 +1,16 @@
 package com.att.service;
 
-import com.att.exception.dao.PersonNotFoundException;
-import com.att.mapper.teacher.TeacherRegisterRequestMapper;
-import com.att.mapper.teacher.TeacherUpdateRequestMapper;
-import com.att.request.person.teacher.TeacherRegisterRequest;
-import com.att.request.person.teacher.TeacherUpdateRequest;
-import com.att.validator.person.TeacherRegisterValidator;
-import com.att.validator.person.TeacherUpdateValidator;
 import com.att.dao.AcademicRankRepository;
 import com.att.dao.ScienceDegreeRepository;
 import com.att.dao.TeacherRepository;
 import com.att.entity.AcademicRank;
 import com.att.entity.ScienceDegree;
 import com.att.entity.Teacher;
+import com.att.exception.dao.PersonNotFoundException;
+import com.att.mapper.teacher.TeacherRegisterRequestMapper;
+import com.att.mapper.teacher.TeacherUpdateRequestMapper;
+import com.att.request.person.teacher.TeacherRegisterRequest;
+import com.att.request.person.teacher.TeacherUpdateRequest;
 import com.att.service.impl.TeacherServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,7 +31,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -51,12 +48,6 @@ class TeacherServiceTest {
 
     @Mock
     private PasswordEncoder passwordEncoder;
-
-    @Mock
-    private TeacherUpdateValidator teacherUpdateValidator;
-
-    @Mock
-    private TeacherRegisterValidator teacherRegisterValidator;
 
     @Mock
     private TeacherRegisterRequestMapper registerRequestMapper;
@@ -107,7 +98,6 @@ class TeacherServiceTest {
         final TeacherRegisterRequest teacherRegisterRequest = generateRegisterRequest();
         final Teacher teacher = generateTeacher();
 
-        doNothing().when(teacherRegisterValidator).validate(any(TeacherRegisterRequest.class));
         when(teacherRepository.findByEmail(teacherRegisterRequest.getEmail())).thenReturn(Optional.empty());
         when(scienceDegreeRepository.findById(anyInt())).thenReturn(Optional.of(generateDegree()));
         when(academicRankRepository.findById(anyInt())).thenReturn(Optional.of(generateRank()));
@@ -118,7 +108,6 @@ class TeacherServiceTest {
 
         teacherService.register(teacherRegisterRequest);
 
-        verify(teacherRegisterValidator).validate(any(TeacherRegisterRequest.class));
         verify(teacherRepository).findByEmail(anyString());
         verify(scienceDegreeRepository).findById(anyInt());
         verify(academicRankRepository).findById(anyInt());
@@ -130,48 +119,42 @@ class TeacherServiceTest {
         final TeacherRegisterRequest registerRequest = generateRegisterRequest();
         final Teacher teacher = generateTeacher();
 
-        doNothing().when(teacherRegisterValidator).validate(any(TeacherRegisterRequest.class));
         when(teacherRepository.findByEmail(teacher.getEmail())).thenReturn(Optional.of(teacher));
 
         assertThrows(RuntimeException.class, () -> teacherService.register(registerRequest));
 
-        verify(teacherRegisterValidator).validate(any(TeacherRegisterRequest.class));
         verify(teacherRepository).findByEmail(anyString());
-        verifyNoMoreInteractions(teacherRepository, teacherRegisterValidator);
+        verifyNoMoreInteractions(teacherRepository);
     }
 
     @Test
     void registerShouldThrowExceptionIfAcademicRankDoesNotExist() {
         final TeacherRegisterRequest registerRequest = generateRegisterRequest();
 
-        doNothing().when(teacherRegisterValidator).validate(any(TeacherRegisterRequest.class));
         when(teacherRepository.findByEmail(registerRequest.getEmail())).thenReturn(Optional.empty());
         when(academicRankRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(RuntimeException.class, () -> teacherService.register(registerRequest));
 
-        verify(teacherRegisterValidator).validate(any(TeacherRegisterRequest.class));
         verify(teacherRepository).findByEmail(anyString());
         verify(academicRankRepository).findById(anyInt());
-        verifyNoMoreInteractions(teacherRepository, teacherRegisterValidator, academicRankRepository, scienceDegreeRepository);
+        verifyNoMoreInteractions(teacherRepository, academicRankRepository, scienceDegreeRepository);
     }
 
     @Test
     void registerShouldThrowExceptionIfScienceDegreeDoesNotExist() {
         final TeacherRegisterRequest registerRequest = generateRegisterRequest();
 
-        doNothing().when(teacherRegisterValidator).validate(any(TeacherRegisterRequest.class));
         when(teacherRepository.findByEmail(registerRequest.getEmail())).thenReturn(Optional.empty());
         when(academicRankRepository.findById(anyInt())).thenReturn(Optional.of(generateRank()));
         when(scienceDegreeRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(RuntimeException.class, () -> teacherService.register(registerRequest));
 
-        verify(teacherRegisterValidator).validate(any(TeacherRegisterRequest.class));
         verify(teacherRepository).findByEmail(anyString());
         verify(academicRankRepository).findById(anyInt());
         verify(scienceDegreeRepository).findById(anyInt());
-        verifyNoMoreInteractions(teacherRepository, teacherRegisterValidator, academicRankRepository, scienceDegreeRepository);
+        verifyNoMoreInteractions(teacherRepository, academicRankRepository, scienceDegreeRepository);
     }
 
     @Test
@@ -179,7 +162,6 @@ class TeacherServiceTest {
         final TeacherUpdateRequest teacherUpdateRequest = generateUpdateRequest();
         final Teacher teacher = generateTeacher();
 
-        doNothing().when(teacherUpdateValidator).validate(any(TeacherUpdateRequest.class));
         when(teacherRepository.findById(teacher.getId())).thenReturn(Optional.of(teacher));
         when(scienceDegreeRepository.findById(anyInt())).thenReturn(Optional.of(generateDegree()));
         when(academicRankRepository.findById(anyInt())).thenReturn(Optional.of(generateRank()));
@@ -189,7 +171,6 @@ class TeacherServiceTest {
 
         teacherService.update(teacherUpdateRequest);
 
-        verify(teacherUpdateValidator).validate(any(TeacherUpdateRequest.class));
         verify(teacherRepository).findById(anyInt());
         verify(scienceDegreeRepository).findById(anyInt());
         verify(academicRankRepository).findById(anyInt());
@@ -201,18 +182,16 @@ class TeacherServiceTest {
         final TeacherUpdateRequest teacherUpdateRequest = generateUpdateRequest();
         final Teacher teacher = generateTeacher();
 
-        doNothing().when(teacherUpdateValidator).validate(any(TeacherUpdateRequest.class));
         when(teacherRepository.findById(teacherUpdateRequest.getId())).thenReturn(Optional.of(teacher));
         when(academicRankRepository.findById(anyInt())).thenReturn(Optional.of(generateRank()));
         when(scienceDegreeRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(RuntimeException.class, () -> teacherService.update(teacherUpdateRequest));
 
-        verify(teacherUpdateValidator).validate(any(TeacherUpdateRequest.class));
         verify(teacherRepository).findById(anyInt());
         verify(academicRankRepository).findById(anyInt());
         verify(scienceDegreeRepository).findById(anyInt());
-        verifyNoMoreInteractions(teacherRepository, teacherUpdateValidator, academicRankRepository, scienceDegreeRepository);
+        verifyNoMoreInteractions(teacherRepository, academicRankRepository, scienceDegreeRepository);
     }
 
     @Test
@@ -220,30 +199,26 @@ class TeacherServiceTest {
         final TeacherUpdateRequest teacherUpdateRequest = generateUpdateRequest();
         final Teacher teacher = generateTeacher();
 
-        doNothing().when(teacherUpdateValidator).validate(any(TeacherUpdateRequest.class));
         when(teacherRepository.findById(teacherUpdateRequest.getId())).thenReturn(Optional.of(teacher));
         when(academicRankRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(RuntimeException.class, () -> teacherService.update(teacherUpdateRequest));
 
-        verify(teacherUpdateValidator).validate(any(TeacherUpdateRequest.class));
         verify(teacherRepository).findById(anyInt());
         verify(academicRankRepository).findById(anyInt());
-        verifyNoMoreInteractions(teacherRepository, teacherUpdateValidator, academicRankRepository, scienceDegreeRepository);
+        verifyNoMoreInteractions(teacherRepository, academicRankRepository, scienceDegreeRepository);
     }
 
     @Test
     void updateShouldThrowExceptionIfUserExists() {
         final TeacherUpdateRequest teacherUpdateRequest = generateUpdateRequest();
 
-        doNothing().when(teacherUpdateValidator).validate(any(TeacherUpdateRequest.class));
         when(teacherRepository.findById(teacherUpdateRequest.getId())).thenReturn(Optional.empty());
 
         assertThrows(RuntimeException.class, () -> teacherService.update(teacherUpdateRequest));
 
-        verify(teacherUpdateValidator).validate(any(TeacherUpdateRequest.class));
         verify(teacherRepository).findById(anyInt());
-        verifyNoMoreInteractions(teacherRepository, teacherUpdateValidator);
+        verifyNoMoreInteractions(teacherRepository);
     }
 
     @Test

@@ -1,18 +1,19 @@
 package com.att.request.course;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 @Data
-@EqualsAndHashCode(callSuper = true)
+@AllArgsConstructor
 @NoArgsConstructor
-public class CourseUpdateRequest extends CourseRequest {
+public class CourseUpdateRequest {
+    @NotNull
     private Integer id;
 
-    public CourseUpdateRequest(Integer id, String name) {
-        super(name);
-
-        this.id = id;
-    }
+    @NotBlank(message = "{course.name}")
+    private String name;
 }

@@ -19,10 +19,6 @@
                     <div class="card-text">
                         <p th:text="${exception.getMessage()}"></p>
                         <p th:text="'URL = ' + ${requestUrl}"></p>
-                        <div>
-                            <h5>Exception stack trace</h5>
-                            <p th:each="stack : ${exception.getStackTrace()}" th:text="${stack.toString()}"></p>
-                        </div>
                     </div>
                 </div>
             </div>

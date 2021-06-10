@@ -1,8 +1,8 @@
 package com.att.controller;
 
+import com.att.entity.AcademicRank;
 import com.att.request.academic_rank.AcademicRankAddRequest;
 import com.att.request.academic_rank.AcademicRankUpdateRequest;
-import com.att.entity.AcademicRank;
 import com.att.service.AcademicRankService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;

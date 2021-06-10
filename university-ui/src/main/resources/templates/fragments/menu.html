@@ -1,23 +1,31 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
-<div th:fragment="menu" class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm">
-    <h5 class="my-0 mr-md-auto font-weight-normal" th:text="#{menu.name}"></h5>
-    <nav class="my-2 my-md-0 mr-md-3">
-        <a class="p-2 text-dark" th:href="@{/}" th:text="#{menu.main}"></a>
-        <a class="p-2 text-dark" th:href="@{/students/1/3}" th:text="#{menu.students}"></a>
-        <a class="p-2 text-dark" th:href="@{/teachers/1/3}" th:text="#{menu.teachers}"></a>
-        <a class="p-2 text-dark" th:href="@{/lessons/}" th:text="#{schedule}"></a>
-        <a class="p-2 text-dark" th:href="@{/groups/}" th:text="#{menu.groups}"></a>
-        <a class="p-2 text-dark" th:href="@{/courses/}" th:text="#{menu.courses}"></a>
-        <a class="p-2 text-dark" th:href="@{/faculties/}" th:text="#{menu.faculties}"></a>
-        <a class="p-2 text-dark" th:href="@{/buildings/}" th:text="#{menu.building}"></a>
-        <a class="p-2 text-dark" th:href="@{/classrooms/}" th:text="#{menu.classrooms}"></a>
-        <a class="p-2 text-dark" th:href="@{/academicranks/}" th:text="#{menu.academic}"></a>
-        <a class="p-2 text-dark" th:href="@{/sciencedegrees/}" th:text="#{menu.science}"></a>
-    </nav>
-    <a class="btn btn-outline-primary" th:href="@{/students/create}" th:text="#{menu.sign}"></a>
-    <a class="btn btn-outline-danger ml-2" th:href="@{/students/showLogin}" th:text="#{menu.login}"></a>
+
+<div th:fragment="menu">
+    <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm">
+        <h5 class="my-0 mr-md-auto font-weight-normal" th:text="#{menu.name}"></h5>
+        <nav class="my-2 my-md-0 mr-md-3">
+            <a class="p-2 text-dark" th:href="@{/}" th:text="#{menu.main}"></a>
+            <a class="p-2 text-dark" th:href="@{/students/1/3}" th:text="#{menu.students}"></a>
+            <a class="p-2 text-dark" th:href="@{/teachers/1/3}" th:text="#{menu.teachers}"></a>
+            <a class="p-2 text-dark" th:href="@{/lessons/}" th:text="#{schedule}"></a>
+            <a class="p-2 text-dark" th:href="@{/groups/}" th:text="#{menu.groups}"></a>
+            <a class="p-2 text-dark" th:href="@{/courses/}" th:text="#{menu.courses}"></a>
+            <a class="p-2 text-dark" th:href="@{/faculties/}" th:text="#{menu.faculties}"></a>
+            <a class="p-2 text-dark" th:href="@{/buildings/}" th:text="#{menu.building}"></a>
+            <a class="p-2 text-dark" th:href="@{/classrooms/}" th:text="#{menu.classrooms}"></a>
+            <a class="p-2 text-dark" th:href="@{/academicranks/}" th:text="#{menu.academic}"></a>
+            <a class="p-2 text-dark" th:href="@{/sciencedegrees/}" th:text="#{menu.science}"></a>
+        </nav>
+        <a class="btn btn-outline-primary" th:href="@{/students/create}" th:text="#{menu.sign}"></a>
+        <a class="btn btn-outline-danger ml-2" th:href="@{/students/showLogin}" th:text="#{menu.login}"></a>
+    </div>
+
+    <div th:if="${validationErrors}" class="container">
+        <div th:each="message : ${validationErrors}" th:insert="~{fragments/error :: error(${message})}"></div>
+    </div>
 </div>
+
 </body>
 </html>

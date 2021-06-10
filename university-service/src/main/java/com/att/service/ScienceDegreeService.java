@@ -4,6 +4,7 @@ import com.att.request.science_degree.ScienceDegreeAddRequest;
 import com.att.request.science_degree.ScienceDegreeUpdateRequest;
 import com.att.entity.ScienceDegree;
 
+import javax.validation.Valid;
 import java.util.List;
 
 public interface ScienceDegreeService {
@@ -11,9 +12,9 @@ public interface ScienceDegreeService {
 
     ScienceDegree findById(Integer id);
 
-    void update(ScienceDegreeUpdateRequest updateRequest);
+    void update(@Valid ScienceDegreeUpdateRequest updateRequest);
 
-    void create(ScienceDegreeAddRequest addRequest);
+    void create(@Valid ScienceDegreeAddRequest addRequest);
 
     void deleteById(Integer id);
 }

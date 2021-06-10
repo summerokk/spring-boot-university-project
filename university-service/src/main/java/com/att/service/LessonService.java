@@ -4,13 +4,14 @@ import com.att.request.lesson.LessonAddRequest;
 import com.att.request.lesson.LessonUpdateRequest;
 import com.att.entity.Lesson;
 
+import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
 
 public interface LessonService {
-    void add(LessonAddRequest addRequest);
+    void add(@Valid LessonAddRequest addRequest);
 
-    void update(LessonUpdateRequest updateRequest);
+    void update(@Valid LessonUpdateRequest updateRequest);
 
     Lesson findById(Integer id);
 

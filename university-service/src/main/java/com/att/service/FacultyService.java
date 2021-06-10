@@ -4,6 +4,7 @@ import com.att.request.faculty.FacultyAddRequest;
 import com.att.request.faculty.FacultyUpdateRequest;
 import com.att.entity.Faculty;
 
+import javax.validation.Valid;
 import java.util.List;
 
 public interface FacultyService {
@@ -11,9 +12,9 @@ public interface FacultyService {
 
     Faculty findById(Integer id);
 
-    void update(FacultyUpdateRequest updateRequest);
+    void update(@Valid FacultyUpdateRequest updateRequest);
 
-    void create(FacultyAddRequest addRequest);
+    void create(@Valid FacultyAddRequest addRequest);
 
     void deleteById(Integer id);
 }

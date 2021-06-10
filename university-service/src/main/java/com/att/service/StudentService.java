@@ -6,10 +6,12 @@ import com.att.entity.Student;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-public interface StudentService {
-    void register(StudentRegisterRequest student);
+import javax.validation.Valid;
 
-    void update(StudentUpdateRequest student);
+public interface StudentService {
+    void register(@Valid StudentRegisterRequest student);
+
+    void update(@Valid StudentUpdateRequest student);
 
     boolean login(String email, String password);
 

@@ -1,10 +1,5 @@
 package com.att.service.impl;
 
-import com.att.exception.dao.LessonNotFoundException;
-import com.att.request.lesson.LessonAddRequest;
-import com.att.request.lesson.LessonUpdateRequest;
-import com.att.validator.lesson.LessonAddValidator;
-import com.att.validator.lesson.LessonUpdateValidator;
 import com.att.dao.ClassroomRepository;
 import com.att.dao.CourseRepository;
 import com.att.dao.GroupRepository;
@@ -15,12 +10,16 @@ import com.att.entity.Course;
 import com.att.entity.Group;
 import com.att.entity.Lesson;
 import com.att.entity.Teacher;
+import com.att.exception.dao.LessonNotFoundException;
+import com.att.request.lesson.LessonAddRequest;
+import com.att.request.lesson.LessonUpdateRequest;
 import com.att.service.LessonService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
 import java.sql.Timestamp;
 import java.time.DayOfWeek;
@@ -32,11 +31,10 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Transactional
+@Validated
 public class LessonServiceImpl implements LessonService {
     private static final String LESSON_NOT_FOUND = "Lesson with Id %d is not found";
 
-    private final LessonAddValidator lessonAddValidator;
-    private final LessonUpdateValidator lessonUpdateValidator;
     private final TeacherRepository teacherRepository;
     private final LessonRepository lessonRepository;
     private final CourseRepository courseRepository;
@@ -45,8 +43,6 @@ public class LessonServiceImpl implements LessonService {
 
     @Override
     public void add(LessonAddRequest addRequest) {
-        lessonAddValidator.validate(addRequest);
-
         log.debug("Adding lesson with request {}", addRequest);
 
         Course course = courseRepository.findById(addRequest.getCourseId())
@@ -73,8 +69,6 @@ public class LessonServiceImpl implements LessonService {
     @Override
     public void update(LessonUpdateRequest updateRequest) {
         log.debug("Updating lesson with request {}", updateRequest);
-
-        lessonUpdateValidator.validate(updateRequest);
 
         Lesson lesson = lessonRepository.findById(updateRequest.getId())
                 .orElseThrow(() -> new LessonNotFoundException(String.format(LESSON_NOT_FOUND, updateRequest.getId())));

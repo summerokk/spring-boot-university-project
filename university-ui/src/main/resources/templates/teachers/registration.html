@@ -8,10 +8,6 @@
 
 <div class="container">
     <div th:insert="${emailExistsFail} ? ~{fragments/error :: error(#{notify.error.email.use})} : ~{}"></div>
-    <div th:insert="${passwordTooShort} ? ~{fragments/error :: error(#{notify.error.password.length(${@environment.getProperty('password.min.length')})})} : ~{}"></div>
-    <div th:insert="${passwordNotTheSame} ? ~{fragments/error :: error(#{notify.error.password.equal})} : ~{}"></div>
-    <div th:insert="${wrongEmailFormat} ? ~{fragments/error :: error(#{notify.error.email.format})} : ~{}"></div>
-    <div th:insert="${incorrectName} ? ~{fragments/error :: error(#{notify.error.name.format})} : ~{}"></div>
     <div th:insert="${error} ? ~{fragments/error :: error(${error})} : ~{}"></div>
 
     <div class="row">

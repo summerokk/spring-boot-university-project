@@ -1,10 +1,5 @@
 package com.att.service;
 
-import com.att.exception.dao.LessonNotFoundException;
-import com.att.request.lesson.LessonAddRequest;
-import com.att.request.lesson.LessonUpdateRequest;
-import com.att.validator.lesson.LessonAddValidator;
-import com.att.validator.lesson.LessonUpdateValidator;
 import com.att.dao.ClassroomRepository;
 import com.att.dao.CourseRepository;
 import com.att.dao.GroupRepository;
@@ -19,6 +14,9 @@ import com.att.entity.Group;
 import com.att.entity.Lesson;
 import com.att.entity.ScienceDegree;
 import com.att.entity.Teacher;
+import com.att.exception.dao.LessonNotFoundException;
+import com.att.request.lesson.LessonAddRequest;
+import com.att.request.lesson.LessonUpdateRequest;
 import com.att.service.impl.LessonServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,8 +37,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -63,34 +59,8 @@ class LessonServiceTest {
     @Mock
     private ClassroomRepository classroomRepository;
 
-    @Mock
-    private LessonUpdateValidator lessonUpdateValidator;
-
-    @Mock
-    private LessonAddValidator lessonAddValidator;
-
     @InjectMocks
     private LessonServiceImpl lessonService;
-
-    @Test
-    void lessonAddValidatorShouldThrowException() {
-        final LessonAddRequest lessonAddRequest = generateAddRequest();
-
-        doThrow(RuntimeException.class).when(lessonAddValidator).validate(lessonAddRequest);
-
-        assertThrows(RuntimeException.class, () -> lessonService.add(lessonAddRequest));
-        verify(lessonAddValidator).validate(any(LessonAddRequest.class));
-    }
-
-    @Test
-    void lessonUpdateValidatorShouldThrowException() {
-        final LessonUpdateRequest lessonUpdateRequest = generateUpdateRequest();
-
-        doThrow(RuntimeException.class).when(lessonUpdateValidator).validate(lessonUpdateRequest);
-
-        assertThrows(RuntimeException.class, () -> lessonService.update(lessonUpdateRequest));
-        verify(lessonUpdateValidator).validate(any(LessonUpdateRequest.class));
-    }
 
     @Test
     void addShouldNotThrowExceptionIfRequestIsValid() {
@@ -101,7 +71,6 @@ class LessonServiceTest {
         final Classroom classroom = generateClassroom();
         final Group group = generateGroup();
 
-        doNothing().when(lessonAddValidator).validate(any(LessonAddRequest.class));
         when(courseRepository.findById(lessonAddRequest.getCourseId())).thenReturn(Optional.of(course));
         when(teacherRepository.findById(anyInt())).thenReturn(Optional.of(teacher));
         when(groupRepository.findById(anyInt())).thenReturn(Optional.of(group));
@@ -109,7 +78,6 @@ class LessonServiceTest {
 
         lessonService.add(lessonAddRequest);
 
-        verify(lessonAddValidator).validate(any(LessonAddRequest.class));
         verify(courseRepository).findById(anyInt());
         verify(groupRepository).findById(anyInt());
         verify(teacherRepository).findById(anyInt());
@@ -122,27 +90,23 @@ class LessonServiceTest {
         final LessonAddRequest lessonAddRequest = generateAddRequest();
         final Course course = generateCourse();
 
-        doNothing().when(lessonAddValidator).validate(any(LessonAddRequest.class));
         when(courseRepository.findById(lessonAddRequest.getCourseId())).thenReturn(Optional.of(course));
         when(classroomRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(RuntimeException.class, () -> lessonService.add(lessonAddRequest));
 
-        verify(lessonAddValidator).validate(any(LessonAddRequest.class));
-        verifyNoMoreInteractions(courseRepository, classroomRepository, lessonAddValidator);
+        verifyNoMoreInteractions(courseRepository, classroomRepository);
     }
 
     @Test
     void addShouldThrowExceptionIfCourseDoesNotExist() {
         final LessonAddRequest lessonAddRequest = generateAddRequest();
 
-        doNothing().when(lessonAddValidator).validate(any(LessonAddRequest.class));
         when(courseRepository.findById(lessonAddRequest.getCourseId())).thenReturn(Optional.empty());
 
         assertThrows(RuntimeException.class, () -> lessonService.add(lessonAddRequest));
 
-        verify(lessonAddValidator).validate(any(LessonAddRequest.class));
-        verifyNoMoreInteractions(courseRepository, lessonAddValidator);
+        verifyNoMoreInteractions(courseRepository);
     }
 
     @Test
@@ -151,15 +115,13 @@ class LessonServiceTest {
         final Course course = generateCourse();
         final Classroom classroom = generateClassroom();
 
-        doNothing().when(lessonAddValidator).validate(any(LessonAddRequest.class));
         when(courseRepository.findById(lessonAddRequest.getCourseId())).thenReturn(Optional.of(course));
         when(classroomRepository.findById(anyInt())).thenReturn(Optional.of(classroom));
         when(groupRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(RuntimeException.class, () -> lessonService.add(lessonAddRequest));
 
-        verify(lessonAddValidator).validate(any(LessonAddRequest.class));
-        verifyNoMoreInteractions(courseRepository, classroomRepository, groupRepository, lessonAddValidator);
+        verifyNoMoreInteractions(courseRepository, classroomRepository, groupRepository);
     }
 
     @Test
@@ -169,7 +131,6 @@ class LessonServiceTest {
         final Classroom classroom = generateClassroom();
         final Group group = generateGroup();
 
-        doNothing().when(lessonAddValidator).validate(any(LessonAddRequest.class));
         when(courseRepository.findById(lessonAddRequest.getCourseId())).thenReturn(Optional.of(course));
         when(classroomRepository.findById(anyInt())).thenReturn(Optional.of(classroom));
         when(groupRepository.findById(anyInt())).thenReturn(Optional.of(group));
@@ -177,8 +138,7 @@ class LessonServiceTest {
 
         assertThrows(RuntimeException.class, () -> lessonService.add(lessonAddRequest));
 
-        verify(lessonAddValidator).validate(any(LessonAddRequest.class));
-        verifyNoMoreInteractions(courseRepository, classroomRepository, groupRepository, teacherRepository, lessonAddValidator);
+        verifyNoMoreInteractions(courseRepository, classroomRepository, groupRepository, teacherRepository);
     }
 
     @Test
@@ -191,7 +151,6 @@ class LessonServiceTest {
         final Classroom classroom = generateClassroom();
         final Group group = generateGroup();
 
-        doNothing().when(lessonUpdateValidator).validate(any(LessonUpdateRequest.class));
         when(lessonRepository.findById(anyInt())).thenReturn(Optional.of(lesson));
         when(courseRepository.findById(anyInt())).thenReturn(Optional.of(course));
         when(teacherRepository.findById(anyInt())).thenReturn(Optional.of(teacher));
@@ -200,7 +159,6 @@ class LessonServiceTest {
 
         lessonService.update(lessonUpdateRequest);
 
-        verify(lessonUpdateValidator).validate(any(LessonUpdateRequest.class));
         verify(courseRepository).findById(anyInt());
         verify(lessonRepository).findById(anyInt());
         verify(groupRepository).findById(anyInt());
@@ -214,13 +172,11 @@ class LessonServiceTest {
         final LessonUpdateRequest updateRequest = generateUpdateRequest();
 
 
-        doNothing().when(lessonUpdateValidator).validate(any(LessonUpdateRequest.class));
         when(lessonRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(LessonNotFoundException.class, () -> lessonService.update(updateRequest));
 
-        verify(lessonUpdateValidator).validate(any(LessonUpdateRequest.class));
-        verifyNoMoreInteractions(lessonRepository, lessonUpdateValidator);
+        verifyNoMoreInteractions(lessonRepository);
     }
 
     @Test
@@ -230,15 +186,13 @@ class LessonServiceTest {
         final Lesson lesson = generateLesson();
         final Course course = generateCourse();
 
-        doNothing().when(lessonUpdateValidator).validate(any(LessonUpdateRequest.class));
         when(lessonRepository.findById(anyInt())).thenReturn(Optional.of(lesson));
         when(courseRepository.findById(anyInt())).thenReturn(Optional.of(course));
         when(classroomRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(LessonNotFoundException.class, () -> lessonService.update(updateRequest));
 
-        verify(lessonUpdateValidator).validate(any(LessonUpdateRequest.class));
-        verifyNoMoreInteractions(courseRepository, classroomRepository, lessonRepository, lessonAddValidator);
+        verifyNoMoreInteractions(courseRepository, classroomRepository, lessonRepository);
     }
 
     @Test
@@ -247,14 +201,12 @@ class LessonServiceTest {
 
         final Lesson lesson = generateLesson();
 
-        doNothing().when(lessonUpdateValidator).validate(any(LessonUpdateRequest.class));
         when(lessonRepository.findById(anyInt())).thenReturn(Optional.of(lesson));
         when(courseRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(LessonNotFoundException.class, () -> lessonService.update(updateRequest));
 
-        verify(lessonUpdateValidator).validate(any(LessonUpdateRequest.class));
-        verifyNoMoreInteractions(courseRepository, lessonRepository, lessonAddValidator);
+        verifyNoMoreInteractions(courseRepository, lessonRepository);
     }
 
     @Test
@@ -266,7 +218,6 @@ class LessonServiceTest {
         final Classroom classroom = generateClassroom();
         final Group group = generateGroup();
 
-        doNothing().when(lessonUpdateValidator).validate(any(LessonUpdateRequest.class));
         when(lessonRepository.findById(anyInt())).thenReturn(Optional.of(lesson));
         when(courseRepository.findById(anyInt())).thenReturn(Optional.of(course));
         when(groupRepository.findById(anyInt())).thenReturn(Optional.of(group));
@@ -275,13 +226,12 @@ class LessonServiceTest {
 
         assertThrows(LessonNotFoundException.class, () -> lessonService.update(updateRequest));
 
-        verify(lessonUpdateValidator).validate(any(LessonUpdateRequest.class));
         verify(courseRepository).findById(anyInt());
         verify(lessonRepository).findById(anyInt());
         verify(groupRepository).findById(anyInt());
         verify(teacherRepository).findById(anyInt());
         verify(classroomRepository).findById(anyInt());
-        verifyNoMoreInteractions(courseRepository, lessonRepository, groupRepository, lessonUpdateValidator, teacherRepository, classroomRepository);
+        verifyNoMoreInteractions(courseRepository, lessonRepository, groupRepository, teacherRepository, classroomRepository);
     }
 
     @Test
@@ -292,7 +242,6 @@ class LessonServiceTest {
         final Course course = generateCourse();
         final Classroom classroom = generateClassroom();
 
-        doNothing().when(lessonUpdateValidator).validate(any(LessonUpdateRequest.class));
         when(lessonRepository.findById(anyInt())).thenReturn(Optional.of(lesson));
         when(courseRepository.findById(anyInt())).thenReturn(Optional.of(course));
         when(classroomRepository.findById(anyInt())).thenReturn(Optional.of(classroom));
@@ -300,12 +249,11 @@ class LessonServiceTest {
 
         assertThrows(LessonNotFoundException.class, () -> lessonService.update(updateRequest));
 
-        verify(lessonUpdateValidator).validate(any(LessonUpdateRequest.class));
         verify(courseRepository).findById(anyInt());
         verify(lessonRepository).findById(anyInt());
         verify(groupRepository).findById(anyInt());
         verify(classroomRepository).findById(anyInt());
-        verifyNoMoreInteractions(courseRepository, lessonRepository, groupRepository, lessonUpdateValidator, teacherRepository, classroomRepository);
+        verifyNoMoreInteractions(courseRepository, lessonRepository, groupRepository, teacherRepository, classroomRepository);
     }
 
     @Test

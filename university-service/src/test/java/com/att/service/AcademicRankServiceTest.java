@@ -1,14 +1,12 @@
 package com.att.service;
 
+import com.att.dao.AcademicRankRepository;
+import com.att.entity.AcademicRank;
 import com.att.exception.dao.AcademicRankNotFoundException;
 import com.att.mapper.academicrank.AcademicRankAddRequestMapper;
 import com.att.mapper.academicrank.AcademicRankUpdateRequestMapper;
 import com.att.request.academic_rank.AcademicRankAddRequest;
 import com.att.request.academic_rank.AcademicRankUpdateRequest;
-import com.att.validator.academic_rank.AcademicRankAddValidator;
-import com.att.validator.academic_rank.AcademicRankUpdateValidator;
-import com.att.dao.AcademicRankRepository;
-import com.att.entity.AcademicRank;
 import com.att.service.impl.AcademicRankServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -34,12 +31,6 @@ import static org.mockito.Mockito.when;
 class AcademicRankServiceTest {
     @Mock
     private AcademicRankRepository academicRankRepository;
-
-    @Mock
-    private AcademicRankUpdateValidator updateValidator;
-
-    @Mock
-    private AcademicRankAddValidator addValidator;
 
     @Mock
     private AcademicRankAddRequestMapper addRequestMapper;
@@ -55,14 +46,12 @@ class AcademicRankServiceTest {
         final AcademicRankUpdateRequest request = new AcademicRankUpdateRequest(1, "update");
         final AcademicRank AcademicRank = generateAcademicRanks().get(0);
 
-        doNothing().when(updateValidator).validate(any(AcademicRankUpdateRequest.class));
         when(academicRankRepository.findById(AcademicRank.getId())).thenReturn(Optional.empty());
 
         assertThrows(AcademicRankNotFoundException.class, () -> academicRankService.update(request));
 
-        verify(updateValidator).validate(any(AcademicRankUpdateRequest.class));
         verify(academicRankRepository).findById(anyInt());
-        verifyNoMoreInteractions(academicRankRepository, updateValidator);
+        verifyNoMoreInteractions(academicRankRepository);
     }
 
     @Test
@@ -70,16 +59,14 @@ class AcademicRankServiceTest {
         final AcademicRankUpdateRequest request = new AcademicRankUpdateRequest(1, "update");
         final AcademicRank AcademicRank = generateAcademicRanks().get(0);
 
-        doNothing().when(updateValidator).validate(any(AcademicRankUpdateRequest.class));
         when(academicRankRepository.findById(AcademicRank.getId())).thenReturn(Optional.of(generateAcademicRanks().get(0)));
         when(updateRequestMapper.convertToEntity(any(AcademicRankUpdateRequest.class))).thenReturn((generateAcademicRanks().get(0)));
 
         academicRankService.update(request);
 
-        verify(updateValidator).validate(any(AcademicRankUpdateRequest.class));
         verify(academicRankRepository).findById(anyInt());
         verify(academicRankRepository).save(any(AcademicRank.class));
-        verifyNoMoreInteractions(academicRankRepository, updateValidator);
+        verifyNoMoreInteractions(academicRankRepository);
     }
 
     @Test
@@ -119,14 +106,12 @@ class AcademicRankServiceTest {
     @Test
     void createAcademicRankShouldNotThrowException() {
         final AcademicRankAddRequest request = new AcademicRankAddRequest("new");
-        doNothing().when(addValidator).validate(any(AcademicRankAddRequest.class));
         when(addRequestMapper.convertToEntity(request)).thenReturn(generateAcademicRanks().get(0));
 
         academicRankService.create(request);
 
-        verify(addValidator).validate(any(AcademicRankAddRequest.class));
         verify(academicRankRepository).save(any(AcademicRank.class));
-        verifyNoMoreInteractions(academicRankRepository, addValidator);
+        verifyNoMoreInteractions(academicRankRepository);
     }
 
     @Test

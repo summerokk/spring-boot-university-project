@@ -8,13 +8,18 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import javax.validation.constraints.NotNull;
+
 @NoArgsConstructor
 @Getter
 @Setter
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 public class StudentUpdateRequest extends PersonRequest {
+    @NotNull
     private Integer id;
+
+    @NotNull
     private Integer groupId;
 
     @Builder(setterPrefix = "with")

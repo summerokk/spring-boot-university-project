@@ -1,37 +1,35 @@
 package com.att.service.impl;
 
+import com.att.dao.BuildingRepository;
+import com.att.dao.ClassroomRepository;
+import com.att.entity.Building;
+import com.att.entity.Classroom;
 import com.att.exception.dao.BuildingNotFoundException;
 import com.att.exception.dao.ClassroomNotFoundException;
 import com.att.mapper.classroom.ClassroomAddRequestMapper;
 import com.att.mapper.classroom.ClassroomUpdateRequestMapper;
 import com.att.request.classroom.ClassroomAddRequest;
 import com.att.request.classroom.ClassroomUpdateRequest;
-import com.att.validator.classroom.ClassroomAddValidator;
-import com.att.validator.classroom.ClassroomUpdateValidator;
-import com.att.dao.BuildingRepository;
-import com.att.dao.ClassroomRepository;
-import com.att.entity.Building;
-import com.att.entity.Classroom;
 import com.att.service.ClassroomService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@Validated
 public class ClassroomServiceImpl implements ClassroomService {
     private static final String CLASSROOM_NOT_FOUND = "Classroom with Id %d is not found";
     private static final String BUILDING_RANK_NOT_FOUND = "Building with Id %d is not found";
 
     private final ClassroomRepository classroomRepository;
     private final BuildingRepository buildingRepository;
-    private final ClassroomUpdateValidator updateValidator;
-    private final ClassroomAddValidator addValidator;
     private final ClassroomAddRequestMapper addRequestMapper;
     private final ClassroomUpdateRequestMapper updateRequestMapper;
 
@@ -51,8 +49,6 @@ public class ClassroomServiceImpl implements ClassroomService {
     public void create(ClassroomAddRequest addRequest) {
         log.debug("Classroom creating with request {}", addRequest);
 
-        addValidator.validate(addRequest);
-
         Building building = buildingRepository.findById(addRequest.getBuildingId())
                 .orElseThrow(() -> new BuildingNotFoundException(
                         String.format(BUILDING_RANK_NOT_FOUND, addRequest.getBuildingId())));
@@ -63,8 +59,6 @@ public class ClassroomServiceImpl implements ClassroomService {
     @Override
     @Transactional
     public void update(ClassroomUpdateRequest updateRequest) {
-        updateValidator.validate(updateRequest);
-
         if (!classroomRepository.findById(updateRequest.getId()).isPresent()) {
             throw new ClassroomNotFoundException(String.format(CLASSROOM_NOT_FOUND, updateRequest.getId()));
         }

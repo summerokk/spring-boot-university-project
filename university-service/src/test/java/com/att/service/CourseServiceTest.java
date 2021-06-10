@@ -1,14 +1,12 @@
 package com.att.service;
 
+import com.att.dao.CourseRepository;
+import com.att.entity.Course;
 import com.att.exception.dao.CourseNotFoundException;
 import com.att.mapper.course.CourseAddRequestMapper;
 import com.att.mapper.course.CourseUpdateRequestMapper;
 import com.att.request.course.CourseAddRequest;
 import com.att.request.course.CourseUpdateRequest;
-import com.att.validator.course.CourseAddValidator;
-import com.att.validator.course.CourseUpdateValidator;
-import com.att.dao.CourseRepository;
-import com.att.entity.Course;
 import com.att.service.impl.CourseServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -34,12 +31,6 @@ import static org.mockito.Mockito.when;
 class CourseServiceTest {
     @Mock
     private CourseRepository courseRepository;
-
-    @Mock
-    private CourseUpdateValidator updateValidator;
-
-    @Mock
-    private CourseAddValidator addValidator;
 
     @Mock
     private CourseAddRequestMapper addRequestMapper;
@@ -55,14 +46,11 @@ class CourseServiceTest {
         final CourseUpdateRequest request = new CourseUpdateRequest(1, "update");
         final Course course = generateCourses().get(0);
 
-        doNothing().when(updateValidator).validate(any(CourseUpdateRequest.class));
         when(courseRepository.findById(course.getId())).thenReturn(Optional.empty());
 
         assertThrows(CourseNotFoundException.class, () -> courseService.update(request));
 
-        verify(updateValidator).validate(any(CourseUpdateRequest.class));
         verify(courseRepository).findById(anyInt());
-        verifyNoMoreInteractions(courseRepository, updateValidator);
     }
 
     @Test
@@ -70,16 +58,13 @@ class CourseServiceTest {
         final CourseUpdateRequest request = new CourseUpdateRequest(1, "update");
         final Course course = generateCourses().get(0);
 
-        doNothing().when(updateValidator).validate(any(CourseUpdateRequest.class));
         when(courseRepository.findById(course.getId())).thenReturn(Optional.of(generateCourses().get(0)));
         when(updateRequestMapper.convertToEntity(any(CourseUpdateRequest.class))).thenReturn((generateCourses().get(0)));
 
         courseService.update(request);
 
-        verify(updateValidator).validate(any(CourseUpdateRequest.class));
         verify(courseRepository).findById(anyInt());
         verify(courseRepository).save(any(Course.class));
-        verifyNoMoreInteractions(courseRepository, updateValidator);
     }
 
     @Test
@@ -119,14 +104,11 @@ class CourseServiceTest {
     @Test
     void createCourseShouldNotThrowException() {
         final CourseAddRequest request = new CourseAddRequest("new");
-        doNothing().when(addValidator).validate(any(CourseAddRequest.class));
         when(addRequestMapper.convertToEntity(request)).thenReturn(generateCourses().get(0));
 
         courseService.create(request);
 
-        verify(addValidator).validate(any(CourseAddRequest.class));
         verify(courseRepository).save(any(Course.class));
-        verifyNoMoreInteractions(courseRepository, addValidator);
     }
 
     @Test

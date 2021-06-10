@@ -1,18 +1,16 @@
 package com.att.service;
 
+import com.att.dao.GroupRepository;
+import com.att.dao.StudentRepository;
+import com.att.entity.Faculty;
+import com.att.entity.Group;
+import com.att.entity.Student;
 import com.att.exception.dao.GroupNotFoundException;
 import com.att.exception.dao.PersonNotFoundException;
 import com.att.mapper.student.StudentRegisterRequestMapper;
 import com.att.mapper.student.StudentUpdateRequestMapper;
 import com.att.request.person.student.StudentRegisterRequest;
 import com.att.request.person.student.StudentUpdateRequest;
-import com.att.validator.person.StudentRegisterValidator;
-import com.att.validator.person.StudentUpdateValidator;
-import com.att.dao.GroupRepository;
-import com.att.dao.StudentRepository;
-import com.att.entity.Faculty;
-import com.att.entity.Group;
-import com.att.entity.Student;
 import com.att.service.impl.StudentServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,7 +30,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -47,12 +44,6 @@ class StudentServiceTest {
 
     @Mock
     private PasswordEncoder passwordEncoder;
-
-    @Mock
-    private StudentUpdateValidator studentUpdateValidator;
-
-    @Mock
-    private StudentRegisterValidator studentRegisterValidator;
 
     @Mock
     private StudentRegisterRequestMapper registerRequestMapper;
@@ -76,14 +67,12 @@ class StudentServiceTest {
 
         final Student student = generateEntity();
 
-        doNothing().when(studentRegisterValidator).validate(any(StudentRegisterRequest.class));
         when(studentRepository.findByEmail(email)).thenReturn(Optional.empty());
         when(registerRequestMapper.convertToEntity(any(StudentRegisterRequest.class), anyString())).thenReturn(student);
         when(passwordEncoder.encode(anyString())).thenReturn(anyString());
 
         studentService.register(registerRequest);
 
-        verify(studentRegisterValidator).validate(any(StudentRegisterRequest.class));
         verify(registerRequestMapper).convertToEntity(any(StudentRegisterRequest.class), anyString());
         verify(passwordEncoder).encode(anyString());
         verify(studentRepository).findByEmail(anyString());
@@ -103,14 +92,12 @@ class StudentServiceTest {
 
         final Student student = generateEntity();
 
-        doNothing().when(studentRegisterValidator).validate(any(StudentRegisterRequest.class));
         when(studentRepository.findByEmail(email)).thenReturn(Optional.of(student));
 
         assertThrows(RuntimeException.class, () -> studentService.register(registerRequest));
 
-        verify(studentRegisterValidator).validate(any(StudentRegisterRequest.class));
         verify(studentRepository).findByEmail(anyString());
-        verifyNoMoreInteractions(studentRepository, studentRegisterValidator);
+        verifyNoMoreInteractions(studentRepository);
     }
 
     @Test
@@ -136,14 +123,12 @@ class StudentServiceTest {
 
         final Group group = new Group(groupId, "Test", new Faculty(1, "FacultyTest"));
 
-        doNothing().when(studentUpdateValidator).validate(any(StudentUpdateRequest.class));
         when(studentRepository.findById(studentId)).thenReturn(Optional.of(student));
         when(groupRepository.findById(groupId)).thenReturn(Optional.of(group));
         when(updateRequestMapper.convertToEntity(studentRequest, group, student.getPassword())).thenReturn(student);
 
         studentService.update(studentRequest);
 
-        verify(studentUpdateValidator).validate(any(StudentUpdateRequest.class));
         verify(updateRequestMapper).convertToEntity(any(StudentUpdateRequest.class), any(Group.class), anyString());
         verify(studentRepository).findById(anyInt());
         verify(studentRepository).save(any(Student.class));
@@ -160,14 +145,12 @@ class StudentServiceTest {
                 .withEmail("email")
                 .build();
 
-        doNothing().when(studentUpdateValidator).validate(any(StudentUpdateRequest.class));
         when(studentRepository.findById(studentId)).thenReturn(Optional.empty());
 
         assertThrows(PersonNotFoundException.class, () -> studentService.update(student));
 
-        verify(studentUpdateValidator).validate(any(StudentUpdateRequest.class));
         verify(studentRepository).findById(anyInt());
-        verifyNoMoreInteractions(studentRepository, studentUpdateValidator);
+        verifyNoMoreInteractions(studentRepository);
     }
 
     @Test
@@ -190,15 +173,13 @@ class StudentServiceTest {
                 .withPassword("123456789")
                 .build();
 
-        doNothing().when(studentUpdateValidator).validate(any(StudentUpdateRequest.class));
         when(studentRepository.findById(studentId)).thenReturn(Optional.of(student));
         when(groupRepository.findById(anyInt())).thenReturn(Optional.empty());
 
         assertThrows(GroupNotFoundException.class, () -> studentService.update(updateRequest));
 
-        verify(studentUpdateValidator).validate(any(StudentUpdateRequest.class));
         verify(studentRepository).findById(anyInt());
-        verifyNoMoreInteractions(studentRepository, studentUpdateValidator);
+        verifyNoMoreInteractions(studentRepository);
     }
 
     @Test

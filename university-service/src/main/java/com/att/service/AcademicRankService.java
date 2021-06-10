@@ -4,6 +4,7 @@ import com.att.request.academic_rank.AcademicRankAddRequest;
 import com.att.request.academic_rank.AcademicRankUpdateRequest;
 import com.att.entity.AcademicRank;
 
+import javax.validation.Valid;
 import java.util.List;
 
 public interface AcademicRankService {
@@ -11,9 +12,9 @@ public interface AcademicRankService {
 
     AcademicRank findById(Integer id);
 
-    void update(AcademicRankUpdateRequest updateRequest);
+    void update(@Valid AcademicRankUpdateRequest updateRequest);
 
-    void create(AcademicRankAddRequest addRequest);
+    void create(@Valid AcademicRankAddRequest addRequest);
 
     void deleteById(Integer id);
 }

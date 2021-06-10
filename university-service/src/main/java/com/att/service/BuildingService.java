@@ -4,6 +4,7 @@ import com.att.request.building.BuildingAddRequest;
 import com.att.request.building.BuildingUpdateRequest;
 import com.att.entity.Building;
 
+import javax.validation.Valid;
 import java.util.List;
 
 public interface BuildingService {
@@ -11,9 +12,9 @@ public interface BuildingService {
 
     Building findById(Integer id);
 
-    void update(BuildingUpdateRequest updateRequest);
+    void update(@Valid BuildingUpdateRequest updateRequest);
 
-    void create(BuildingAddRequest addRequest);
+    void create(@Valid BuildingAddRequest addRequest);
 
     void deleteById(Integer id);
 }

@@ -1,18 +1,14 @@
 package com.att.controller;
 
+import com.att.entity.AcademicRank;
+import com.att.entity.ScienceDegree;
+import com.att.entity.Teacher;
 import com.att.exception.dao.AcademicRankNotFoundException;
 import com.att.exception.dao.ScienceDegreeNotFoundException;
 import com.att.exception.service.EmailAlreadyExistsException;
 import com.att.exception.service.LoginFailException;
-import com.att.exception.service.NameIncorrectException;
-import com.att.exception.service.PasswordTooShortException;
-import com.att.exception.service.PasswordsAreNotTheSameException;
-import com.att.exception.service.WrongEmailFormatException;
 import com.att.request.person.teacher.TeacherRegisterRequest;
 import com.att.request.person.teacher.TeacherUpdateRequest;
-import com.att.entity.AcademicRank;
-import com.att.entity.ScienceDegree;
-import com.att.entity.Teacher;
 import com.att.service.AcademicRankService;
 import com.att.service.ScienceDegreeService;
 import com.att.service.TeacherService;
@@ -72,15 +68,6 @@ class TeacherControllerTest {
     }
 
     @Test
-    void performPostTeacherRegisterRequestShouldThrowWrongEmailFormatException() throws Exception {
-        doThrow(WrongEmailFormatException.class).when(teacherService).register(any(TeacherRegisterRequest.class));
-
-        this.mockMvc.perform(post("/teachers/register").param("email", "test@test.ru"))
-                .andExpect(status().is(302))
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof WrongEmailFormatException));
-    }
-
-    @Test
     void performPostTeacherRegisterRequestShouldThrowEmailAlreadyExistsException() throws Exception {
         doThrow(EmailAlreadyExistsException.class).when(teacherService).register(any(TeacherRegisterRequest.class));
 
@@ -95,34 +82,6 @@ class TeacherControllerTest {
 
         this.mockMvc.perform(post("/teachers/register").param("email", "test@test.ru"))
                 .andExpect(view().name("errors/error"));
-    }
-
-    @Test
-    void performPostTeacherRegisterRequestShouldThrowPasswordTooShortException() throws Exception {
-        doThrow(PasswordTooShortException.class).when(teacherService).register(any(TeacherRegisterRequest.class));
-
-        this.mockMvc.perform(post("/teachers/register").param("email", "test@test.ru"))
-                .andExpect(status().is(302))
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof PasswordTooShortException));
-    }
-
-    @Test
-    void performPostTeacherRegisterRequestShouldThrowNameIncorrectException() throws Exception {
-        doThrow(NameIncorrectException.class).when(teacherService).register(any(TeacherRegisterRequest.class));
-
-        this.mockMvc.perform(post("/teachers/register").param("email", "test@test.ru"))
-                .andExpect(status().is(302))
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof NameIncorrectException));
-    }
-
-    @Test
-    void performPostTeacherRegisterRequestShouldThrowPasswordsAreNotTheSameException() throws Exception {
-        doThrow(PasswordsAreNotTheSameException.class).when(teacherService).register(any(TeacherRegisterRequest.class));
-
-        this.mockMvc.perform(post("/teachers/register").param("email", "test@test.ru"))
-                .andExpect(status().is(302))
-                .andExpect(result ->
-                        assertTrue(result.getResolvedException() instanceof PasswordsAreNotTheSameException));
     }
 
     @Test
@@ -258,36 +217,16 @@ class TeacherControllerTest {
         verify(teacherService).deleteById(anyInt());
     }
 
-    private TeacherRegisterRequest generateRegisterRequest() {
-        return TeacherRegisterRequest.builder()
-                .withFirstName("test")
-                .withLastName("test")
-                .withEmail("test@test.ru")
-                .withPassword("1234567890")
-                .withLinkedin("http://test.ru")
-                .withAcademicRankId(1)
-                .withScienceDegreeId(1)
-                .build();
-    }
-
     private TeacherUpdateRequest generateUpdateRequest() {
         return TeacherUpdateRequest.builder()
                 .withId(1)
                 .withFirstName("test")
                 .withLastName("test")
                 .withEmail("test@test.ru")
-                .withLinkedin("http://test.ru")
+                .withLinkedin("https://test.ru")
                 .withAcademicRankId(1)
                 .withScienceDegreeId(1)
                 .build();
-    }
-
-    private List<Teacher> generateTeachers() {
-        return Arrays.asList(
-               generateTeacher(),
-               generateTeacher(),
-               generateTeacher()
-        );
     }
 
     private List<AcademicRank> generateAcademicRanks() {
@@ -316,7 +255,7 @@ class TeacherControllerTest {
                 .withLastName("test")
                 .withEmail("test@test.ru")
                 .withPassword("1234567890")
-                .withLinkedin("http://test.ru")
+                .withLinkedin("https://test.ru")
                 .withAcademicRank(academicRank)
                 .withScienceDegree(scienceDegree)
                 .build();

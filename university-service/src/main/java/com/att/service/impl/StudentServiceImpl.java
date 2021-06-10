@@ -1,6 +1,9 @@
 package com.att.service.impl;
 
-import com.att.exception.dao.GroupNotFoundException;
+import com.att.dao.GroupRepository;
+import com.att.dao.StudentRepository;
+import com.att.entity.Group;
+import com.att.entity.Student;
 import com.att.exception.dao.PersonNotFoundException;
 import com.att.exception.service.EmailAlreadyExistsException;
 import com.att.exception.service.LoginFailException;
@@ -9,12 +12,6 @@ import com.att.mapper.student.StudentUpdateRequestMapper;
 import com.att.request.person.student.StudentRegisterRequest;
 import com.att.request.person.student.StudentUpdateRequest;
 import com.att.service.StudentService;
-import com.att.validator.person.StudentRegisterValidator;
-import com.att.validator.person.StudentUpdateValidator;
-import com.att.dao.GroupRepository;
-import com.att.dao.StudentRepository;
-import com.att.entity.Group;
-import com.att.entity.Student;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,25 +20,24 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
 @Component("studentService")
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Transactional
+@Validated
 public class StudentServiceImpl implements StudentService {
     private static final String STUDENT_NOT_FOUND = "Student is not found";
 
     private final StudentRepository studentRepository;
     private final GroupRepository groupRepository;
-    private final StudentRegisterValidator studentRegisterValidator;
-    private final StudentUpdateValidator studentUpdateValidator;
     private final PasswordEncoder passwordEncoder;
     private final StudentRegisterRequestMapper registerRequestMapper;
     private final StudentUpdateRequestMapper updateRequestMapper;
 
+    @Override
     public void register(StudentRegisterRequest studentRegisterRequest) {
-        studentRegisterValidator.validate(studentRegisterRequest);
-
         log.debug("Student registration with request {}", studentRegisterRequest);
 
         if (studentRepository.findByEmail(studentRegisterRequest.getEmail()).isPresent()) {
@@ -54,15 +50,13 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public void update(StudentUpdateRequest studentUpdateRequest) {
-        studentUpdateValidator.validate(studentUpdateRequest);
-
         log.debug("Student update with request {}", studentUpdateRequest);
 
         Student student = studentRepository.findById(studentUpdateRequest.getId())
                 .orElseThrow(() -> new PersonNotFoundException(STUDENT_NOT_FOUND));
 
         Group group = groupRepository.findById(studentUpdateRequest.getGroupId())
-                .orElseThrow(() -> new GroupNotFoundException("Group is not found"));
+                .orElse(null);
 
         studentRepository.save(updateRequestMapper.convertToEntity(studentUpdateRequest, group, student.getPassword()));
     }

@@ -1,14 +1,12 @@
 package com.att.service;
 
+import com.att.dao.BuildingRepository;
+import com.att.entity.Building;
 import com.att.exception.dao.BuildingNotFoundException;
 import com.att.mapper.building.BuildingAddRequestMapper;
 import com.att.mapper.building.BuildingUpdateRequestMapper;
 import com.att.request.building.BuildingAddRequest;
 import com.att.request.building.BuildingUpdateRequest;
-import com.att.validator.building.BuildingAddValidator;
-import com.att.validator.building.BuildingUpdateValidator;
-import com.att.dao.BuildingRepository;
-import com.att.entity.Building;
 import com.att.service.impl.BuildingServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -34,12 +31,6 @@ import static org.mockito.Mockito.when;
 class BuildingServiceTest {
     @Mock
     private BuildingRepository buildingRepository;
-
-    @Mock
-    private BuildingUpdateValidator updateValidator;
-
-    @Mock
-    private BuildingAddValidator addValidator;
 
     @Mock
     private BuildingAddRequestMapper addRequestMapper;
@@ -55,14 +46,12 @@ class BuildingServiceTest {
         final BuildingUpdateRequest request = new BuildingUpdateRequest(1, "update");
         final Building Building = generateBuildings().get(0);
 
-        doNothing().when(updateValidator).validate(any(BuildingUpdateRequest.class));
         when(buildingRepository.findById(Building.getId())).thenReturn(Optional.empty());
 
         assertThrows(BuildingNotFoundException.class, () -> buildingService.update(request));
 
-        verify(updateValidator).validate(any(BuildingUpdateRequest.class));
         verify(buildingRepository).findById(anyInt());
-        verifyNoMoreInteractions(buildingRepository, updateValidator);
+        verifyNoMoreInteractions(buildingRepository);
     }
 
     @Test
@@ -70,16 +59,14 @@ class BuildingServiceTest {
         final BuildingUpdateRequest request = new BuildingUpdateRequest(1, "update");
         final Building Building = generateBuildings().get(0);
 
-        doNothing().when(updateValidator).validate(any(BuildingUpdateRequest.class));
         when(buildingRepository.findById(Building.getId())).thenReturn(Optional.of(generateBuildings().get(0)));
         when(updateRequestMapper.convertToEntity(any(BuildingUpdateRequest.class))).thenReturn((generateBuildings().get(0)));
 
         buildingService.update(request);
 
-        verify(updateValidator).validate(any(BuildingUpdateRequest.class));
         verify(buildingRepository).findById(anyInt());
         verify(buildingRepository).save(any(Building.class));
-        verifyNoMoreInteractions(buildingRepository, updateValidator);
+        verifyNoMoreInteractions(buildingRepository);
     }
 
     @Test
@@ -119,14 +106,12 @@ class BuildingServiceTest {
     @Test
     void createBuildingShouldNotThrowException() {
         final BuildingAddRequest request = new BuildingAddRequest("new");
-        doNothing().when(addValidator).validate(any(BuildingAddRequest.class));
         when(addRequestMapper.convertToEntity(request)).thenReturn(generateBuildings().get(0));
 
         buildingService.create(request);
 
-        verify(addValidator).validate(any(BuildingAddRequest.class));
         verify(buildingRepository).save(any(Building.class));
-        verifyNoMoreInteractions(buildingRepository, addValidator);
+        verifyNoMoreInteractions(buildingRepository);
     }
 
     @Test

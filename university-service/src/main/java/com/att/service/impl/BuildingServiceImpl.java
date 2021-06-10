@@ -1,32 +1,30 @@
 package com.att.service.impl;
 
+import com.att.dao.BuildingRepository;
+import com.att.entity.Building;
 import com.att.exception.dao.BuildingNotFoundException;
 import com.att.mapper.building.BuildingAddRequestMapper;
 import com.att.mapper.building.BuildingUpdateRequestMapper;
 import com.att.request.building.BuildingAddRequest;
 import com.att.request.building.BuildingUpdateRequest;
 import com.att.service.BuildingService;
-import com.att.validator.building.BuildingAddValidator;
-import com.att.validator.building.BuildingUpdateValidator;
-import com.att.dao.BuildingRepository;
-import com.att.entity.Building;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@Validated
 public class BuildingServiceImpl implements BuildingService {
     private static final String BUILDING_RANK_NOT_FOUND = "BUILDING with Id %d is not found";
 
     private final BuildingRepository buildingRepository;
-    private final BuildingUpdateValidator updateValidator;
-    private final BuildingAddValidator addValidator;
     private final BuildingAddRequestMapper addRequestMapper;
     private final BuildingUpdateRequestMapper updateRequestMapper;
 
@@ -48,16 +46,12 @@ public class BuildingServiceImpl implements BuildingService {
     public void create(BuildingAddRequest addRequest) {
         log.debug("Building creating with request {}", addRequest);
 
-        addValidator.validate(addRequest);
-
         buildingRepository.save(addRequestMapper.convertToEntity(addRequest));
     }
 
     @Override
     @Transactional
     public void update(BuildingUpdateRequest updateRequest) {
-        updateValidator.validate(updateRequest);
-
         if (!buildingRepository.findById(updateRequest.getId()).isPresent()) {
             throw new BuildingNotFoundException(String.format(BUILDING_RANK_NOT_FOUND, updateRequest.getId()));
         }

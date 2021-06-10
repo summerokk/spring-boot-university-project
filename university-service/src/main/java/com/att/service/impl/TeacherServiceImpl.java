@@ -1,5 +1,11 @@
 package com.att.service.impl;
 
+import com.att.dao.AcademicRankRepository;
+import com.att.dao.ScienceDegreeRepository;
+import com.att.dao.TeacherRepository;
+import com.att.entity.AcademicRank;
+import com.att.entity.ScienceDegree;
+import com.att.entity.Teacher;
 import com.att.exception.dao.PersonNotFoundException;
 import com.att.exception.service.EmailAlreadyExistsException;
 import com.att.mapper.teacher.TeacherRegisterRequestMapper;
@@ -7,14 +13,6 @@ import com.att.mapper.teacher.TeacherUpdateRequestMapper;
 import com.att.request.person.teacher.TeacherRegisterRequest;
 import com.att.request.person.teacher.TeacherUpdateRequest;
 import com.att.service.TeacherService;
-import com.att.validator.person.TeacherRegisterValidator;
-import com.att.validator.person.TeacherUpdateValidator;
-import com.att.dao.AcademicRankRepository;
-import com.att.dao.ScienceDegreeRepository;
-import com.att.dao.TeacherRepository;
-import com.att.entity.AcademicRank;
-import com.att.entity.ScienceDegree;
-import com.att.entity.Teacher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 
@@ -30,6 +29,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Transactional
+@Validated
 public class TeacherServiceImpl implements TeacherService {
     private static final String TEACHER_NOT_FOUND = "Teacher with Id %d is not found";
     private static final String TEACHER_NOT_FOUND_WITH_EMAIL = "Teacher with email %s is not found";
@@ -37,15 +37,11 @@ public class TeacherServiceImpl implements TeacherService {
     private final TeacherRepository teacherRepository;
     private final AcademicRankRepository academicRankRepository;
     private final ScienceDegreeRepository scienceDegreeRepository;
-    private final TeacherRegisterValidator teacherRegisterValidator;
-    private final TeacherUpdateValidator teacherUpdateValidator;
     private final TeacherRegisterRequestMapper teacherRegisterRequestMapper;
     private final TeacherUpdateRequestMapper teacherUpdateRequestMapper;
     private final PasswordEncoder passwordEncoder;
 
     public void register(TeacherRegisterRequest teacherRegisterRequest) {
-        teacherRegisterValidator.validate(teacherRegisterRequest);
-
         log.debug("Teacher register with request {}", teacherRegisterRequest);
 
         if (teacherRepository.findByEmail(teacherRegisterRequest.getEmail()).isPresent()) {
@@ -64,8 +60,6 @@ public class TeacherServiceImpl implements TeacherService {
 
     @Override
     public void update(TeacherUpdateRequest teacherUpdateRequest) {
-        teacherUpdateValidator.validate(teacherUpdateRequest);
-
         log.debug("Teacher update with request {}", teacherUpdateRequest);
 
         if (!teacherRepository.findById(teacherUpdateRequest.getId()).isPresent()) {
@@ -86,7 +80,7 @@ public class TeacherServiceImpl implements TeacherService {
         log.debug("Teacher login with login {}", email);
 
         Teacher teacher = teacherRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException(TEACHER_NOT_FOUND));
+                .orElseThrow(() -> new PersonNotFoundException(TEACHER_NOT_FOUND));
 
         return passwordEncoder.matches(password, teacher.getPassword());
     }
