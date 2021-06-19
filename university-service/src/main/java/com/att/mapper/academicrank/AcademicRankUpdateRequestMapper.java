@@ -1,12 +1,10 @@
 package com.att.mapper.academicrank;
 
-import com.att.request.academic_rank.AcademicRankUpdateRequest;
 import com.att.entity.AcademicRank;
-import org.springframework.stereotype.Component;
+import com.att.request.academic_rank.AcademicRankUpdateRequest;
+import org.mapstruct.Mapper;
 
-@Component
-public class AcademicRankUpdateRequestMapper {
-    public AcademicRank convertToEntity(AcademicRankUpdateRequest updateRequest) {
-        return new AcademicRank(updateRequest.getId(), updateRequest.getName());
-    }
+@Mapper(componentModel = "spring")
+public interface AcademicRankUpdateRequestMapper {
+    AcademicRank convertToEntity(AcademicRankUpdateRequest updateRequest);
 }

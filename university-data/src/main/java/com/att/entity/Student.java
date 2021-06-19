@@ -35,7 +35,7 @@ public class Student extends Person {
     @OneToOne
     private Group group;
 
-    @Builder(setterPrefix = "with")
+    @Builder
     public Student(Integer id, String firstName, String lastName, String email, String password, Group group) {
         super(firstName, lastName, email, password);
 

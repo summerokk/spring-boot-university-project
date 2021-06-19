@@ -1,20 +1,15 @@
 package com.att.mapper.student;
 
-import com.att.request.person.student.StudentUpdateRequest;
 import com.att.entity.Group;
 import com.att.entity.Student;
-import org.springframework.stereotype.Component;
+import com.att.request.person.student.StudentUpdateRequest;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-@Component
-public class StudentUpdateRequestMapper {
-    public Student convertToEntity(StudentUpdateRequest updateRequest, Group group, String password) {
-        return Student.builder()
-                .withId(updateRequest.getId())
-                .withFirstName(updateRequest.getFirstName())
-                .withLastName(updateRequest.getLastName())
-                .withEmail(updateRequest.getEmail())
-                .withPassword(password)
-                .withGroup(group)
-                .build();
-    }
+@Mapper(componentModel = "spring")
+public interface StudentUpdateRequestMapper {
+    @Mapping(target = "password", source = "password")
+    @Mapping(target = "group", source = "group")
+    @Mapping(target = "id", source = "request.id")
+    Student convertToEntity(StudentUpdateRequest request, Group group, String password);
 }
