@@ -7,6 +7,9 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface StudentRegisterRequestMapper {
-    @Mapping(target = "password", source = "password")
+    @Mapping(target = "withPassword", source = "password")
+    @Mapping(target = "withFirstName", source = "request.firstName")
+    @Mapping(target = "withLastName", source = "request.lastName")
+    @Mapping(target = "withEmail", source = "request.email")
     Student convertToEntity(StudentRegisterRequest request, String password);
 }
