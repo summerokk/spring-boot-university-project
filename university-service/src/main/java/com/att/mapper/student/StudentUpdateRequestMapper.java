@@ -8,8 +8,11 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface StudentUpdateRequestMapper {
-    @Mapping(target = "password", source = "password")
-    @Mapping(target = "group", source = "group")
-    @Mapping(target = "id", source = "request.id")
+    @Mapping(target = "withPassword", source = "password")
+    @Mapping(target = "withGroup", source = "group")
+    @Mapping(target = "withId", source = "request.id")
+    @Mapping(target = "withFirstName", source = "request.firstName")
+    @Mapping(target = "withLastName", source = "request.lastName")
+    @Mapping(target = "withEmail", source = "request.email")
     Student convertToEntity(StudentUpdateRequest request, Group group, String password);
 }
