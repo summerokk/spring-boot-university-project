@@ -1,12 +1,10 @@
 package com.att.mapper.sciencedegree;
 
-import com.att.request.science_degree.ScienceDegreeUpdateRequest;
 import com.att.entity.ScienceDegree;
-import org.springframework.stereotype.Component;
+import com.att.request.science_degree.ScienceDegreeUpdateRequest;
+import org.mapstruct.Mapper;
 
-@Component
-public class ScienceDegreeUpdateRequestMapper {
-    public ScienceDegree convertToEntity(ScienceDegreeUpdateRequest updateRequest) {
-        return new ScienceDegree(updateRequest.getId(), updateRequest.getName());
-    }
+@Mapper(componentModel = "spring")
+public interface ScienceDegreeUpdateRequestMapper {
+    ScienceDegree convertToEntity(ScienceDegreeUpdateRequest updateRequest);
 }

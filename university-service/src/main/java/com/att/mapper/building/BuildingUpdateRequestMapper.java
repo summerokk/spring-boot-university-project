@@ -1,12 +1,10 @@
 package com.att.mapper.building;
 
-import com.att.request.building.BuildingUpdateRequest;
 import com.att.entity.Building;
-import org.springframework.stereotype.Component;
+import com.att.request.building.BuildingUpdateRequest;
+import org.mapstruct.Mapper;
 
-@Component
-public class BuildingUpdateRequestMapper {
-    public Building convertToEntity(BuildingUpdateRequest updateRequest) {
-        return new Building(updateRequest.getId(), updateRequest.getAddress());
-    }
+@Mapper(componentModel = "spring")
+public interface BuildingUpdateRequestMapper {
+    Building convertToEntity(BuildingUpdateRequest updateRequest);
 }

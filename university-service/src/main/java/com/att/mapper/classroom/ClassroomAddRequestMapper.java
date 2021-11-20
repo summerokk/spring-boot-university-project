@@ -1,13 +1,14 @@
 package com.att.mapper.classroom;
 
-import com.att.request.classroom.ClassroomAddRequest;
 import com.att.entity.Building;
 import com.att.entity.Classroom;
-import org.springframework.stereotype.Component;
+import com.att.request.classroom.ClassroomAddRequest;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-@Component
-public class ClassroomAddRequestMapper {
-    public Classroom convertToEntity(ClassroomAddRequest addRequest, Building building) {
-        return new Classroom(null, addRequest.getNumber(), building);
-    }
+@Mapper(componentModel = "spring")
+public interface ClassroomAddRequestMapper {
+    @Mapping(target = "building", source = "building")
+    @Mapping(target = "id", ignore = true)
+    Classroom convertToEntity(ClassroomAddRequest addRequest, Building building);
 }

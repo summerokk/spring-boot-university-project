@@ -1,12 +1,10 @@
 package com.att.mapper.faculty;
 
-import com.att.request.faculty.FacultyAddRequest;
 import com.att.entity.Faculty;
-import org.springframework.stereotype.Component;
+import com.att.request.faculty.FacultyAddRequest;
+import org.mapstruct.Mapper;
 
-@Component
-public class FacultyAddRequestMapper {
-    public Faculty convertToEntity(FacultyAddRequest addRequest) {
-        return new Faculty(null, addRequest.getName());
-    }
+@Mapper(componentModel = "spring")
+public interface FacultyAddRequestMapper {
+    Faculty convertToEntity(FacultyAddRequest addRequest);
 }

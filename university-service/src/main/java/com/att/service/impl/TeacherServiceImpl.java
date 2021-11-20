@@ -62,9 +62,9 @@ public class TeacherServiceImpl implements TeacherService {
     public void update(TeacherUpdateRequest teacherUpdateRequest) {
         log.debug("Teacher update with request {}", teacherUpdateRequest);
 
-        if (!teacherRepository.findById(teacherUpdateRequest.getId()).isPresent()) {
-            throw new PersonNotFoundException(String.format(TEACHER_NOT_FOUND, teacherUpdateRequest.getId()));
-        }
+        Teacher teacher = teacherRepository.findById(teacherUpdateRequest.getId())
+                .orElseThrow(() ->
+                        new PersonNotFoundException(String.format(TEACHER_NOT_FOUND, teacherUpdateRequest.getId())));
 
         AcademicRank academicRank = academicRankRepository.findById(teacherUpdateRequest.getAcademicRankId())
                 .orElseThrow(() -> new RuntimeException("Academic Rank does not exists"));
@@ -72,7 +72,8 @@ public class TeacherServiceImpl implements TeacherService {
         ScienceDegree scienceDegree = scienceDegreeRepository.findById(teacherUpdateRequest.getScienceDegreeId())
                 .orElseThrow(() -> new RuntimeException("Science degree does not exists"));
 
-        teacherRepository.save(teacherUpdateRequestMapper.convertToEntity(teacherUpdateRequest, academicRank, scienceDegree));
+        teacherRepository.save(teacherUpdateRequestMapper.convertToEntity(teacherUpdateRequest, academicRank,
+                scienceDegree, teacher.getPassword()));
     }
 
     @Override

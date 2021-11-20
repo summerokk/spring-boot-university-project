@@ -5,12 +5,13 @@ import com.att.entity.ScienceDegree;
 import com.att.entity.Teacher;
 import com.att.request.person.teacher.TeacherUpdateRequest;
 import org.junit.jupiter.api.Test;
+import org.mapstruct.factory.Mappers;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TeacherUpdateRequestMapperTest {
-    private final TeacherUpdateRequestMapper requestMapper = new TeacherUpdateRequestMapper();
+    private final TeacherUpdateRequestMapper requestMapper = Mappers.getMapper(TeacherUpdateRequestMapper.class);
 
     @Test
     void convertToEntityShouldReturnEntityWhenRequestContainsAllFields() {
@@ -24,8 +25,9 @@ class TeacherUpdateRequestMapperTest {
 
         AcademicRank academicRank = new AcademicRank(1, "test");
         ScienceDegree scienceDegree = new ScienceDegree(1, "test");
+        String password = "password";
 
-        Teacher teacher = requestMapper.convertToEntity(addRequest, academicRank, scienceDegree);
+        Teacher teacher = requestMapper.convertToEntity(addRequest, academicRank, scienceDegree, password);
 
         assertAll(
                 () -> assertEquals(1, teacher.getId()),

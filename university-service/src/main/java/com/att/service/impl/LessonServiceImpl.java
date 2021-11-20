@@ -11,6 +11,8 @@ import com.att.entity.Group;
 import com.att.entity.Lesson;
 import com.att.entity.Teacher;
 import com.att.exception.dao.LessonNotFoundException;
+import com.att.mapper.lesson.LessonAddRequestMapper;
+import com.att.mapper.lesson.LessonUpdateRequestMapper;
 import com.att.request.lesson.LessonAddRequest;
 import com.att.request.lesson.LessonUpdateRequest;
 import com.att.service.LessonService;
@@ -40,6 +42,8 @@ public class LessonServiceImpl implements LessonService {
     private final CourseRepository courseRepository;
     private final GroupRepository groupRepository;
     private final ClassroomRepository classroomRepository;
+    private final LessonAddRequestMapper lessonAddRequestMapper;
+    private final LessonUpdateRequestMapper lessonUpdateRequestMapper;
 
     @Override
     public void add(LessonAddRequest addRequest) {
@@ -57,21 +61,16 @@ public class LessonServiceImpl implements LessonService {
         Teacher teacher = teacherRepository.findById(addRequest.getTeacherId())
                 .orElseThrow(() -> new LessonNotFoundException("Teacher is not found"));
 
-        lessonRepository.save(Lesson.builder()
-                .withTeacher(teacher)
-                .withGroup(group)
-                .withDate(addRequest.getDate())
-                .withClassroom(classroom)
-                .withCourse(course)
-                .build());
+        lessonRepository.save(lessonAddRequestMapper.convertToEntity(addRequest, course, group, teacher, classroom));
     }
 
     @Override
     public void update(LessonUpdateRequest updateRequest) {
         log.debug("Updating lesson with request {}", updateRequest);
 
-        Lesson lesson = lessonRepository.findById(updateRequest.getId())
-                .orElseThrow(() -> new LessonNotFoundException(String.format(LESSON_NOT_FOUND, updateRequest.getId())));
+        if (!lessonRepository.findById(updateRequest.getId()).isPresent()) {
+            throw new LessonNotFoundException(String.format(LESSON_NOT_FOUND, updateRequest.getId()));
+        }
 
         Course course = courseRepository.findById(updateRequest.getCourseId())
                 .orElseThrow(() -> new LessonNotFoundException("Course is not found"));
@@ -85,14 +84,8 @@ public class LessonServiceImpl implements LessonService {
         Teacher teacher = teacherRepository.findById(updateRequest.getTeacherId())
                 .orElseThrow(() -> new LessonNotFoundException("Teacher is not found"));
 
-        lessonRepository.save(Lesson.builder()
-                .withId(lesson.getId())
-                .withTeacher(teacher)
-                .withGroup(group)
-                .withDate(updateRequest.getDate())
-                .withClassroom(classroom)
-                .withCourse(course)
-                .build());
+        lessonRepository.save(lessonUpdateRequestMapper.convertToEntity(updateRequest, course, group, teacher,
+                classroom));
     }
 
     @Override

@@ -1,23 +1,22 @@
 package com.att.mapper.teacher;
 
-import com.att.request.person.teacher.TeacherUpdateRequest;
 import com.att.entity.AcademicRank;
 import com.att.entity.ScienceDegree;
 import com.att.entity.Teacher;
-import org.springframework.stereotype.Component;
+import com.att.request.person.teacher.TeacherUpdateRequest;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-@Component
-public class TeacherUpdateRequestMapper {
-    public Teacher convertToEntity(TeacherUpdateRequest updateRequest, AcademicRank academicRank,
-                                   ScienceDegree scienceDegree) {
-        return Teacher.builder()
-                .withId(updateRequest.getId())
-                .withFirstName(updateRequest.getFirstName())
-                .withLastName(updateRequest.getLastName())
-                .withEmail(updateRequest.getEmail())
-                .withAcademicRank(academicRank)
-                .withScienceDegree(scienceDegree)
-                .withLinkedin(updateRequest.getLinkedin())
-                .build();
-    }
+@Mapper(componentModel = "spring")
+public interface TeacherUpdateRequestMapper {
+    @Mapping(target = "withId", source = "request.id")
+    @Mapping(target = "withPassword", source = "password")
+    @Mapping(target = "withFirstName", source = "request.firstName")
+    @Mapping(target = "withLastName", source = "request.lastName")
+    @Mapping(target = "withEmail", source = "request.email")
+    @Mapping(target = "withAcademicRank", source = "academicRank")
+    @Mapping(target = "withScienceDegree", source = "scienceDegree")
+    @Mapping(target = "withLinkedin", source = "request.linkedin")
+    Teacher convertToEntity(TeacherUpdateRequest request, AcademicRank academicRank, ScienceDegree scienceDegree,
+                            String password);
 }

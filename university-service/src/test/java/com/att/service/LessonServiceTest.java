@@ -15,6 +15,8 @@ import com.att.entity.Lesson;
 import com.att.entity.ScienceDegree;
 import com.att.entity.Teacher;
 import com.att.exception.dao.LessonNotFoundException;
+import com.att.mapper.lesson.LessonAddRequestMapper;
+import com.att.mapper.lesson.LessonUpdateRequestMapper;
 import com.att.request.lesson.LessonAddRequest;
 import com.att.request.lesson.LessonUpdateRequest;
 import com.att.service.impl.LessonServiceImpl;
@@ -59,6 +61,12 @@ class LessonServiceTest {
     @Mock
     private ClassroomRepository classroomRepository;
 
+    @Mock
+    private LessonAddRequestMapper lessonAddRequestMapper;
+
+    @Mock
+    private LessonUpdateRequestMapper lessonUpdateRequestMapper;
+
     @InjectMocks
     private LessonServiceImpl lessonService;
 
@@ -66,6 +74,7 @@ class LessonServiceTest {
     void addShouldNotThrowExceptionIfRequestIsValid() {
         final LessonAddRequest lessonAddRequest = generateAddRequest();
 
+        final Lesson lesson = generateLesson();
         final Course course = generateCourse();
         final Teacher teacher = generateTeacher();
         final Classroom classroom = generateClassroom();
@@ -75,6 +84,8 @@ class LessonServiceTest {
         when(teacherRepository.findById(anyInt())).thenReturn(Optional.of(teacher));
         when(groupRepository.findById(anyInt())).thenReturn(Optional.of(group));
         when(classroomRepository.findById(anyInt())).thenReturn(Optional.of(classroom));
+        when(lessonAddRequestMapper.convertToEntity(lessonAddRequest, course, group, teacher, classroom))
+                .thenReturn(lesson);
 
         lessonService.add(lessonAddRequest);
 
@@ -156,6 +167,8 @@ class LessonServiceTest {
         when(teacherRepository.findById(anyInt())).thenReturn(Optional.of(teacher));
         when(groupRepository.findById(anyInt())).thenReturn(Optional.of(group));
         when(classroomRepository.findById(anyInt())).thenReturn(Optional.of(classroom));
+        when(lessonUpdateRequestMapper.convertToEntity(lessonUpdateRequest, course, group, teacher, classroom))
+                .thenReturn(lesson);
 
         lessonService.update(lessonUpdateRequest);
 

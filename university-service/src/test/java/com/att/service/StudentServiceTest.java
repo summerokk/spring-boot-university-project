@@ -5,7 +5,6 @@ import com.att.dao.StudentRepository;
 import com.att.entity.Faculty;
 import com.att.entity.Group;
 import com.att.entity.Student;
-import com.att.exception.dao.GroupNotFoundException;
 import com.att.exception.dao.PersonNotFoundException;
 import com.att.mapper.student.StudentRegisterRequestMapper;
 import com.att.mapper.student.StudentUpdateRequestMapper;
@@ -148,35 +147,6 @@ class StudentServiceTest {
         when(studentRepository.findById(studentId)).thenReturn(Optional.empty());
 
         assertThrows(PersonNotFoundException.class, () -> studentService.update(student));
-
-        verify(studentRepository).findById(anyInt());
-        verifyNoMoreInteractions(studentRepository);
-    }
-
-    @Test
-    void updateShouldThrowExceptionIfGroupIsNotFound() {
-        Integer studentId = 1;
-
-        final StudentUpdateRequest updateRequest = StudentUpdateRequest.builder()
-                .withId(studentId)
-                .withFirstName("name")
-                .withLastName("last")
-                .withEmail("email")
-                .withGroupId(1)
-                .build();
-
-        final Student student = Student.builder()
-                .withId(studentId)
-                .withFirstName("name")
-                .withLastName("last")
-                .withEmail("email")
-                .withPassword("123456789")
-                .build();
-
-        when(studentRepository.findById(studentId)).thenReturn(Optional.of(student));
-        when(groupRepository.findById(anyInt())).thenReturn(Optional.empty());
-
-        assertThrows(GroupNotFoundException.class, () -> studentService.update(updateRequest));
 
         verify(studentRepository).findById(anyInt());
         verifyNoMoreInteractions(studentRepository);

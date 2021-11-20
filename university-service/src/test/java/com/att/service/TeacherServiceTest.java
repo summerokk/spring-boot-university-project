@@ -166,7 +166,7 @@ class TeacherServiceTest {
         when(scienceDegreeRepository.findById(anyInt())).thenReturn(Optional.of(generateDegree()));
         when(academicRankRepository.findById(anyInt())).thenReturn(Optional.of(generateRank()));
         when(updateRequestMapper.convertToEntity(
-                any(TeacherUpdateRequest.class), any(AcademicRank.class), any(ScienceDegree.class))
+                any(TeacherUpdateRequest.class), any(AcademicRank.class), any(ScienceDegree.class), anyString())
         ).thenReturn(teacher);
 
         teacherService.update(teacherUpdateRequest);

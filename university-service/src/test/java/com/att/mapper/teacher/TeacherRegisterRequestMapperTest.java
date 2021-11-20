@@ -5,12 +5,13 @@ import com.att.entity.ScienceDegree;
 import com.att.entity.Teacher;
 import com.att.request.person.teacher.TeacherRegisterRequest;
 import org.junit.jupiter.api.Test;
+import org.mapstruct.factory.Mappers;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TeacherRegisterRequestMapperTest {
-    private final TeacherRegisterRequestMapper requestMapper = new TeacherRegisterRequestMapper();
+    private final TeacherRegisterRequestMapper requestMapper = Mappers.getMapper(TeacherRegisterRequestMapper.class);
 
     @Test
     void convertToEntityShouldReturnEntityWhenRequestContainsAllFields() {
